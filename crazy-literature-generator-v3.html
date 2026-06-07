@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>发疯文学生成器｜炸裂版 v3</title>
+<style>
+:root {
+  --black:#111; --white:#fff; --hot:#ff2d55; --purple:#7c3aed;
+  --cyan:#00e5ff; --yellow:#ffe600; --green:#39ff14; --orange:#ff7a00;
+}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  margin:0; min-height:100vh; overflow-x:hidden; color:var(--black);
+  font-family:"Arial Black","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 8% 10%, rgba(255,230,0,.95) 0 8%, transparent 9%),
+    radial-gradient(circle at 92% 12%, rgba(0,229,255,.9) 0 10%, transparent 11%),
+    radial-gradient(circle at 18% 88%, rgba(57,255,20,.75) 0 10%, transparent 11%),
+    radial-gradient(circle at 78% 74%, rgba(255,122,0,.7) 0 12%, transparent 13%),
+    linear-gradient(135deg,#ff2d55 0%,#7c3aed 48%,#00e5ff 100%);
+}
+body::before {
+  content:""; position:fixed; inset:0; pointer-events:none; opacity:.13;
+  background-image:linear-gradient(45deg,rgba(0,0,0,.9) 25%,transparent 25%),linear-gradient(-45deg,rgba(0,0,0,.9) 25%,transparent 25%);
+  background-size:8px 8px; mix-blend-mode:multiply; z-index:0;
+}
+body::after {
+  content:"啊啊啊啊啊 / 救命 / 别管我 / 已黑化 / 脑子冒烟 / 在线崩溃";
+  position:fixed; left:-40px; top:42%; width:720px; transform:rotate(-12deg);
+  font-size:34px; font-weight:900; letter-spacing:2px; color:rgba(255,255,255,.12);
+  text-shadow:2px 2px 0 rgba(0,0,0,.15); pointer-events:none; z-index:0; white-space:nowrap;
+}
+.bg-doodle { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.bg-doodle span {
+  position:absolute; display:inline-flex; align-items:center; justify-content:center;
+  border:3px solid #111; box-shadow:5px 5px 0 #111; font-weight:900;
+  transform:rotate(var(--rot)); opacity:.9; animation:bgFloat 4s ease-in-out infinite alternate;
+}
+.d1{left:18px;top:330px;background:#ffe600;border-radius:999px;padding:8px 14px;--rot:12deg}
+.d2{right:18px;top:405px;background:#fff;border-radius:16px;padding:10px 13px;--rot:-10deg;animation-delay:.5s}
+.d3{left:20px;top:615px;background:#00e5ff;border-radius:18px;padding:10px 14px;--rot:-7deg;animation-delay:.9s}
+.d4{right:12px;top:655px;background:#39ff14;border-radius:999px;padding:8px 14px;--rot:9deg;animation-delay:1.2s}
+.d5{left:50%;top:255px;background:#ff7a00;color:#fff;border-radius:16px;padding:8px 12px;--rot:5deg;animation-delay:.2s}
+.d6{left:60%;bottom:30px;background:#fff;border-radius:999px;padding:8px 14px;--rot:-6deg;animation-delay:1.4s}
+.d7{left:4px;top:465px;background:#ff2d55;color:#fff;border-radius:999px;padding:7px 12px;--rot:-14deg;animation-delay:.7s}
+.d8{right:4px;top:545px;background:#ffe600;border-radius:14px;padding:8px 12px;--rot:15deg;animation-delay:1s}
+.d9{left:40%;top:720px;background:#fff;border-radius:15px;padding:8px 12px;--rot:-9deg;animation-delay:1.5s}
+.d10{right:24%;top:160px;background:#39ff14;border-radius:999px;padding:6px 10px;--rot:10deg;animation-delay:1.8s}
+@keyframes bgFloat { from{translate:0 0} to{translate:0 -12px} }
+
+.app { width:min(100%,430px); margin:0 auto; min-height:100vh; position:relative; z-index:1; padding:22px 20px 34px; }
+.sticker {
+  position:absolute; z-index:2; display:inline-flex; align-items:center; justify-content:center; padding:8px 12px;
+  background:#fff; border:3px solid #111; border-radius:999px; box-shadow:4px 4px 0 #111;
+  font-size:13px; font-weight:900; transform:rotate(-7deg); animation:floaty 2.2s ease-in-out infinite alternate;
+}
+.s1{top:18px;right:18px;background:#ffe600} .s2{top:118px;left:9px;background:#39ff14;transform:rotate(8deg);animation-delay:.2s}
+.s3{top:210px;right:8px;background:#00e5ff;transform:rotate(-11deg);animation-delay:.45s} .s4{bottom:88px;left:10px;background:#ff2d55;color:#fff;transform:rotate(10deg);animation-delay:.65s}
+@keyframes floaty { from{translate:0 0} to{translate:0 -8px} }
+.hero { padding-top:32px; margin-bottom:22px; }
+.status { display:inline-block; background:#111; color:#ffe600; border:2px solid #ffe600; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:900; transform:rotate(-2deg); box-shadow:4px 4px 0 rgba(0,0,0,.4); }
+h1 { margin:18px 0 10px; font-size:48px; line-height:.95; color:#fff; letter-spacing:-2px; text-shadow:3px 3px 0 #111,6px 6px 0 #ffe600,9px 9px 0 #ff2d55; -webkit-text-stroke:2px #111; transform:rotate(-3deg); animation:titlePop 1.1s cubic-bezier(.2,1.5,.2,1) both; }
+@keyframes titlePop { 0%{opacity:0;transform:scale(.6) rotate(-8deg)} 65%{opacity:1;transform:scale(1.08) rotate(-2deg)} 100%{transform:scale(1) rotate(-3deg)} }
+.sub { display:inline-block; background:#ffe600; border:3px solid #111; box-shadow:5px 5px 0 #111; padding:9px 12px; border-radius:14px; font-size:15px; font-weight:900; transform:rotate(2deg); }
+.mood-meter { margin-top:18px; width:100%; background:#fff; border:3px solid #111; border-radius:999px; box-shadow:5px 5px 0 #111; padding:5px; }
+.mood-bar { height:18px; width:68%; border-radius:999px; background:linear-gradient(90deg,#39ff14,#ffe600,#ff2d55); border:2px solid #111; transition:.35s cubic-bezier(.2,1.4,.2,1); }
+.mood-text { margin-top:8px; font-size:12px; color:#fff; font-weight:900; text-shadow:2px 2px 0 #111; }
+.section-title { margin:26px 0 12px; color:#fff; font-size:17px; font-weight:900; text-shadow:3px 3px 0 #111; letter-spacing:.5px; }
+.category-wrap { display:flex; gap:10px; flex-wrap:wrap; }
+.cat { border:3px solid #111; background:#fff; color:#111; border-radius:15px; box-shadow:4px 4px 0 #111; padding:10px 12px; font-size:14px; font-weight:900; cursor:pointer; transform:rotate(var(--r)); transition:.16s ease; }
+.cat.active { background:#ffe600; box-shadow:5px 5px 0 #ff2d55; transform:scale(1.04) rotate(var(--r)); }
+.cat:active,button:active { transform:translate(4px,4px) scale(.98) rotate(var(--r,0deg)); box-shadow:1px 1px 0 #111!important; }
+
+.card-shell { position:relative; margin-top:26px; }
+.card-label { position:absolute; left:18px; top:-17px; z-index:3; background:#ff2d55; color:#fff; border:3px solid #111; border-radius:999px; padding:8px 14px; box-shadow:4px 4px 0 #111; font-size:13px; font-weight:900; transform:rotate(-5deg); }
+.emoji-badge { position:absolute; right:14px; top:-22px; z-index:3; width:54px; height:54px; display:grid; place-items:center; background:#00e5ff; border:3px solid #111; border-radius:18px; box-shadow:5px 5px 0 #111; font-size:31px; transform:rotate(10deg); }
+.emoji-badge.spin { animation:spinPop .42s ease both; }
+@keyframes spinPop { 0%{transform:rotate(-20deg) scale(.5)} 70%{transform:rotate(18deg) scale(1.18)} 100%{transform:rotate(10deg) scale(1)} }
+.mad-card { min-height:284px; background:#fff; border:4px solid #111; border-radius:30px; padding:42px 22px 24px; box-shadow:9px 9px 0 #111; position:relative; overflow:hidden; }
+.mad-card::before { content:"CRAZY CRAZY CRAZY"; position:absolute; right:-55px; top:44px; transform:rotate(90deg); font-size:18px; color:rgba(255,45,85,.12); font-weight:900; letter-spacing:2px; }
+.mad-card::after { content:"!!!"; position:absolute; left:12px; bottom:-20px; font-size:96px; line-height:1; color:rgba(255,230,0,.55); -webkit-text-stroke:2px rgba(0,0,0,.15); font-weight:900; }
+.mad-text { position:relative; z-index:2; font-size:26px; line-height:1.36; font-weight:900; white-space:pre-line; letter-spacing:-.5px; }
+.mad-text .hot { background:#ffe600; color:#ff2d55; padding:0 4px; border:2px solid #111; box-shadow:3px 3px 0 #111; display:inline-block; transform:rotate(-2deg); }
+.tools { margin-top:22px; display:grid; gap:12px; }
+.primary { width:100%; height:62px; border:4px solid #111; border-radius:20px; background:#ffe600; color:#111; box-shadow:7px 7px 0 #111; font-size:21px; font-weight:900; cursor:pointer; position:relative; overflow:hidden; }
+.primary::after { content:""; position:absolute; inset:-40%; background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.7),transparent 65%); transform:translateX(-120%) rotate(8deg); }
+.primary:hover::after { animation:shine .75s ease; } @keyframes shine { to{transform:translateX(120%) rotate(8deg)} }
+.secondary-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.secondary { min-height:50px; border:3px solid #111; border-radius:16px; background:#fff; color:#111; box-shadow:5px 5px 0 #111; font-size:15px; font-weight:900; cursor:pointer; }
+.share-stage { margin-top:24px; display:none; animation:rise .28s ease both; } .share-stage.show{display:block}
+@keyframes rise { from{opacity:0;transform:translateY(24px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+.poster-title{color:#fff;font-size:18px;font-weight:900;text-shadow:3px 3px 0 #111;margin:0 0 12px}
+.poster{width:100%;min-height:520px;border:4px solid #111;border-radius:28px;background:radial-gradient(circle at 20% 15%,#ffe600 0 14%,transparent 15%),radial-gradient(circle at 86% 20%,#00e5ff 0 16%,transparent 17%),linear-gradient(145deg,#ff2d55,#7c3aed 58%,#111);box-shadow:9px 9px 0 #111;padding:22px;position:relative;overflow:hidden}
+.poster::before{content:"疯疯文学研究所";position:absolute;right:-42px;top:230px;transform:rotate(90deg);color:rgba(255,255,255,.18);font-size:18px;font-weight:900;letter-spacing:3px}
+.poster-head{color:#fff;font-size:32px;line-height:1;font-weight:900;-webkit-text-stroke:1.5px #111;text-shadow:4px 4px 0 #ffe600;transform:rotate(-3deg)}
+.poster-body{margin-top:36px;background:#fff;border:4px solid #111;border-radius:24px;box-shadow:7px 7px 0 #111;min-height:270px;padding:24px 18px;font-size:28px;line-height:1.35;font-weight:900;white-space:pre-line}
+.poster-foot{margin-top:22px;display:flex;gap:14px;align-items:center}
+.qr{width:78px;height:78px;border:4px solid #111;background:linear-gradient(90deg,#000 10px,transparent 10px 20px,#000 20px 30px,transparent 30px),linear-gradient(#000 10px,transparent 10px 20px,#000 20px 30px,transparent 30px),#fff;background-size:30px 30px;box-shadow:5px 5px 0 #111}
+.poster-tip{flex:1;background:#ffe600;border:3px solid #111;border-radius:16px;box-shadow:5px 5px 0 #111;padding:10px;font-size:14px;line-height:1.35;font-weight:900;transform:rotate(2deg)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(30px);opacity:0;background:#111;color:#ffe600;border:3px solid #ffe600;box-shadow:5px 5px 0 #000;border-radius:999px;padding:10px 15px;font-size:14px;font-weight:900;z-index:20;transition:.2s ease;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.shake{animation:shake .24s linear} @keyframes shake{0%{transform:translateX(0) rotate(0deg)}25%{transform:translateX(-6px) rotate(-1deg)}50%{transform:translateX(6px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-1deg)}100%{transform:translateX(0) rotate(0deg)}}
+.burst{position:fixed;z-index:30;pointer-events:none;font-size:21px;font-weight:900;color:#ffe600;-webkit-text-stroke:1.4px #111;animation:burstFly 1.25s ease-out forwards}
+@keyframes burstFly{from{opacity:1;transform:translate(-50%,-50%) scale(.55) rotate(0deg)}to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25) rotate(var(--rot))}}
+.screen-flash{position:fixed;inset:0;z-index:25;background:rgba(255,230,0,.28);pointer-events:none;opacity:0} .screen-flash.show{animation:flash .28s ease-out} @keyframes flash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+.flying-sticker{position:fixed;left:50%;top:50%;z-index:28;pointer-events:none;padding:7px 11px;border:3px solid #111;border-radius:999px;background:#fff;box-shadow:4px 4px 0 #111;font-weight:900;font-size:13px;animation:stickerFly 1.1s ease-out forwards}
+@keyframes stickerFly{from{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(-20deg)}20%{opacity:1}to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.15) rotate(var(--rot))}}
+@media(max-width:360px){h1{font-size:42px}.mad-text{font-size:23px}.poster-body{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="screen-flash" id="screenFlash"></div>
+<div class="bg-doodle">
+  <span class="d1">啊啊啊</span><span class="d2">救命</span><span class="d3">禁止内耗</span><span class="d4">别管</span>
+  <span class="d5">情绪过载</span><span class="d6">已疯</span><span class="d7">重开？</span><span class="d8">脑子冒烟</span>
+  <span class="d9">别催</span><span class="d10">ON</span>
+</div>
+<main class="app">
+  <div class="sticker s1">ON FIRE</div><div class="sticker s2">救命</div><div class="sticker s3">别管我</div><div class="sticker s4">已疯</div>
+  <section class="hero">
+    <div class="status" id="statusText">今日精神状态：非常不稳定</div>
+    <h1>发疯文学<br>生成器</h1>
+    <div class="sub">今天不发疯，明天就发霉。</div>
+    <div class="mood-meter"><div class="mood-bar" id="moodBar"></div></div>
+    <div class="mood-text" id="moodText">崩溃值：68%｜还能抢救一下</div>
+  </section>
+  <section>
+    <div class="section-title">选择你的崩溃频道</div>
+    <div class="category-wrap">
+      <button class="cat active" style="--r:-2deg" data-type="work">上班发疯｜已黑化</button>
+      <button class="cat" style="--r:1deg" data-type="study">学习发疯｜脑子冒烟</button>
+      <button class="cat" style="--r:-1deg" data-type="night">熬夜发疯｜灵魂出走</button>
+      <button class="cat" style="--r:2deg" data-type="worker">打工人发疯｜工牌成精</button>
+      <button class="cat" style="--r:-2deg" data-type="love">恋爱发疯｜心脏报警</button>
+    </div>
+  </section>
+  <section class="card-shell">
+    <div class="card-label" id="cardLabel">当前精神状态</div><div class="emoji-badge" id="emojiBadge">🤯</div>
+    <div class="mad-card" id="madCard"><div class="mad-text" id="madText">点击下面按钮，<span class="hot">开始合法发疯</span>。</div></div>
+  </section>
+  <section class="tools">
+    <button class="primary" id="generateBtn">💥 开始发疯</button>
+    <div class="secondary-grid">
+      <button class="secondary" id="againBtn">🔄 再疯一次</button>
+      <button class="secondary" id="copyBtn">📋 复制发疯</button>
+      <button class="secondary" id="shareBtn">📸 生成疯图</button>
+      <button class="secondary" id="chaosBtn">⚡ 随机崩溃</button>
+    </div>
+  </section>
+  <section class="share-stage" id="shareStage">
+    <p class="poster-title">截图分享页｜小红书传播图</p>
+    <div class="poster">
+      <div class="poster-head">今日发疯文学</div>
+      <div class="poster-body" id="posterBody">点击“生成疯图”，这里会出现你的发疯海报。</div>
+      <div class="poster-foot"><div class="qr"></div><div class="poster-tip">扫码生成你的今日发疯文学<br>转发给同样快疯的人</div></div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast">已复制，继续发疯！</div>
+<script>
+const library = {"work": {"label": "上班发疯｜已黑化", "emoji": ["🤯", "💼", "🔥", "😵‍💫", "🧨", "🫠", "📎", "☠️"], "status": ["今日精神状态：工位起火", "今日精神状态：老板别看", "今日精神状态：灵魂旷工", "今日精神状态：会议过敏", "今日精神状态：表格中毒"], "lines": ["我不是来上班的，\n我是来见证<span class='hot'>人类忍耐力极限</span>的。\n这个班我先上着，\n但我的灵魂已经递交离职申请了。", "老板说要有主人翁精神，\n我懂了，\n现在公司是我的，\n所以我宣布：<span class='hot'>全体下班</span>。", "我每天都准时到公司，\n不是因为我自律，\n是因为<span class='hot'>贫穷</span>比闹钟更响。", "这个会开得很好，\n好到我的灵魂已经离开工位，\n在天花板上写：<span class='hot'>别叫我</span>。", "电脑开机了，\n我的人也开机了，\n但是我的精神系统显示：<span class='hot'>未响应</span>。", "我对工作没有意见，\n我只是对每天都要工作这件事\n产生了强烈的<span class='hot'>宇宙级疑问</span>。", "同事问我怎么了，\n我说没事。\n其实我的内心正在开十万个窗口，\n每个窗口都写着：<span class='hot'>想下班</span>。", "我今天很稳定，\n稳定地想逃跑，\n稳定地想暴富，\n稳定地对着表格<span class='hot'>发出尖叫</span>。", "上班第一小时，\n我已经把今天的耐心用完了。\n剩下七小时靠<span class='hot'>表情管理</span>续命。", "我不是情绪不好，\n我是对工位产生了\n非常具体的<span class='hot'>逃离冲动</span>。", "每次打开工作群，\n我的手机都像在提醒我：\n你的快乐余额<span class='hot'>不足</span>。", "我和老板之间最稳定的关系，\n就是他画饼，\n我假装<span class='hot'>吃饱了</span>。", "这不是早会，\n这是大型人类清醒度\n<span class='hot'>消耗仪式</span>。", "我在工位上坐得很端正，\n但我的灵魂已经在楼下\n<span class='hot'>骑共享单车跑路</span>。", "我现在不是困，\n我是被工作抽走了\n<span class='hot'>人类电量</span>。", "邮件一封接一封，\n像命运往我脸上\n疯狂贴<span class='hot'>便利贴</span>。", "我今天的目标很简单：\n不崩溃，\n不暴走，\n不对 Excel <span class='hot'>说脏话</span>。", "领导说辛苦一下，\n我笑了。\n我已经辛苦成了\n<span class='hot'>人形压缩包</span>。", "我在公司最大的成长，\n是学会了把尖叫\n压缩成一句：<span class='hot'>好的</span>。", "这份工作让我明白，\n人类的极限不是体力，\n是<span class='hot'>装没事</span>。", "上班像开盲盒，\n你永远不知道今天会抽到\n哪个<span class='hot'>离谱任务</span>。", "我不想摸鱼，\n我只是需要确认自己\n还属于<span class='hot'>自然界</span>。", "老板让我积极一点，\n我已经很积极了，\n积极地想<span class='hot'>下班</span>。", "我对工作充满热情，\n主要是火气。\n火很旺，\n情很少。", "今日办公状态：\n身体在工位，\n脑子在缓存，\n灵魂在<span class='hot'>排队离职</span>。", "我不是效率低，\n我是大脑正在对任务进行\n<span class='hot'>道德审判</span>。", "我和打印机一样，\n表面正常运行，\n内心一直<span class='hot'>卡纸</span>。", "如果沉默有声音，\n我的工位现在应该正在\n<span class='hot'>报警</span>。", "我不是想请假，\n我是觉得我的灵魂\n需要一次<span class='hot'>系统升级</span>。", "今天的我很适合工作，\n适合把工作放一边，\n先研究一下<span class='hot'>人生意义</span>。"]}, "study": {"label": "学习发疯｜脑子冒烟", "emoji": ["📚", "🧠", "😭", "⚡", "🫨", "🧃", "✏️", "💀"], "status": ["今日精神状态：知识反弹", "今日精神状态：脑子冒烟", "今日精神状态：题目别追", "今日精神状态：书本压迫", "今日精神状态：答案出逃"], "lines": ["知识没有进脑子，\n但我的眼神已经<span class='hot'>失去高光</span>。\n书是翻开了，\n脑子也关机了。", "我和课本的关系很稳定：\n它认识我，\n我不认识它，\n我们彼此<span class='hot'>保持距离</span>。", "题目问我为什么，\n我也想问题目为什么，\n大家都很痛苦，\n不如一起<span class='hot'>沉默</span>。", "今天学习了吗？\n学了。\n学到了什么？\n学到了人类是有<span class='hot'>极限</span>的。", "我把书翻开，\n书把我合上。\n这不是学习，\n这是我和知识的<span class='hot'>拉扯文学</span>。", "老师说这题很简单，\n我听完很感动，\n原来简单也可以这么<span class='hot'>不认识我</span>。", "我背单词的速度，\n赶不上我忘单词的速度。\n这是大脑在<span class='hot'>反向创业</span>。", "卷子发下来那一刻，\n我感觉它不是纸，\n是命运递给我的<span class='hot'>挑战书</span>。", "我学习的时候很专注，\n专注地看着同一行字\n反复<span class='hot'>失忆</span>。", "知识像外卖，\n显示已送达，\n但我的脑子门口<span class='hot'>没人收</span>。", "我不是不努力，\n我是努力和结果之间\n隔着一条<span class='hot'>银河</span>。", "题目长得很礼貌，\n但内容非常不尊重我。\n我宣布它<span class='hot'>越界了</span>。", "复习计划写得很好，\n执行起来像科幻片，\n主打一个<span class='hot'>不存在</span>。", "我看书的样子很认真，\n但脑子已经切到了\n<span class='hot'>省电模式</span>。", "考试不是检验知识，\n是检验我能不能在绝望里\n<span class='hot'>保持握笔</span>。", "我和答案只有一步之遥，\n这一步叫：\n<span class='hot'>完全不会</span>。", "今天的知识点很活泼，\n它们在我的脑子门口\n<span class='hot'>掉头就走</span>。", "我背了，\n我忘了，\n我又背了，\n我又忘了。\n这叫<span class='hot'>循环经济</span>。", "老师讲得很清楚，\n我也听得很清楚，\n只是听完以后\n<span class='hot'>清空了</span>。", "我不是学不会，\n我是知识和我\n暂时没有建立<span class='hot'>外交关系</span>。", "这道题我不会，\n但它也别太得意，\n我至少会<span class='hot'>跳过</span>。", "学习使我快乐，\n这句话应该是\n哪个平行宇宙传来的<span class='hot'>谣言</span>。", "我打开笔记本，\n笔记本打开我，\n发现里面全是<span class='hot'>空白灵魂</span>。", "知识在前面跑，\n我在后面追，\n追着追着我开始怀疑\n<span class='hot'>人生路线</span>。", "今天的我很适合学习，\n适合学习如何接受\n<span class='hot'>自己学不进去</span>。", "我写作业不是写作业，\n是和时间进行\n<span class='hot'>殊死搏斗</span>。", "我感觉脑子里有东西，\n仔细一看，\n是<span class='hot'>加载动画</span>。", "书上每个字我都认识，\n连在一起以后，\n它们选择了<span class='hot'>背叛我</span>。", "复习到最后，\n我已经不追求会了，\n我追求的是\n<span class='hot'>情绪稳定</span>。", "我不是放弃，\n我是和知识暂时达成\n<span class='hot'>停火协议</span>。"]}, "night": {"label": "熬夜发疯｜灵魂出走", "emoji": ["🌙", "👁️", "🫠", "🛸", "🦉", "🧿", "🛌", "📱"], "status": ["今日精神状态：凌晨加载中", "今日精神状态：天花板好友", "今日精神状态：灵魂夜游", "今日精神状态：睡意断联", "今日精神状态：月亮同事"], "lines": ["凌晨三点，\n我和天花板达成了<span class='hot'>精神共振</span>。\n不是我不睡，\n是我的脑子在开年会。", "夜深了，\n别人睡了，\n我的精神状态开始<span class='hot'>加载失败</span>。", "我本来只是想刷五分钟，\n结果手机说：\n欢迎来到<span class='hot'>凌晨宇宙</span>。", "困是真的困，\n清醒也是真的清醒，\n我现在像一杯忘记关机的<span class='hot'>奶茶</span>。", "我和睡眠分手了，\n不是不爱，\n是它总是在我最清醒的时候<span class='hot'>迟到</span>。", "凌晨一点我说马上睡，\n凌晨两点我说再看一个，\n凌晨三点研究人生为什么<span class='hot'>没有进度条</span>。", "我的眼睛说累了，\n我的脑子说开派对，\n我的身体说你们两个<span class='hot'>别打了</span>。", "现在不是夜晚，\n是精神自由活动时间。\n天花板成为我的<span class='hot'>人生导师</span>。", "我不是熬夜，\n我是被夜晚选中的\n<span class='hot'>精神代言人</span>。", "手机电量 12%，\n我的人生电量 3%，\n但我还在刷，\n这叫<span class='hot'>不服输</span>。", "睡觉这个项目，\n我每天都想启动，\n每天都因为脑子开会\n<span class='hot'>延期</span>。", "凌晨的我最清醒，\n清醒地知道明天一定会\n<span class='hot'>后悔</span>。", "我闭上眼睛，\n脑子开始播放\n今日尴尬合集<span class='hot'>加长版</span>。", "不是我不想睡，\n是我的大脑在夜间\n偷偷<span class='hot'>装修</span>。", "夜深人静，\n只有我的手机、我的眼袋、\n和我的精神状态<span class='hot'>三方会谈</span>。", "我明明躺下了，\n但我的灵魂还在互联网里\n<span class='hot'>滑跪冲浪</span>。", "凌晨两点的我，\n像一台没有关机键的\n<span class='hot'>破风扇</span>。", "我准备睡了，\n然后突然想起一个问题，\n然后人生开始<span class='hot'>无限展开</span>。", "睡眠说它来了，\n我说等一下，\n然后它转身就走，\n非常<span class='hot'>有原则</span>。", "我和夜晚的关系，\n已经从偶遇发展成了\n<span class='hot'>长期合作</span>。", "白天我像个人，\n晚上我像一个会刷手机的\n<span class='hot'>问号</span>。", "我不是失眠，\n我是和清醒签了\n<span class='hot'>不平等条约</span>。", "凌晨三点的空气，\n充满了自由，\n也充满了<span class='hot'>第二天的报应</span>。", "我想睡觉，\n但短视频想让我\n再见识一下<span class='hot'>世界</span>。", "困意在门口敲门，\n我没听见，\n因为手机正在给我播放\n<span class='hot'>命运推荐</span>。", "我的作息不是乱，\n是拥有自己的\n<span class='hot'>时区主权</span>。", "我和枕头面对面，\n但睡眠站在远方，\n像一个不回消息的<span class='hot'>前任</span>。", "夜晚把我变成哲学家，\n白天把我变成\n<span class='hot'>废电池</span>。", "我不是晚睡，\n我是把今天强行\n<span class='hot'>续费</span>。", "当我说再玩五分钟，\n那不是时间单位，\n那是一种<span class='hot'>人生幻想</span>。"]}, "worker": {"label": "打工人发疯｜工牌成精", "emoji": ["🧾", "🏃‍♂️", "💸", "😵", "🥲", "🚇", "🍱", "📉"], "status": ["今日精神状态：工牌成精", "今日精神状态：钱包空响", "今日精神状态：地铁压缩饼干", "今日精神状态：外卖续命", "今日精神状态：工资失踪"], "lines": ["工资没涨，\n脾气涨了。\n经验没涨，\n怨气涨了。\n我每天都在上班，\n但我每天都不知道<span class='hot'>为什么</span>。", "我的工牌不是工牌，\n是现代社会给我的<span class='hot'>电子项圈</span>。", "地铁把我运到公司，\n公司把我运到崩溃，\n晚上再把我运回床上，\n第二天<span class='hot'>循环播放</span>。", "打工人的一天：\n早上想离职，\n中午想暴富，\n晚上想重开，\n睡前想想还是<span class='hot'>明天再说</span>。", "我不是没有梦想，\n我的梦想正在被房租、外卖和通勤\n联合<span class='hot'>精准打击</span>。", "老板画饼的时候，\n我点头如捣蒜。\n不是我信了，\n是我饿了，什么饼都想<span class='hot'>尝两口</span>。", "打工打到最后，\n我已经没有情绪了，\n只有工牌在胸前替我<span class='hot'>闪烁求救</span>。", "我每天都在努力，\n努力保持不崩溃，\n努力让工资卡别太<span class='hot'>安静</span>。", "我的工资像路过，\n刚到账就和房租、外卖\n完成了<span class='hot'>交接仪式</span>。", "打工人的快乐很简单：\n下班、发工资、休假。\n可惜这三个词经常<span class='hot'>不在场</span>。", "我不是在通勤，\n我是被城市流水线\n精准<span class='hot'>投递</span>。", "每个月最富有的时候，\n是工资到账那三分钟。\n三分钟后，\n世界恢复<span class='hot'>贫穷本色</span>。", "我的工位很小，\n但装得下我的电脑、杯子，\n和一整片<span class='hot'>精神废墟</span>。", "早高峰不是交通，\n是把打工人压缩成\n<span class='hot'>社会罐头</span>。", "我不是摆烂，\n我是用最低能耗\n维持人类形态。", "打工让我成熟，\n成熟到每天都能冷静地\n<span class='hot'>想辞职</span>。", "我的钱包很安静，\n安静得像在进行\n<span class='hot'>默哀</span>。", "上班路上我很坚定，\n坚定地想知道自己\n到底欠了生活<span class='hot'>什么</span>。", "工作经验增加了，\n快乐经验清零了，\n这就是成年人的<span class='hot'>版本更新</span>。", "我每天都在赚钱，\n但钱每天都在证明\n它只是来我这里<span class='hot'>旅游</span>。", "打工打久了，\n我看见 Excel 都觉得它\n像一片<span class='hot'>赛博农田</span>。", "我不是不热爱生活，\n我是生活总让我\n先热爱<span class='hot'>上班</span>。", "如果勤劳能致富，\n那我的银行卡应该早就\n<span class='hot'>金光闪闪</span>。", "我最熟悉的路线，\n不是回家的路，\n是精神崩溃前的<span class='hot'>预警曲线</span>。", "打工人的超能力：\n明明很累，\n还能回复：<span class='hot'>收到</span>。", "我不是缺钱，\n我是钱和我之间\n缺少<span class='hot'>长期关系</span>。", "今天也很努力，\n努力把自己从床上\n拖进现实这个<span class='hot'>大型副本</span>。", "我和工资之间，\n像网友，\n见面很短，\n分别很快。", "打工使我坚强，\n坚强到外卖少送筷子\n我都能<span class='hot'>原地破防</span>。", "我的人生目前由三部分组成：\n上班、下班、\n以及思考为什么还要<span class='hot'>继续上班</span>。"]}, "love": {"label": "恋爱发疯｜心脏报警", "emoji": ["💘", "💔", "😵‍💫", "📱", "🫶", "🥀", "💬", "🫀"], "status": ["今日精神状态：心脏报警", "今日精神状态：已读乱想", "今日精神状态：恋爱过载", "今日精神状态：消息侦探", "今日精神状态：情绪地震"], "lines": ["你回我一个“嗯”，\n我已经在脑子里演完<span class='hot'>三季连续剧</span>。\n恋爱不是必需品，\n但发疯是。", "我以为我很冷静，\n直到你三分钟没回消息，\n我的内心已经开始<span class='hot'>灾后重建</span>。", "喜欢你这件事，\n像手机后台程序，\n关不掉，\n还一直<span class='hot'>耗电</span>。", "你说早点睡，\n我说好，\n然后开始分析这两个字里到底有没有<span class='hot'>爱</span>。", "我嘴上说随便，\n心里已经开了八百个会，\n主题是：他到底<span class='hot'>什么意思</span>。", "你发一个句号，\n我开始复盘关系；\n你发一个表情，\n我开始规划未来。\n我不是恋爱脑，\n我是<span class='hot'>剧情脑</span>。", "我的理智说别想了，\n我的心说再想五分钟，\n结果五分钟变成了<span class='hot'>一整晚</span>。", "别人谈恋爱像喝奶茶，\n我谈恋爱像误入悬疑片，\n每条消息都值得<span class='hot'>逐帧分析</span>。", "你一上线，\n我的心就像手机信号，\n突然<span class='hot'>满格</span>。", "我不是在等你消息，\n我是在参与一场\n心跳和通知栏的<span class='hot'>极限运动</span>。", "你说随便，\n我开始研究这个随便\n是随便还是<span class='hot'>不随便</span>。", "喜欢你以后，\n我的大脑从正常模式\n切到了<span class='hot'>侦探模式</span>。", "你不回消息的时候，\n我表面平静，\n内心已经开了\n<span class='hot'>八级大风</span>。", "别人一句晚安就睡了，\n我一句晚安之后\n开始复盘语气。", "我不是恋爱脑，\n我只是脑子里\n多了一个你的<span class='hot'>常驻插件</span>。", "你发的每个字，\n都被我拿去做了\n<span class='hot'>阅读理解</span>。", "我说不在意，\n其实心里已经把聊天记录\n翻成了<span class='hot'>考古现场</span>。", "喜欢你像开盲盒，\n每天都不知道会抽到\n甜蜜还是<span class='hot'>内耗</span>。", "我的心动很不争气，\n你一出现，\n它就开始<span class='hot'>自动投降</span>。", "你回消息慢一点，\n我就从恋爱频道\n切到悬疑频道。", "我本来很酷，\n直到你出现，\n我的人设当场<span class='hot'>掉线</span>。", "你一句在干嘛，\n我差点把人生规划\n全部<span class='hot'>上传</span>。", "爱情让我成长，\n成长为一个能从标点符号里\n看出<span class='hot'>八百种意思</span>的人。", "我不是敏感，\n我是情绪雷达\n对你<span class='hot'>全天候在线</span>。", "你今天少发一个表情，\n我的内心已经开始\n<span class='hot'>气象预警</span>。", "别人恋爱是甜甜的，\n我恋爱是脑内弹幕\n疯狂<span class='hot'>刷屏</span>。", "你说没事，\n我知道有事。\n你说真没事，\n我开始觉得\n<span class='hot'>事情更大了</span>。", "喜欢你以后，\n我的手机不是手机，\n是我的<span class='hot'>情绪遥控器</span>。", "你一冷淡，\n我就开始怀疑\n昨天、今天、人生和宇宙。", "我不是想太多，\n我是对喜欢的人\n拥有过高的<span class='hot'>脑补产能</span>。"]}};
+const cats = document.querySelectorAll(".cat");
+const madText = document.getElementById("madText");
+const madCard = document.getElementById("madCard");
+const label = document.getElementById("cardLabel");
+const emojiBadge = document.getElementById("emojiBadge");
+const posterBody = document.getElementById("posterBody");
+const shareStage = document.getElementById("shareStage");
+const toast = document.getElementById("toast");
+const moodBar = document.getElementById("moodBar");
+const moodText = document.getElementById("moodText");
+const statusText = document.getElementById("statusText");
+const flash = document.getElementById("screenFlash");
+let current = "work";
+let lastTextPlain = "";
+function plain(html) { const div = document.createElement("div"); div.innerHTML = html; return div.innerText; }
+function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function rand(min,max) { return Math.floor(Math.random()*(max-min+1))+min; }
+function generate(type = current) {
+  current = type;
+  const group = library[current];
+  const html = pick(group.lines);
+  const emoji = pick(group.emoji);
+  const madness = rand(64,99);
+  madText.innerHTML = html;
+  lastTextPlain = plain(html);
+  label.textContent = group.label;
+  emojiBadge.textContent = emoji;
+  statusText.textContent = pick(group.status);
+  moodBar.style.width = madness + "%";
+  moodText.textContent = "崩溃值：" + madness + "%｜" + (madness > 90 ? "建议立即发疯" : madness > 78 ? "已经开始冒烟" : "还能抢救一下");
+  madCard.classList.remove("shake"); emojiBadge.classList.remove("spin"); flash.classList.remove("show");
+  void madCard.offsetWidth;
+  madCard.classList.add("shake"); emojiBadge.classList.add("spin"); flash.classList.add("show");
+  burst(window.innerWidth/2, window.innerHeight*.45);
+  flySticker();
+}
+cats.forEach(btn => {
+  btn.addEventListener("click", () => {
+    cats.forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    generate(btn.dataset.type);
+  });
+});
+document.getElementById("generateBtn").addEventListener("click", e => { generate(); burstFromButton(e.currentTarget); });
+document.getElementById("againBtn").addEventListener("click", e => { generate(); burstFromButton(e.currentTarget); });
+document.getElementById("chaosBtn").addEventListener("click", e => {
+  const keys = Object.keys(library);
+  const random = pick(keys);
+  cats.forEach(c => c.classList.toggle("active", c.dataset.type === random));
+  generate(random);
+  burstFromButton(e.currentTarget);
+});
+document.getElementById("copyBtn").addEventListener("click", async e => {
+  const text = lastTextPlain || madText.innerText;
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("已复制，继续发疯！");
+    burstFromButton(e.currentTarget, ["复制成功","发出去","让朋友也疯"]);
+  } catch(error) {
+    showToast("复制失败，手动长按复制！");
+  }
+});
+document.getElementById("shareBtn").addEventListener("click", e => {
+  const text = lastTextPlain || madText.innerText;
+  posterBody.textContent = text;
+  shareStage.classList.add("show");
+  shareStage.scrollIntoView({behavior:"smooth",block:"start"});
+  burstFromButton(e.currentTarget, ["疯图生成","截图发出去","朋友圈爆炸"]);
+});
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1600);
+}
+function burstFromButton(btn, words) {
+  const rect = btn.getBoundingClientRect();
+  burst(rect.left + rect.width/2, rect.top + rect.height/2, words);
+}
+function burst(x, y, words = ["啊啊啊","救命","疯了","别管我","爆炸","重开"]) {
+  for(let i=0; i<7; i++) {
+    const el = document.createElement("div");
+    el.className = "burst";
+    el.textContent = pick(words);
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    el.style.setProperty("--dx", rand(-260,260) + "px");
+    el.style.setProperty("--dy", rand(-280,180) + "px");
+    el.style.setProperty("--rot", rand(-90,90) + "deg");
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1300);
+  }
+}
+function flySticker() {
+  const stickers = ["情绪爆炸","禁止内耗","已读乱回","工牌成精","灵魂出走","脑子冒烟","精神稳定"];
+  for(let i=0; i<2; i++) {
+    const el = document.createElement("div");
+    el.className = "flying-sticker";
+    el.textContent = pick(stickers);
+    const bg = pick(["#ffe600","#ffffff","#00e5ff","#39ff14","#ff2d55"]);
+    el.style.background = bg;
+    el.style.color = bg === "#ff2d55" ? "#fff" : "#111";
+    el.style.setProperty("--dx", rand(-240,240) + "px");
+    el.style.setProperty("--dy", rand(-300,180) + "px");
+    el.style.setProperty("--rot", rand(-45,45) + "deg");
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1150);
+  }
+}
+generate("work");
+</script>
+</body>
+</html>
