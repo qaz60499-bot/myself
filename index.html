@@ -3834,7 +3834,7 @@
     win.addEventListener("click", e => {
       e.stopPropagation();
       win.classList.toggle("lit");
-      vending.querySelector(".vending-flash").textContent = win.dataset.msg || "窗户亮了";
+      showBubble(win.dataset.msg || "窗户亮了");
     });
   });
 
@@ -3843,14 +3843,14 @@
       e.stopPropagation();
       npc.style.bottom = (parseFloat(getComputedStyle(npc).bottom) + 8) + "px";
       setTimeout(() => npc.style.bottom = "", 500);
-      vending.querySelector(".vending-flash").textContent = npc.dataset.msg || "路人和你打了个招呼";
+      showBubble(npc.dataset.msg || "路人和你打了个招呼");
     });
   });
 
   document.getElementById("lamp").addEventListener("click", e => {
     e.stopPropagation();
     e.currentTarget.classList.toggle("off");
-    vending.querySelector(".vending-flash").textContent = "路灯被你切换了";
+    showBubble("路灯被你切换了");
   });
 
   document.getElementById("vending").addEventListener("click", e => {
@@ -3865,13 +3865,13 @@
   document.getElementById("cat").addEventListener("click", e => {
     e.stopPropagation();
     e.currentTarget.classList.toggle("walk");
-    vending.querySelector(".vending-flash").textContent = "黑猫换了个位置";
+    showBubble("黑猫换了个位置");
   });
 
   document.getElementById("cat2").addEventListener("click", e => {
     e.stopPropagation();
     e.currentTarget.classList.toggle("move");
-    vending.querySelector(".vending-flash").textContent = "橘猫伸了个懒腰";
+    showBubble("橘猫伸了个懒腰");
   });
 
   document.getElementById("paper").addEventListener("click", e => {
@@ -3880,7 +3880,7 @@
     el.classList.remove("fly");
     void el.offsetWidth;
     el.classList.add("fly");
-    vending.querySelector(".vending-flash").textContent = "传单被风吹起来";
+    showBubble("传单被风吹起来");
   });
 
   document.getElementById("puddle").addEventListener("click", e => {
@@ -3889,20 +3889,16 @@
     el.classList.remove("ripple");
     void el.offsetWidth;
     el.classList.add("ripple");
-    vending.querySelector(".vending-flash").textContent = "水洼泛起一圈光";
+    showBubble("水洼泛起一圈光");
   });
 
   document.getElementById("plant").addEventListener("click", e => {
     e.stopPropagation();
     e.currentTarget.classList.toggle("grow");
-    vending.querySelector(".vending-flash").textContent = "盆栽长精神了";
+    showBubble("盆栽长精神了");
   });
 
-  document.getElementById("box").addEventListener("click", e => {
-    e.stopPropagation();
-    e.currentTarget.classList.toggle("open");
-    vending.querySelector(".vending-flash").textContent = "木箱里像藏了点东西";
-  });
+  // 木箱使用下方三段动画逻辑，保持当前侧边文本效果。
 
 
   /* final interaction polish */
