@@ -3556,10 +3556,10 @@
   </div>
 
   <div class="bubble" id="bubble">小互动</div>
-  <a class="sign story" href="./crazy.html" data-sign-slot="0">MOON</a>
-  <a class="sign lab" href="lab.html" data-sign-slot="1">KIOSK</a>
-  <a class="sign moon" href="moon.html" data-sign-slot="2">CLOUD</a>
-  <a class="sign archive" href="archive.html" data-sign-slot="3">LAMP</a>
+  <a class="sign story" href="#" data-sign-slot="0">MOON</a>
+  <a class="sign lab" href="#" data-sign-slot="1">KIOSK</a>
+  <a class="sign moon" href="#" data-sign-slot="2">CLOUD</a>
+  <a class="sign archive" href="#" data-sign-slot="3">LAMP</a>
 
   <div class="title">
     <h1>Little Odd Street</h1>
@@ -3664,22 +3664,22 @@
 
   const stepSignGroups = [
     [
-      { text:"MOON",  href:"moon.html",    x:"11vw", y:"24vh", r:"-3deg" },
-      { text:"KIOSK", href:"lab.html",     x:"68vw", y:"21vh", r:"4deg" },
-      { text:"CLOUD", href:"archive.html", x:"15vw", y:"56vh", r:"2deg" },
-      { text:"LAMP",  href:"./crazy.html", x:"72vw", y:"55vh", r:"-2deg" }
+      { text:"MOON",  href:"#",    x:"11vw", y:"24vh", r:"-3deg" },
+      { text:"KIOSK", href:"#",     x:"68vw", y:"21vh", r:"4deg" },
+      { text:"CLOUD", href:"#", x:"15vw", y:"56vh", r:"2deg" },
+      { text:"LAMP",  href:"#", x:"72vw", y:"55vh", r:"-2deg" }
     ],
     [
-      { text:"RAIN",  href:"archive.html", x:"8vw",  y:"35vh", r:"3deg" },
-      { text:"SHOP",  href:"./crazy.html", x:"58vw", y:"29vh", r:"-4deg" },
-      { text:"CAT",   href:"moon.html",    x:"24vw", y:"62vh", r:"-1deg" },
-      { text:"DOOR",  href:"lab.html",     x:"76vw", y:"47vh", r:"2deg" }
+      { text:"RAIN",  href:"#", x:"8vw",  y:"35vh", r:"3deg" },
+      { text:"SHOP",  href:"#", x:"58vw", y:"29vh", r:"-4deg" },
+      { text:"CAT",   href:"#",    x:"24vw", y:"62vh", r:"-1deg" },
+      { text:"DOOR",  href:"#",     x:"76vw", y:"47vh", r:"2deg" }
     ],
     [
-      { text:"STAR",  href:"archive.html", x:"14vw", y:"20vh", r:"-2deg" },
-      { text:"GLOW",  href:"moon.html",    x:"64vw", y:"34vh", r:"3deg" },
-      { text:"TEA",   href:"./crazy.html", x:"21vw", y:"50vh", r:"1deg" },
-      { text:"DUSK",  href:"lab.html",     x:"70vw", y:"61vh", r:"-3deg" }
+      { text:"STAR",  href:"#", x:"14vw", y:"20vh", r:"-2deg" },
+      { text:"GLOW",  href:"#",    x:"64vw", y:"34vh", r:"3deg" },
+      { text:"TEA",   href:"#", x:"21vw", y:"50vh", r:"1deg" },
+      { text:"DUSK",  href:"#",     x:"70vw", y:"61vh", r:"-3deg" }
     ]
   ];
 
@@ -3703,7 +3703,7 @@
         const item = group[index];
         if (!item) return;
         sign.textContent = item.text.trim();
-        sign.href = item.href;
+        sign.href = "#";
         sign.style.left = item.x;
         sign.style.top = item.y;
         sign.style.setProperty("--r", item.r);
@@ -3911,6 +3911,11 @@
   document.querySelectorAll(".sign").forEach(sign => {
     const key = ["story","lab","moon","archive"].find(k => sign.classList.contains(k));
     if (key) sign.setAttribute("data-tip", signTips[key]);
+    sign.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      showBubble((sign.textContent || "小招牌").trim() + " 只是闪了一下，没有跳转");
+    });
     sign.addEventListener("pointerdown", () => {
       const scene = document.getElementById("scene");
       const cls = key === "story" || key === "moon" ? "sign-bump-left" : key === "lab" || key === "archive" ? "sign-bump-right" : "sign-bump-mid";
