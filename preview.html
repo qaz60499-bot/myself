@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Little Odd Street - Full Interactive</title>
+<style>
+  :root{
+    --ink:#2e2633;
+    --night:#191520;
+    --cream:#fff0c7;
+    --amber:#ffd48a;
+    --mx: 0px;
+    --my: 0px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;width:100%;height:100%;overflow:hidden;background:var(--night);
+    font-family:ui-rounded,"Nunito","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+
+  .app{
+    position:relative;width:100vw;height:100vh;overflow:hidden;color:var(--cream);
+    background:#18131d;
+  }
+
+  /*
+    可选：把你确认的 Canva 场景图导出为 scene3.png，和 index.html 放同一层。
+    有 scene3.png 时，走到场景 3 会叠加显示那张图；没放也不影响内置街景。
+  */
+  .canva-scene3{
+    position:absolute;inset:0;z-index:1;
+    background:url("scene3.png") center/cover no-repeat;
+    opacity:0;transform:scale(1.08);
+    transition:opacity .9s ease,transform 1.35s cubic-bezier(.2,.85,.2,1),filter .9s ease;
+    pointer-events:none;
+  }
+  .app.step-3 .canva-scene3{opacity:1;transform:scale(1.01)}
+
+  .scene{
+    position:absolute;inset:0;z-index:2;overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 82%,rgba(255,226,153,.48),transparent 29%),
+      radial-gradient(circle at 18% 16%,rgba(255,220,152,.19),transparent 8%),
+      radial-gradient(circle at 82% 18%,rgba(150,171,211,.18),transparent 10%),
+      linear-gradient(180deg,#302f4b 0%,#67576a 47%,#e7aa70 100%);
+    transition:opacity .9s ease,transform 1.35s cubic-bezier(.2,.85,.2,1),filter .9s ease;
+  }
+  .app.step-1 .scene{opacity:1;transform:scale(1) translate(var(--mx), var(--my))}
+  .app.step-2 .scene{opacity:1;transform:scale(1.08) translate(calc(var(--mx) * .7), calc(1.2vh + var(--my) * .7))}
+  .app.step-3 .scene{opacity:.22;transform:scale(1.18) translate(calc(var(--mx) * .45), calc(3vh + var(--my) * .45));filter:blur(.8px)}
+
+  .sun{
+    position:absolute;left:44%;top:11%;width:33vmin;height:33vmin;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,221,143,.36),rgba(255,221,143,.1) 48%,transparent 73%);
+    animation:sunBreath 4s ease-in-out infinite alternate;
+  }
+  @keyframes sunBreath{from{transform:scale(.98);opacity:.82}to{transform:scale(1.05);opacity:1}}
+
+  .stars{
+    position:absolute;inset:0;z-index:3;pointer-events:none;
+  }
+  .star{
+    position:absolute;width:3px;height:3px;border-radius:50%;
+    background:#fff3bf;box-shadow:0 0 10px #ffe5a0;
+    animation:twinkle 1.6s ease-in-out infinite alternate;
+  }
+  .star:after{
+    content:"";position:absolute;left:50%;top:50%;width:13px;height:13px;
+    transform:translate(-50%,-50%) rotate(45deg);
+    background:linear-gradient(90deg,transparent 42%,rgba(255,240,184,.8) 43% 57%,transparent 58%),
+               linear-gradient(0deg,transparent 42%,rgba(255,240,184,.8) 43% 57%,transparent 58%);
+    opacity:.55;
+  }
+  @keyframes twinkle{from{transform:scale(.55);opacity:.35}to{transform:scale(1.2);opacity:1}}
+
+  .road{
+    position:absolute;left:50%;bottom:-9vh;width:min(720px,64vw);height:78vh;transform:translateX(-50%);
+    clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);
+    background:
+      repeating-linear-gradient(90deg,rgba(92,59,57,.14) 0 3px,transparent 3px 56px),
+      repeating-linear-gradient(0deg,transparent 0 76px,rgba(92,59,57,.18) 77px 81px),
+      linear-gradient(180deg,#a96d62 0%,#c98b63 43%,#efbf79 100%);
+    box-shadow:inset 0 24px 48px rgba(67,42,48,.2);
+  }
+  .road:before{
+    content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(105deg,transparent 0 34%,rgba(255,255,255,.14) 36% 39%,transparent 41%),
+      radial-gradient(ellipse at 50% 100%,rgba(255,243,198,.18),transparent 58%);
+  }
+
+  .road-doodles{
+    position:absolute;left:50%;bottom:0;width:min(760px,70vw);height:32vh;transform:translateX(-50%);
+    pointer-events:none;z-index:9;
+    background:
+      radial-gradient(ellipse at 42% 68%,rgba(93,60,61,.18) 0 3px,transparent 4px),
+      radial-gradient(ellipse at 62% 46%,rgba(93,60,61,.14) 0 2px,transparent 3px),
+      radial-gradient(ellipse at 35% 30%,rgba(255,241,193,.25) 0 4px,transparent 5px),
+      linear-gradient(110deg,transparent 0 43%,rgba(255,255,255,.1) 44% 46%,transparent 47%);
+  }
+
+  .shop{
+    position:absolute;bottom:12vh;width:31vw;max-width:480px;height:61vh;border-radius:30px 30px 8px 8px;
+    box-shadow:0 28px 45px rgba(42,28,35,.24);
+  }
+  .shop.left{
+    left:4vw;background:
+      linear-gradient(90deg,rgba(255,255,255,.14),transparent 18%),
+      linear-gradient(180deg,#f2bd85,#c97868);
+    transform:perspective(900px) rotateY(8deg) skewY(-1deg);
+  }
+  .shop.right{
+    right:4vw;background:
+      linear-gradient(270deg,rgba(255,255,255,.15),transparent 18%),
+      linear-gradient(180deg,#f2d28f,#b86f70);
+    transform:perspective(900px) rotateY(-8deg) skewY(1deg);
+  }
+  .shop:before{
+    content:"";position:absolute;left:-2%;top:-8%;width:104%;height:14%;border-radius:22px;
+    background:repeating-linear-gradient(90deg,#fff2bd 0 34px,#ec806d 34px 68px);
+    box-shadow:0 9px 0 rgba(71,45,49,.13);
+  }
+  .shop:after{
+    content:"";position:absolute;left:7%;right:7%;bottom:5%;height:2px;
+    background:rgba(60,43,49,.18);box-shadow:0 -70px rgba(60,43,49,.1),0 -142px rgba(60,43,49,.08);
+  }
+
+  .brick-lines{
+    position:absolute;inset:13% 5% 7%;border-radius:18px;opacity:.26;pointer-events:none;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 42px, rgba(69,45,50,.3) 43px 45px),
+      repeating-linear-gradient(90deg, transparent 0 88px, rgba(69,45,50,.22) 89px 91px);
+    mix-blend-mode:multiply;
+  }
+
+  .window{
+    position:absolute;border:4px solid rgba(72,48,54,.38);border-radius:20px;
+    background:
+      linear-gradient(135deg,rgba(255,255,255,.4),transparent 36%),
+      linear-gradient(180deg,#ffe6a7,#ffad75);
+    box-shadow:inset 0 -10px 0 rgba(174,81,71,.12),0 12px 22px rgba(255,181,98,.18);
+    transition:filter .25s ease,transform .25s ease,box-shadow .25s ease;
+    pointer-events:auto;cursor:pointer;
+  }
+  .window:hover,.window.lit{
+    filter:brightness(1.12);
+    transform:translateY(-2px);
+    box-shadow:inset 0 -10px 0 rgba(174,81,71,.12),0 0 36px rgba(255,190,105,.55);
+  }
+  .window:before{content:"";position:absolute;left:50%;top:0;width:3px;height:100%;background:rgba(87,55,59,.18)}
+  .window:after{content:"";position:absolute;left:0;top:50%;width:100%;height:3px;background:rgba(87,55,59,.16)}
+  .left .window.a{left:14%;top:24%;width:35%;height:23%}
+  .left .window.b{right:12%;top:33%;width:30%;height:18%}
+  .right .window.a{left:13%;top:28%;width:33%;height:22%}
+  .right .window.b{right:13%;top:18%;width:30%;height:18%}
+
+  .shelf{
+    position:absolute;left:12%;bottom:10%;width:76%;height:11%;border-radius:14px;background:rgba(255,238,187,.45);
+    box-shadow:inset 0 -5px rgba(126,75,68,.16);
+  }
+  .shelf:before{
+    content:"";position:absolute;left:12%;bottom:55%;width:16%;height:70%;border-radius:7px;background:#78a99d;
+    box-shadow:42px 4px #f0b36f,82px -2px #d9786a,124px 2px #f4d98f;
+  }
+
+  .door{
+    position:absolute;left:35%;bottom:0;width:30%;height:30%;border-radius:22px 22px 5px 5px;
+    background:radial-gradient(circle at 78% 52%,#ffdc92 0 4px,transparent 5px),linear-gradient(180deg,#5f4258,#31263d);
+    box-shadow:inset 0 0 0 4px rgba(255,226,162,.15);
+  }
+
+  .back-shop{
+    position:absolute;left:38vw;bottom:36vh;width:24vw;height:31vh;border-radius:22px 22px 6px 6px;
+    background:linear-gradient(180deg,#f1c17c,#ba7469);opacity:.92;box-shadow:0 20px 32px rgba(43,28,35,.16);
+  }
+  .back-shop:before{
+    content:"";position:absolute;left:-4%;top:-11%;width:108%;height:17%;border-radius:18px;
+    background:repeating-linear-gradient(90deg,#fdf0b7 0 24px,#d9796b 24px 48px);
+  }
+  .back-shop:after{
+    content:"";position:absolute;left:18%;top:28%;width:62%;height:34%;border-radius:14px;
+    background:linear-gradient(180deg,#ffe4a1,#f2a56f);border:3px solid rgba(72,48,54,.3);
+  }
+
+  .dark-alley{
+    position:absolute;right:27%;top:35%;width:16vw;height:34vh;border-radius:48% 52% 28% 28%;
+    background:
+      radial-gradient(circle at 62% 18%,rgba(124,145,190,.28),transparent 21%),
+      linear-gradient(180deg,rgba(43,42,76,.87),rgba(34,27,48,.5));
+    opacity:.74;transition:opacity .25s ease,filter .25s ease;
+  }
+  .dark-alley:hover{opacity:.9;filter:brightness(1.08)}
+
+  .line{position:absolute;left:22vw;top:26vh;width:56vw;height:2px;background:rgba(67,45,52,.38);transform:rotate(-3deg)}
+  .cloth{position:absolute;top:2px;width:38px;height:30px;border-radius:4px 4px 10px 10px;box-shadow:0 4px 0 rgba(93,58,57,.12);transform-origin:top center;animation:swing 2.8s ease-in-out infinite alternate}
+  .c1{left:18%;background:#ffb1a1}.c2{left:30%;height:36px;background:#dce7ac;animation-delay:.3s}.c3{left:44%;background:#f6e1a3;animation-delay:.6s}
+  @keyframes swing{from{transform:rotate(-2deg)}to{transform:rotate(3deg)}}
+
+  .lamp{
+    position:absolute;left:36vw;bottom:25vh;width:1.1vw;min-width:8px;height:34vh;border-radius:999px;background:#3f3347;
+    cursor:pointer;z-index:11;pointer-events:auto;
+  }
+  .lamp:before{
+    content:"";position:absolute;left:50%;top:-7vh;width:8vh;height:8vh;transform:translateX(-50%);
+    border-radius:50%;background:radial-gradient(circle,#ffe8ac 0 35%,#e8896f 37% 62%,transparent 63%);
+    box-shadow:0 0 42px rgba(255,202,117,.65);
+    transition:box-shadow .25s ease,filter .25s ease;
+  }
+  .lamp.off:before{filter:saturate(.45) brightness(.6);box-shadow:0 0 10px rgba(255,202,117,.18)}
+
+  .vending{
+    position:absolute;right:28vw;bottom:20vh;width:7.8vw;min-width:74px;height:20vh;
+    border-radius:18px;background:linear-gradient(180deg,#8db6ad,#5c857f);
+    box-shadow:0 20px 28px rgba(52,31,35,.24);z-index:10;cursor:pointer;pointer-events:auto;
+    transition:transform .2s ease,filter .2s ease;
+  }
+  .vending:hover{transform:translateY(-4px);filter:brightness(1.08)}
+  .vending:before{
+    content:"";position:absolute;left:18%;top:12%;width:62%;height:48%;border-radius:10px;
+    background:linear-gradient(180deg,#e9f5cf,#ffb989);
+    box-shadow:inset 0 -6px rgba(91,69,67,.12);
+  }
+  .vending:after{
+    content:"";position:absolute;left:22%;bottom:12%;width:56%;height:16%;border-radius:8px;background:#3d3140;
+  }
+  .vending .can{
+    position:absolute;left:50%;bottom:10%;width:18px;height:26px;border-radius:6px;background:#f0c56e;
+    transform:translateX(-50%) translateY(20px);opacity:0;transition:.45s ease;
+  }
+  .vending.drop .can{opacity:1;transform:translateX(-50%) translateY(38px) rotate(18deg)}
+
+  .object{position:absolute;z-index:12;border-radius:16px;box-shadow:0 10px 18px rgba(52,34,38,.15);pointer-events:auto}
+  .box{left:9vw;bottom:7vh;width:9vw;height:7vh;background:#bd7c5b;transform:rotate(-7deg);cursor:pointer}
+  .box.open{transform:rotate(-7deg) translateY(-4px)}
+  .box:after{content:"";position:absolute;left:10%;top:20%;width:80%;height:3px;background:rgba(72,48,52,.2);box-shadow:0 14px rgba(72,48,52,.12)}
+  .bag{left:23vw;bottom:8vh;width:5vw;height:6.5vh;background:#f6db9d;border-radius:12px 12px 18px 18px;transform:rotate(6deg)}
+  .bag:before{content:"";position:absolute;left:28%;top:-22%;width:45%;height:34%;border:3px solid #8b6358;border-bottom:0;border-radius:999px 999px 0 0}
+  .paper{right:12vw;bottom:13vh;width:7vw;height:4.5vh;background:#fff0bf;transform:rotate(13deg);cursor:pointer}
+  .paper.fly{animation:paperFly .9s ease}
+  @keyframes paperFly{0%{transform:rotate(13deg) translate(0,0)}50%{transform:rotate(30deg) translate(-26px,-28px)}100%{transform:rotate(13deg) translate(0,0)}}
+  .paper:after{content:"";position:absolute;left:15%;top:50%;width:70%;height:2px;background:rgba(89,57,58,.16);box-shadow:0 -8px rgba(89,57,58,.12)}
+  .puddle{right:23vw;bottom:6vh;width:13vw;height:5vh;background:rgba(109,127,152,.32);border-radius:50%;box-shadow:inset 0 0 18px rgba(255,255,255,.18);cursor:pointer}
+  .puddle.ripple:after{content:"";position:absolute;inset:15%;border:2px solid rgba(255,255,255,.35);border-radius:50%;animation:ripple .65s ease-out}
+  @keyframes ripple{from{transform:scale(.4);opacity:1}to{transform:scale(1.5);opacity:0}}
+  .plant{right:36vw;bottom:9vh;width:6vh;height:6vh;background:#cd7f61;border-radius:0 0 16px 16px;cursor:pointer}
+  .plant:before{
+    content:"";position:absolute;left:-2.1vh;bottom:3.8vh;width:10vh;height:8vh;transition:transform .25s ease;
+    background:
+      radial-gradient(circle at 30% 55%,#6a985d 0 18%,transparent 19%),
+      radial-gradient(circle at 55% 32%,#83aa6e 0 20%,transparent 21%),
+      radial-gradient(circle at 76% 60%,#5e8d56 0 18%,transparent 19%);
+  }
+  .plant:hover:before,.plant.grow:before{transform:scale(1.12) translateY(-4px)}
+
+  .cat{
+    position:absolute;left:31vw;bottom:9vh;z-index:14;width:7vh;height:4.5vh;background:#5b4249;border-radius:70% 70% 50% 50%;
+    cursor:pointer;pointer-events:auto;transition:left .65s ease,bottom .35s ease,transform .35s ease;
+  }
+  .cat:before,.cat:after{content:"";position:absolute;top:-1.8vh;border-left:1.45vh solid transparent;border-right:1.45vh solid transparent;border-bottom:2.35vh solid #5b4249}
+  .cat:before{left:.7vh}.cat:after{right:.7vh}
+  .cat.walk{left:36vw;bottom:12vh;transform:scaleX(-1)}
+
+  .cat2{
+    position:absolute;right:8vw;bottom:8vh;z-index:18;width:8vh;height:5vh;background:#e6b06f;border-radius:70% 70% 48% 48%;
+    cursor:pointer;transition:right .7s ease, transform .35s ease;pointer-events:auto;
+  }
+  .cat2:before,.cat2:after{content:"";position:absolute;top:-1.9vh;border-left:1.4vh solid transparent;border-right:1.4vh solid transparent;border-bottom:2.5vh solid #e6b06f}
+  .cat2:before{left:.8vh}.cat2:after{right:.8vh}
+  .cat2:after{border-bottom-color:#d88d61}
+  .cat2.move{right:14vw;transform:translateY(-5px)}
+
+  .npc{
+    position:absolute;z-index:16;bottom:21vh;width:42px;height:92px;cursor:pointer;pointer-events:auto;
+    transition:transform .35s ease, bottom .5s ease;
+  }
+  .npc:hover{transform:translateY(-5px)}
+  .npc .h{position:absolute;left:50%;top:0;width:30px;height:30px;border-radius:50%;transform:translateX(-50%);background:#3b3044}
+  .npc .b{position:absolute;left:50%;top:28px;width:34px;height:43px;border-radius:15px 15px 10px 10px;transform:translateX(-50%);background:#f1a46c}
+  .npc .l1,.npc .l2{position:absolute;top:68px;width:11px;height:24px;border-radius:999px;background:#3b3559}
+  .npc .l1{left:10px;transform:rotate(8deg)}.npc .l2{right:10px;transform:rotate(-8deg)}
+  .npc.one{left:18vw;bottom:28vh;transform:scale(.86)}
+  .npc.two{right:20vw;bottom:30vh;transform:scale(.78)}
+  .npc.three{left:52vw;bottom:42vh;transform:scale(.55);opacity:.88}
+  .npc.one .b{background:#79a99d}.npc.two .b{background:#e3b55f}.npc.three .b{background:#d97d72}
+
+  .bubble{
+    position:absolute;left:50%;top:2.5vh;z-index:9999;
+    max-width:min(78vw,420px);padding:.72rem 1.05rem;border-radius:20px;
+    background:rgba(255,244,207,.96);color:#49343d;font-weight:900;font-size:clamp(.86rem,1.25vw,1.05rem);
+    box-shadow:0 16px 34px rgba(42,28,35,.28);
+    opacity:0;transform:translateX(-50%) translateY(-12px);transition:.25s ease;pointer-events:none;
+    border:2px solid rgba(70,48,54,.18);
+    text-align:center;
+  }
+  .bubble.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .sign{
+    position:absolute;z-index:30;padding:.64rem .92rem;border-radius:999px;color:#49343d;background:rgba(255,242,197,.9);
+    border:3px solid rgba(72,49,56,.33);box-shadow:0 13px 0 rgba(82,50,53,.12),0 18px 30px rgba(50,31,37,.18);
+    text-decoration:none;font-size:clamp(.64rem,1.08vw,.95rem);letter-spacing:.07em;
+    transition:transform .25s ease,filter .25s ease,opacity .45s ease;
+  }
+  .sign:hover{transform:translateY(-6px) scale(1.04) rotate(var(--r,-3deg));filter:brightness(1.08)}
+  .story{left:8vw;top:22vh;--r:-3deg;transform:rotate(-3deg)}
+  .lab{right:12vw;top:24vh;--r:4deg;transform:rotate(4deg)}
+  .moon{left:16vw;top:56vh;--r:2deg;transform:rotate(2deg)}
+  .archive{right:15vw;top:55vh;--r:-2deg;transform:rotate(-2deg)}
+
+  .person{
+    position:absolute;left:50%;bottom:9vh;width:clamp(170px,18vw,258px);aspect-ratio:.54;transform:translateX(-50%);
+    z-index:45;cursor:pointer;border:0;padding:0;margin:0;background:transparent;outline:0;appearance:none;-webkit-tap-highlight-color:transparent;
+    transition:bottom 1200ms cubic-bezier(.22,.9,.22,1),width 1200ms cubic-bezier(.22,.9,.22,1),filter .35s ease;
+    filter:drop-shadow(0 17px 18px rgba(31,22,31,.28));
+  }
+  .person:focus,.person:focus-visible,.person:active{outline:0;box-shadow:none}
+  .person:hover{filter:drop-shadow(0 17px 18px rgba(31,22,31,.28)) drop-shadow(0 0 12px rgba(255,218,141,.42))}
+  .app.step-1 .person{bottom:9vh;width:clamp(175px,18.5vw,268px)}
+  .app.step-2 .person{bottom:23vh;width:clamp(144px,14vw,205px)}
+  .app.step-3 .person{bottom:32vh;width:clamp(118px,11vw,165px)}
+  .person svg{width:100%;height:100%;display:block;overflow:visible}
+
+  .arm-left,.arm-right,.leg-left,.leg-right{transform-box:fill-box;transform-origin:top center}
+  .person.walking .leg-left{animation:legL .56s ease-in-out infinite alternate}
+  .person.walking .leg-right{animation:legR .56s ease-in-out infinite alternate}
+  .person.walking .arm-left{animation:armL .56s ease-in-out infinite alternate}
+  .person.walking .arm-right{animation:armR .56s ease-in-out infinite alternate}
+  .person.walking .body-bob{animation:bob .56s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+  @keyframes legL{from{transform:rotate(-14deg)}to{transform:rotate(11deg)}}
+  @keyframes legR{from{transform:rotate(12deg)}to{transform:rotate(-10deg)}}
+  @keyframes armL{from{transform:rotate(10deg)}to{transform:rotate(-9deg)}}
+  @keyframes armR{from{transform:rotate(-10deg)}to{transform:rotate(9deg)}}
+  @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-3px)}}
+
+  .title{
+    position:absolute;left:50%;top:5vh;z-index:60;transform:translateX(-50%);text-align:center;pointer-events:none;
+    color:#fff3cd;text-shadow:0 4px 0 rgba(71,43,49,.16);transition:opacity .55s ease,transform .55s ease;
+  }
+  .title h1{margin:0;font-size:clamp(1.7rem,4.2vw,4rem);letter-spacing:.035em}
+  .title p{margin:.35rem 0 0;font-size:clamp(.82rem,1.25vw,1.08rem);opacity:.82}
+  .app.step-3 .title{opacity:.18;transform:translateX(-50%) translateY(-10px)}
+
+  .controls{
+    position:absolute;left:50%;bottom:3vh;z-index:70;transform:translateX(-50%);
+    display:flex;gap:.6rem;align-items:center;padding:.45rem;border-radius:999px;
+    background:rgba(50,39,52,.52);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(12px);
+  }
+  .control{border:0;padding:.72rem .95rem;border-radius:999px;background:rgba(255,244,207,.82);color:#4e3541;font-weight:800;cursor:pointer}
+  .control:disabled{opacity:.42;cursor:not-allowed}
+  .hint{font-size:clamp(.74rem,1vw,.92rem);color:rgba(255,247,223,.92);padding:0 .45rem;white-space:nowrap}
+
+  @media(max-width:760px){
+    .shop{width:44vw}.shop.left{left:-10vw}.shop.right{right:-10vw}.road{width:78vw}.back-shop{width:34vw;left:33vw}
+    .story{left:4vw;top:24vh}.lab{right:4vw;top:27vh}.moon{left:7vw;top:58vh}.archive{right:8vw;top:59vh}
+    .app.step-1 .person{width:156px}.app.step-2 .person{width:128px}.app.step-3 .person{width:104px}
+    .controls{width:calc(100vw - 24px);justify-content:center;bottom:2vh}.hint{display:none}
+    .vending{right:21vw;width:13vw}
+    .npc{display:none}
+  }
+</style>
+</head>
+<body>
+<main class="app step-1" id="app">
+  <div class="canva-scene3"></div>
+
+  <div class="scene" id="scene">
+    <div class="stars" id="stars"></div>
+    <div class="sun"></div>
+    <div class="back-shop"></div>
+    <div class="road"></div>
+    <div class="road-doodles"></div>
+    <div class="dark-alley"></div>
+
+    <section class="shop left">
+      <div class="brick-lines"></div>
+      <div class="window a interactive" data-msg="橱窗亮了一下"></div>
+      <div class="window b interactive" data-msg="里面像有人在煮咖啡"></div>
+      <div class="shelf"></div>
+      <div class="door"></div>
+    </section>
+
+    <section class="shop right">
+      <div class="brick-lines"></div>
+      <div class="window a interactive" data-msg="便利店灯亮了"></div>
+      <div class="window b interactive" data-msg="小店还没打烊"></div>
+      <div class="shelf"></div>
+      <div class="door"></div>
+    </section>
+
+    <div class="line"><span class="cloth c1"></span><span class="cloth c2"></span><span class="cloth c3"></span></div>
+    <div class="lamp interactive" id="lamp"></div>
+    <div class="vending interactive" id="vending"><span class="can"></span></div>
+
+    <div class="npc one interactive" data-msg="路人：今晚的小巷很热闹"><span class="h"></span><span class="b"></span><span class="l1"></span><span class="l2"></span></div>
+    <div class="npc two interactive" data-msg="店员：招牌都可以点开看看"><span class="h"></span><span class="b"></span><span class="l1"></span><span class="l2"></span></div>
+    <div class="npc three interactive" data-msg="远处有人刚走进小店"><span class="h"></span><span class="b"></span><span class="l1"></span><span class="l2"></span></div>
+
+    <div class="object box interactive" id="box"></div>
+    <div class="object bag"></div>
+    <div class="object paper interactive" id="paper"></div>
+    <div class="object puddle interactive" id="puddle"></div>
+    <div class="object plant interactive" id="plant"></div>
+    <div class="cat interactive" id="cat"></div>
+    <div class="cat2 interactive" id="cat2"></div>
+  </div>
+
+  <div class="bubble" id="bubble">小互动</div>
+
+  <a class="sign story" href="crazy.html">STORY SHOP</a>
+  <a class="sign lab" href="lab.html">ODD LAB</a>
+  <a class="sign moon" href="moon.html">MOON KIOSK</a>
+  <a class="sign archive" href="archive.html">ARCHIVE</a>
+
+  <div class="title">
+    <h1>Little Odd Street</h1>
+    <p>点人物前进，点街边小物会有反应</p>
+  </div>
+
+  <button class="person walking" id="person" aria-label="小人前进">
+    <svg viewBox="0 0 160 300" aria-hidden="true">
+      <defs>
+        <linearGradient id="coat" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#f5bd73"/>
+          <stop offset=".55" stop-color="#ef946a"/>
+          <stop offset="1" stop-color="#d97868"/>
+        </linearGradient>
+        <linearGradient id="bag" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#9bc4b7"/>
+          <stop offset="1" stop-color="#5f8f87"/>
+        </linearGradient>
+        <linearGradient id="hair" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="#554963"/>
+          <stop offset=".42" stop-color="#342a43"/>
+          <stop offset="1" stop-color="#211b2e"/>
+        </linearGradient>
+      </defs>
+
+      <ellipse cx="80" cy="286" rx="43" ry="9" fill="rgba(35,25,33,.2)" />
+
+      <g class="leg-left">
+        <path d="M62 174 C55 203 54 232 52 267 C52 278 63 282 70 274 C75 249 80 218 80 183 Z" fill="#463f70"/>
+        <path d="M52 267 C44 274 46 285 59 287 L78 287 C82 281 78 273 69 271 Z" fill="#29243d"/>
+        <path d="M63 183 C59 208 58 235 58 260" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3" stroke-linecap="round"/>
+      </g>
+      <g class="leg-right">
+        <path d="M91 174 C98 203 106 232 110 267 C111 278 100 282 93 274 C84 249 80 218 80 183 Z" fill="#38345d"/>
+        <path d="M94 271 C86 278 90 288 103 289 L123 289 C127 283 121 275 110 272 Z" fill="#26223a"/>
+        <path d="M93 184 C99 211 104 238 105 260" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="3" stroke-linecap="round"/>
+      </g>
+
+      <g class="body-bob">
+        <g class="arm-left">
+          <path d="M45 101 C29 122 24 154 22 184 C21 196 36 201 42 189 C51 159 57 128 58 107 Z" fill="#df7767"/>
+          <path d="M29 181 C22 189 25 199 36 199 C45 195 44 184 37 181 Z" fill="#f2b284"/>
+          <path d="M34 125 C29 143 27 161 26 177" fill="none" stroke="rgba(255,238,198,.24)" stroke-width="3" stroke-linecap="round"/>
+        </g>
+        <g class="arm-right">
+          <path d="M115 101 C131 122 136 154 138 184 C139 196 124 201 118 189 C109 159 103 128 102 107 Z" fill="#df7767"/>
+          <path d="M122 181 C115 189 117 199 129 199 C138 195 135 184 128 181 Z" fill="#f2b284"/>
+          <path d="M126 125 C131 143 133 161 134 177" fill="none" stroke="rgba(74,45,51,.18)" stroke-width="3" stroke-linecap="round"/>
+        </g>
+
+        <path d="M44 88 C33 111 31 146 39 180 C47 199 113 199 121 180 C129 146 126 111 116 88 C99 75 61 75 44 88 Z"
+              fill="url(#coat)"/>
+        <path d="M51 92 C43 113 43 151 50 176 C59 188 101 188 110 176 C117 151 116 113 108 92 C93 82 66 82 51 92 Z"
+              fill="#f4b86d" opacity=".82"/>
+        <path d="M57 101 C52 120 52 152 58 170 C65 181 95 181 102 170 C108 152 108 120 103 101 C92 91 68 91 57 101 Z"
+              fill="url(#bag)"/>
+        <path d="M64 109 C59 126 60 149 64 164 C69 172 91 172 96 164 C100 149 100 126 96 109 C88 103 72 103 64 109 Z"
+              fill="#8fc1b3"/>
+        <path d="M60 99 C55 119 55 150 61 169" fill="none" stroke="rgba(255,244,207,.42)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M100 99 C105 119 105 150 99 169" fill="none" stroke="rgba(52,37,45,.25)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M52 96 C43 121 43 151 51 176 C60 188 100 188 109 176 C117 151 116 121 108 96"
+              fill="none" stroke="rgba(54,39,46,.26)" stroke-width="4" stroke-linecap="round"/>
+
+        <path d="M68 72 C69 86 91 86 92 72 L90 61 L70 61 Z" fill="#efb181"/>
+
+        <path d="M37 47 C37 19 56 4 80 4 C105 4 124 22 123 50 C122 78 105 95 80 95 C55 95 38 78 37 47 Z"
+              fill="url(#hair)"/>
+        <path d="M47 50 C47 27 61 15 80 15 C100 15 114 29 113 51 C112 72 100 85 80 85 C60 85 48 72 47 50 Z"
+              fill="#3d334b"/>
+        <path d="M48 34 C58 15 102 14 113 42 C101 27 63 27 48 50 Z" fill="#5b5068" opacity=".72"/>
+        <path d="M43 60 C49 83 63 95 80 95 C99 95 116 81 119 57" fill="none" stroke="rgba(19,16,27,.35)" stroke-width="4" stroke-linecap="round"/>
+        <path d="M58 23 C49 36 47 50 49 65" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M99 23 C111 38 113 53 108 68" fill="none" stroke="rgba(0,0,0,.15)" stroke-width="3" stroke-linecap="round"/>
+
+        <path d="M80 88 L80 178" stroke="rgba(113,62,64,.22)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="80" cy="121" r="3" fill="rgba(93,58,60,.22)"/>
+        <circle cx="80" cy="143" r="3" fill="rgba(93,58,60,.2)"/>
+      </g>
+    </svg>
+  </button>
+
+  <div class="controls">
+    <button class="control" id="backBtn">← 退出来</button>
+    <span class="hint" id="statusText">场景 1 / 3</span>
+    <button class="control" id="nextBtn">往前走 →</button>
+  </div>
+</main>
+
+<script>
+  const app = document.getElementById("app");
+  const person = document.getElementById("person");
+  const backBtn = document.getElementById("backBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const statusText = document.getElementById("statusText");
+  const bubble = document.getElementById("bubble");
+
+  let step = 1;
+  let walkTimer = null;
+  let bubbleTimer = null;
+
+  function setStep(value){
+    step = Math.max(1, Math.min(3, value));
+    app.className = "app step-" + step;
+    statusText.textContent = "场景 " + step + " / 3";
+    backBtn.disabled = step === 1;
+    nextBtn.disabled = step === 3;
+
+    person.classList.add("walking");
+    clearTimeout(walkTimer);
+    walkTimer = setTimeout(() => {
+      if (step === 1 || step === 3) person.classList.remove("walking");
+    }, 900);
+  }
+
+  function forward(){ if(step < 3) setStep(step + 1); }
+  function backward(){ if(step > 1) setStep(step - 1); }
+
+  function showBubble(text){
+    bubble.textContent = text;
+    bubble.classList.add("show");
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(() => bubble.classList.remove("show"), 1350);
+  }
+
+  person.addEventListener("click", e => { e.stopPropagation(); forward(); });
+  nextBtn.addEventListener("click", e => { e.stopPropagation(); forward(); });
+  backBtn.addEventListener("click", e => { e.stopPropagation(); backward(); });
+
+  app.addEventListener("click", e => {
+    if(e.target.closest("a, button, .interactive, .object, .cat, .cat2, .npc")) return;
+    forward();
+  });
+
+  app.addEventListener("pointermove", e => {
+    const x = (e.clientX / window.innerWidth - .5) * 10;
+    const y = (e.clientY / window.innerHeight - .5) * 7;
+    app.style.setProperty("--mx", `${x}px`);
+    app.style.setProperty("--my", `${y}px`);
+  });
+
+  const stars = document.getElementById("stars");
+  const starPositions = [
+    [10,14],[18,22],[27,13],[35,28],[49,18],[62,25],[74,12],[84,21],[91,15],[57,9],
+    [15,33],[71,34],[42,8],[88,32]
+  ];
+  starPositions.forEach(([x,y], i) => {
+    const s = document.createElement("span");
+    s.className = "star";
+    s.style.left = x + "%";
+    s.style.top = y + "%";
+    s.style.animationDelay = (i * .17) + "s";
+    stars.appendChild(s);
+    s.addEventListener("click", () => showBubble("星星闪了一下"));
+  });
+
+  document.querySelectorAll(".window").forEach(win => {
+    win.addEventListener("click", e => {
+      e.stopPropagation();
+      win.classList.toggle("lit");
+      showBubble(win.dataset.msg || "窗户亮了");
+    });
+  });
+
+  document.querySelectorAll(".npc").forEach(npc => {
+    npc.addEventListener("click", e => {
+      e.stopPropagation();
+      npc.style.bottom = (parseFloat(getComputedStyle(npc).bottom) + 8) + "px";
+      setTimeout(() => npc.style.bottom = "", 500);
+      showBubble(npc.dataset.msg || "路人和你打了个招呼");
+    });
+  });
+
+  document.getElementById("lamp").addEventListener("click", e => {
+    e.stopPropagation();
+    e.currentTarget.classList.toggle("off");
+    showBubble("路灯被你切换了");
+  });
+
+  document.getElementById("vending").addEventListener("click", e => {
+    e.stopPropagation();
+    const el = e.currentTarget;
+    el.classList.remove("drop");
+    void el.offsetWidth;
+    el.classList.add("drop");
+    showBubble("叮咚，掉出一罐饮料");
+  });
+
+  document.getElementById("cat").addEventListener("click", e => {
+    e.stopPropagation();
+    e.currentTarget.classList.toggle("walk");
+    showBubble("黑猫换了个位置");
+  });
+
+  document.getElementById("cat2").addEventListener("click", e => {
+    e.stopPropagation();
+    e.currentTarget.classList.toggle("move");
+    showBubble("橘猫伸了个懒腰");
+  });
+
+  document.getElementById("paper").addEventListener("click", e => {
+    e.stopPropagation();
+    const el = e.currentTarget;
+    el.classList.remove("fly");
+    void el.offsetWidth;
+    el.classList.add("fly");
+    showBubble("传单被风吹起来");
+  });
+
+  document.getElementById("puddle").addEventListener("click", e => {
+    e.stopPropagation();
+    const el = e.currentTarget;
+    el.classList.remove("ripple");
+    void el.offsetWidth;
+    el.classList.add("ripple");
+    showBubble("水洼泛起一圈光");
+  });
+
+  document.getElementById("plant").addEventListener("click", e => {
+    e.stopPropagation();
+    e.currentTarget.classList.toggle("grow");
+    showBubble("盆栽长精神了");
+  });
+
+  document.getElementById("box").addEventListener("click", e => {
+    e.stopPropagation();
+    e.currentTarget.classList.toggle("open");
+    showBubble("木箱里像藏了点东西");
+  });
+
+  setStep(1);
+</script>
+</body>
+</html>
