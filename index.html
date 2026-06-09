@@ -3398,6 +3398,164 @@
     font-size:.56rem;
   }
 }
+
+
+/* ===== 2026-06-09 MOBILE STABLE VERSION =====
+   只改手机端：电脑端保持原来的街景。
+   目标：石板路回到底部、房子减少、不互相覆盖、保留点击互动、场景切换明显。
+*/
+@media (max-width: 760px){
+  html,body{height:100%;overflow:hidden;touch-action:manipulation;}
+  .app{min-height:100svh;height:100svh;overflow:hidden;background:#18131d;}
+
+  /* 手机端不要把 PC 的所有房屋层都硬塞进来 */
+  .fill-houses,
+  .distant-houses,
+  .mid-houses,
+  .alley-depth,
+  .near-houses,
+  .person-side-houses,
+  .side-house,
+  .back-shop,
+  .dark-alley,
+  .line,
+  .cloth,
+  .smooth-path-svg,
+  .cobble-grid,
+  .road-doodles,
+  .npc{display:none!important;}
+
+  .scene{
+    inset:0!important;
+    transform:none!important;
+    filter:none!important;
+    opacity:1!important;
+    background:
+      radial-gradient(circle at 52% 22%,rgba(255,226,154,.28),transparent 16%),
+      radial-gradient(circle at 24% 17%,rgba(255,221,155,.16),transparent 12%),
+      linear-gradient(180deg,#312f4c 0%,#5f566b 45%,#df9f6b 100%)!important;
+  }
+  .sun{left:43%!important;top:12%!important;width:30vmin!important;height:30vmin!important;opacity:.72!important;}
+  .stars{z-index:12!important;}
+  .star{transform:scale(.82);}
+
+  /* 手机端房子只保留左右两栋主房，减少混乱 */
+  .shop{
+    display:block!important;
+    z-index:15!important;
+    bottom:17svh!important;
+    width:34vw!important;
+    height:47svh!important;
+    max-width:none!important;
+    border-radius:24px 24px 8px 8px!important;
+    opacity:.92!important;
+    overflow:hidden!important;
+  }
+  .shop.left{left:-13vw!important;transform:skewY(-1deg)!important;}
+  .shop.right{right:-13vw!important;transform:skewY(1deg)!important;}
+  .shop:before{height:12%!important;top:-4%!important;opacity:.88!important;}
+  .shop:after{opacity:.28!important;}
+  .brick-lines{opacity:.12!important;}
+  .window{border-width:3px!important;}
+  .left .window.a{left:38%!important;top:22%!important;width:42%!important;height:18%!important;}
+  .left .window.b{right:12%!important;top:51%!important;width:38%!important;height:17%!important;}
+  .right .window.a{left:18%!important;top:25%!important;width:42%!important;height:18%!important;}
+  .right .window.b{left:20%!important;top:53%!important;width:36%!important;height:17%!important;}
+  .shelf,.door{opacity:.65!important;}
+
+  /* 石板路固定在脚下，不再上天 */
+  .road{
+    display:block!important;
+    z-index:18!important;
+    left:50%!important;
+    bottom:8.5svh!important;
+    width:48vw!important;
+    height:30svh!important;
+    transform:translateX(-50%)!important;
+    clip-path:polygon(43% 0,57% 0,92% 100%,8% 100%)!important;
+    border-radius:46% 46% 0 0 / 12% 12% 0 0!important;
+    opacity:.82!important;
+    filter:none!important;
+    background:
+      radial-gradient(ellipse at 50% 88%,rgba(255,230,170,.28),transparent 62%),
+      repeating-linear-gradient(92deg,transparent 0 24px,rgba(51,39,42,.20) 25px 27px,transparent 28px 52px),
+      repeating-linear-gradient(4deg,transparent 0 22px,rgba(51,39,42,.18) 23px 25px,transparent 26px 50px),
+      linear-gradient(180deg,#695a5a 0%,#9b7462 55%,#d9a06b 100%)!important;
+    box-shadow:inset 0 20px 36px rgba(23,17,25,.28), inset 0 -15px 30px rgba(255,220,150,.18)!important;
+  }
+  .road:before{opacity:.28!important;filter:blur(2px)!important;}
+  .road:after{opacity:.38!important;filter:blur(.4px)!important;}
+
+  /* 小人、道具保留互动，但位置重新排，避免挡在一起 */
+  .person{
+    z-index:45!important;
+    bottom:12svh!important;
+    width:clamp(116px,34vw,150px)!important;
+    transform:translateX(-50%)!important;
+    filter:drop-shadow(0 12px 12px rgba(22,15,22,.34))!important;
+  }
+  .app.step-1 .person{bottom:12svh!important;width:clamp(126px,36vw,158px)!important;}
+  .app.step-2 .person{bottom:18svh!important;width:clamp(112px,31vw,142px)!important;}
+  .app.step-3 .person{bottom:24svh!important;width:clamp(96px,27vw,124px)!important;}
+
+  .lamp{display:block!important;z-index:30!important;left:49.3vw!important;bottom:45svh!important;height:24svh!important;width:7px!important;opacity:.72!important;}
+  .lamp:before{width:7svh!important;height:7svh!important;top:-6svh!important;}
+  .vending{display:block!important;z-index:32!important;right:10vw!important;bottom:24svh!important;width:15vw!important;min-width:54px!important;height:15svh!important;}
+  .box{display:block!important;z-index:34!important;left:10vw!important;bottom:13svh!important;width:15vw!important;height:5.8svh!important;}
+  .bag{display:block!important;z-index:34!important;left:25vw!important;bottom:13.2svh!important;width:8vw!important;height:5.4svh!important;}
+  .paper{display:block!important;z-index:34!important;right:16vw!important;bottom:14svh!important;width:12vw!important;height:4svh!important;}
+  .puddle{display:block!important;z-index:33!important;right:27vw!important;bottom:10svh!important;width:16vw!important;height:3.8svh!important;}
+  .plant{display:block!important;z-index:36!important;right:34vw!important;bottom:13svh!important;width:5.2svh!important;height:5.2svh!important;}
+  .cat{display:block!important;z-index:38!important;left:60vw!important;bottom:14svh!important;width:6.5vh!important;height:4vh!important;}
+  .cat.walk{left:66vw!important;bottom:16svh!important;}
+  .cat2{display:block!important;z-index:38!important;right:17vw!important;bottom:13svh!important;width:7vh!important;height:4.5vh!important;}
+  .cat2.move{right:25vw!important;}
+
+  /* 招牌变成清楚的四个入口，仍然会随“往前走”切换文本 */
+  .sign{
+    z-index:80!important;
+    min-width:86px!important;
+    padding:.62rem .82rem!important;
+    font-size:.82rem!important;
+    letter-spacing:.12em!important;
+    text-align:center!important;
+    border-width:2px!important;
+    box-shadow:0 8px 0 rgba(70,45,52,.13),0 14px 24px rgba(30,20,28,.20)!important;
+    transform:none!important;
+    opacity:.96!important;
+  }
+  .sign:hover{transform:translateY(-2px)!important;}
+  .sign[data-sign-slot="0"]{left:6vw!important;top:20svh!important;}
+  .sign[data-sign-slot="1"]{right:6vw!important;left:auto!important;top:22svh!important;}
+  .sign[data-sign-slot="2"]{left:7vw!important;top:58svh!important;}
+  .sign[data-sign-slot="3"]{right:7vw!important;left:auto!important;top:59svh!important;}
+
+  .title{display:none!important;}
+  .bubble{top:1.2svh!important;max-width:86vw!important;font-size:.82rem!important;z-index:9999!important;}
+  .controls{
+    z-index:120!important;
+    left:50%!important;
+    bottom:1.6svh!important;
+    width:calc(100vw - 28px)!important;
+    justify-content:space-between!important;
+    padding:.5rem!important;
+    gap:.42rem!important;
+    background:rgba(73,53,47,.48)!important;
+    border-radius:999px!important;
+  }
+  .control{font-size:.9rem!important;padding:.68rem .92rem!important;min-width:112px!important;}
+  .hint{display:inline-block!important;font-size:.72rem!important;opacity:.82!important;}
+
+  /* 场景切换要看得出来：手机端不使用 PC 的大缩放，只用明暗和小人远近变化 */
+  .app.step-1 .scene{filter:none!important;}
+  .app.step-2 .scene{filter:saturate(.95) brightness(.96)!important;}
+  .app.step-3 .scene{filter:saturate(.9) brightness(.9)!important;}
+  .app.step-2 .shop{opacity:.78!important;}
+  .app.step-3 .shop{opacity:.58!important;}
+  .app.step-2 .road{height:34svh!important;bottom:9svh!important;opacity:.72!important;}
+  .app.step-3 .road{height:38svh!important;bottom:10svh!important;opacity:.62!important;}
+}
+
 </style>
 
 
@@ -3729,22 +3887,22 @@ html, body { width:100%; min-width:0; }
 
   const stepSignGroups = [
     [
-      { text:"MOON",  href:"https://qaz60499-bot.github.io/myself/moon",    x:"11vw", y:"24vh", r:"-3deg" },
-      { text:"KIOSK", href:"https://qaz60499-bot.github.io/myself/kiosk",     x:"68vw", y:"21vh", r:"4deg" },
-      { text:"CLOUD", href:"https://qaz60499-bot.github.io/myself/cloud", x:"15vw", y:"56vh", r:"2deg" },
-      { text:"LAMP",  href:"https://qaz60499-bot.github.io/myself/lamp", x:"72vw", y:"55vh", r:"-2deg" }
+      { text:"MOON",  href:"./moon/",    x:"11vw", y:"24vh", r:"-3deg" },
+      { text:"KIOSK", href:"./kiosk/",     x:"68vw", y:"21vh", r:"4deg" },
+      { text:"CLOUD", href:"./cloud/", x:"15vw", y:"56vh", r:"2deg" },
+      { text:"LAMP",  href:"./lamp/", x:"72vw", y:"55vh", r:"-2deg" }
     ],
     [
-      { text:"RAIN",  href:"https://qaz60499-bot.github.io/myself/rain", x:"8vw",  y:"35vh", r:"3deg" },
-      { text:"SHOP",  href:"https://qaz60499-bot.github.io/myself/shop", x:"58vw", y:"29vh", r:"-4deg" },
-      { text:"CAT",   href:"https://qaz60499-bot.github.io/myself/cat",    x:"24vw", y:"62vh", r:"-1deg" },
-      { text:"DOOR",  href:"https://qaz60499-bot.github.io/myself/door",     x:"76vw", y:"47vh", r:"2deg" }
+      { text:"RAIN",  href:"./rain/", x:"8vw",  y:"35vh", r:"3deg" },
+      { text:"SHOP",  href:"./shop/", x:"58vw", y:"29vh", r:"-4deg" },
+      { text:"CAT",   href:"./cat/",    x:"24vw", y:"62vh", r:"-1deg" },
+      { text:"DOOR",  href:"./door/",     x:"76vw", y:"47vh", r:"2deg" }
     ],
     [
-      { text:"STAR",  href:"https://qaz60499-bot.github.io/myself/star", x:"14vw", y:"20vh", r:"-2deg" },
-      { text:"GLOW",  href:"https://qaz60499-bot.github.io/myself/glow", x:"64vw", y:"34vh", r:"3deg" },
-      { text:"TEA",   href:"https://qaz60499-bot.github.io/myself/tea", x:"21vw", y:"50vh", r:"1deg" },
-      { text:"DUSK",  href:"https://qaz60499-bot.github.io/myself/dusk",     x:"70vw", y:"61vh", r:"-3deg" }
+      { text:"STAR",  href:"./star/", x:"14vw", y:"20vh", r:"-2deg" },
+      { text:"GLOW",  href:"./glow/", x:"64vw", y:"34vh", r:"3deg" },
+      { text:"TEA",   href:"./tea/", x:"21vw", y:"50vh", r:"1deg" },
+      { text:"DUSK",  href:"./dusk/",     x:"70vw", y:"61vh", r:"-3deg" }
     ]
   ];
 
@@ -3845,7 +4003,7 @@ html, body { width:100%; min-width:0; }
     statusText.textContent = "场景 " + step + " / 3";
     backBtn.disabled = step === 1;
     nextBtn.disabled = step === 3;
-    applyStepSigns(step);
+    applyStepSigns(step, window.matchMedia && window.matchMedia("(max-width: 760px)").matches);
 
     person.classList.add("walking");
     clearTimeout(walkTimer);
@@ -3979,7 +4137,7 @@ html, body { width:100%; min-width:0; }
     sign.addEventListener("click", (e) => {
       const href = sign.getAttribute("href") || "#";
       if (href && href !== "#") {
-        // GitHub Pages 子页面跳转：每个招牌都进入对应子网页
+        // GitHub Pages 子目录跳转：允许 ./life/、./art/ 正常进入
         return;
       }
       e.preventDefault();
