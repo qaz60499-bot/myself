@@ -3729,22 +3729,22 @@ html, body { width:100%; min-width:0; }
 
   const stepSignGroups = [
     [
-      { text:"MOON",  href:"#",    x:"11vw", y:"24vh", r:"-3deg" },
-      { text:"KIOSK", href:"#",     x:"68vw", y:"21vh", r:"4deg" },
-      { text:"CLOUD", href:"#", x:"15vw", y:"56vh", r:"2deg" },
-      { text:"LAMP",  href:"#", x:"72vw", y:"55vh", r:"-2deg" }
+      { text:"MOON",  href:"https://qaz60499-bot.github.io/myself/moon",    x:"11vw", y:"24vh", r:"-3deg" },
+      { text:"KIOSK", href:"https://qaz60499-bot.github.io/myself/kiosk",     x:"68vw", y:"21vh", r:"4deg" },
+      { text:"CLOUD", href:"https://qaz60499-bot.github.io/myself/cloud", x:"15vw", y:"56vh", r:"2deg" },
+      { text:"LAMP",  href:"https://qaz60499-bot.github.io/myself/lamp", x:"72vw", y:"55vh", r:"-2deg" }
     ],
     [
-      { text:"RAIN",  href:"#", x:"8vw",  y:"35vh", r:"3deg" },
-      { text:"SHOP",  href:"#", x:"58vw", y:"29vh", r:"-4deg" },
-      { text:"CAT",   href:"#",    x:"24vw", y:"62vh", r:"-1deg" },
-      { text:"DOOR",  href:"#",     x:"76vw", y:"47vh", r:"2deg" }
+      { text:"RAIN",  href:"https://qaz60499-bot.github.io/myself/rain", x:"8vw",  y:"35vh", r:"3deg" },
+      { text:"SHOP",  href:"https://qaz60499-bot.github.io/myself/shop", x:"58vw", y:"29vh", r:"-4deg" },
+      { text:"CAT",   href:"https://qaz60499-bot.github.io/myself/cat",    x:"24vw", y:"62vh", r:"-1deg" },
+      { text:"DOOR",  href:"https://qaz60499-bot.github.io/myself/door",     x:"76vw", y:"47vh", r:"2deg" }
     ],
     [
-      { text:"STAR",  href:"./life/", x:"14vw", y:"20vh", r:"-2deg" },
-      { text:"GLOW",  href:"./art/", x:"64vw", y:"34vh", r:"3deg" },
-      { text:"TEA",   href:"#", x:"21vw", y:"50vh", r:"1deg" },
-      { text:"DUSK",  href:"#",     x:"70vw", y:"61vh", r:"-3deg" }
+      { text:"STAR",  href:"https://qaz60499-bot.github.io/myself/star", x:"14vw", y:"20vh", r:"-2deg" },
+      { text:"GLOW",  href:"https://qaz60499-bot.github.io/myself/glow", x:"64vw", y:"34vh", r:"3deg" },
+      { text:"TEA",   href:"https://qaz60499-bot.github.io/myself/tea", x:"21vw", y:"50vh", r:"1deg" },
+      { text:"DUSK",  href:"https://qaz60499-bot.github.io/myself/dusk",     x:"70vw", y:"61vh", r:"-3deg" }
     ]
   ];
 
@@ -3979,7 +3979,7 @@ html, body { width:100%; min-width:0; }
     sign.addEventListener("click", (e) => {
       const href = sign.getAttribute("href") || "#";
       if (href && href !== "#") {
-        // GitHub Pages 子目录跳转：允许 ./life/、./art/ 正常进入
+        // GitHub Pages 子页面跳转：每个招牌都进入对应子网页
         return;
       }
       e.preventDefault();
