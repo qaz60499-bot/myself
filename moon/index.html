@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>发疯文学生成器｜小街艺术装置版</title>
+<style>
+:root {
+  --black:#111; --white:#fff; --hot:#ff2d55; --purple:#7c3aed;
+  --cyan:#00e5ff; --yellow:#ffe600; --green:#39ff14; --orange:#ff7a00;
+}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  margin:0; min-height:100vh; overflow-x:hidden; color:var(--black);
+  font-family:"Arial Black","Microsoft YaHei","PingFang SC",system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(255,225,142,.28) 0 9%, transparent 10%),
+    radial-gradient(circle at 88% 14%, rgba(134,208,202,.22) 0 10%, transparent 12%),
+    radial-gradient(circle at 18% 88%, rgba(180,209,145,.18) 0 11%, transparent 13%),
+    radial-gradient(circle at 76% 78%, rgba(223,154,96,.20) 0 13%, transparent 15%),
+    radial-gradient(ellipse at 50% 105%, rgba(255,205,146,.16), transparent 42%),
+    linear-gradient(180deg,#312d46 0%,#504766 46%,#755567 100%);
+}
+body::before {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    linear-gradient(to bottom, rgba(255,237,191,.07), rgba(20,15,33,.16)),
+    radial-gradient(circle at 50% 18%, rgba(255,231,174,.14), transparent 34%),
+    radial-gradient(ellipse at 22% 34%, rgba(255,246,210,.08), transparent 28%),
+    radial-gradient(ellipse at 82% 58%, rgba(129,202,198,.07), transparent 30%),
+    linear-gradient(90deg, transparent 0 8%, rgba(255,240,205,.045) 8% 12%, transparent 12% 28%, rgba(255,240,205,.035) 28% 33%, transparent 33% 68%, rgba(255,240,205,.04) 68% 73%, transparent 73% 100%);
+  backdrop-filter: blur(.25px);
+}
+body::after {
+  content:"啊啊啊 / 救命 / 别管 / 脑子冒烟";
+  position:fixed; left:-26px; top:43%; width:720px; transform:rotate(-10deg);
+  font-size:30px; font-weight:800; letter-spacing:2px; color:rgba(255,245,214,.09);
+  text-shadow:0 3px 12px rgba(0,0,0,.18); pointer-events:none; z-index:0; white-space:nowrap;
+}
+.art-atmosphere{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.art-atmosphere::before{content:"";position:absolute;inset:-8%;background:
+  linear-gradient(120deg, transparent 0 18%, rgba(255,240,204,.055) 19% 20%, transparent 21% 42%, rgba(255,255,255,.035) 43% 44%, transparent 45%),
+  repeating-linear-gradient(105deg, rgba(255,255,255,.025) 0 1px, transparent 1px 20px);
+  opacity:.72;filter:blur(.15px);}
+.art-atmosphere::after{content:"";position:absolute;left:8%;right:8%;bottom:7%;height:38%;border-radius:48% 52% 0 0/38% 38% 0 0;background:
+  linear-gradient(to top, rgba(18,15,26,.22), transparent 55%),
+  repeating-linear-gradient(90deg, transparent 0 34px, rgba(255,221,157,.07) 34px 39px, transparent 39px 72px);
+  mask-image:linear-gradient(to top, rgba(0,0,0,.7), transparent 72%);}
+.art-orb{position:absolute;border-radius:50%;filter:blur(14px);opacity:.42;animation:orbDrift 13s ease-in-out infinite alternate;}
+.o1{width:150px;height:150px;left:-44px;top:190px;background:rgba(255,206,139,.36)}
+.o2{width:170px;height:170px;right:-56px;top:300px;background:rgba(124,173,194,.28);animation-delay:1.6s}
+.o3{width:120px;height:120px;left:44%;bottom:48px;background:rgba(226,132,143,.22);animation-delay:2.4s}
+.art-line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,rgba(255,239,203,.42),transparent);transform:rotate(var(--rot));opacity:.52;animation:lineFloat 9s ease-in-out infinite alternate;}
+.l1{width:220px;left:2%;top:28%;--rot:-9deg}.l2{width:180px;right:3%;top:66%;--rot:8deg;animation-delay:1.2s}.l3{width:150px;left:28%;top:13%;--rot:4deg;animation-delay:2.1s}
+@keyframes orbDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(12px,-18px,0) scale(1.08)}}
+@keyframes lineFloat{from{translate:0 0}to{translate:0 -10px}}
+.bg-doodle { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.bg-doodle span {
+  position:absolute; display:inline-flex; align-items:center; justify-content:center;
+  border:2px solid rgba(17,17,17,.75); box-shadow:3px 3px 0 rgba(17,17,17,.65); font-weight:900;
+  transform:rotate(var(--rot)); opacity:.46; animation:bgFloat 6.5s ease-in-out infinite alternate;
+}
+.d1{left:18px;top:330px;background:#fff0a6;border-radius:999px;padding:8px 14px;--rot:12deg}
+.d2{right:18px;top:405px;background:#fff;border-radius:16px;padding:10px 13px;--rot:-10deg;animation-delay:.5s}
+.d3{display:none}
+.d4{right:12px;top:655px;background:#a9cf7d;border-radius:999px;padding:8px 14px;--rot:9deg;animation-delay:1.2s}
+.d5{left:50%;top:255px;background:#ff7a00;color:#fff;border-radius:16px;padding:8px 12px;--rot:5deg;animation-delay:.2s}
+.d6{left:60%;bottom:30px;background:#fff;border-radius:999px;padding:8px 14px;--rot:-6deg;animation-delay:1.4s}
+.d7{display:none}
+.d8{right:4px;top:545px;background:#fff0a6;border-radius:14px;padding:8px 12px;--rot:15deg;animation-delay:1s}
+.d9{display:none}
+.d10{display:none}
+@keyframes bgFloat { from{translate:0 0} to{translate:0 -8px} }
+.street-ghost{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:.42}
+.street-ghost::before,.street-ghost::after{content:"";position:absolute;bottom:0;border-radius:18px 18px 0 0;background:rgba(34,29,48,.28);box-shadow:inset 0 18px 35px rgba(255,231,174,.04)}
+.street-ghost::before{left:8%;width:210px;height:410px}
+.street-ghost::after{right:9%;width:230px;height:390px}
+.street-ghost .wire{position:absolute;left:18%;right:18%;top:210px;height:2px;background:rgba(255,238,190,.14);transform:rotate(-3deg);box-shadow:0 42px 0 rgba(255,238,190,.06)}
+.street-ghost .lamp{position:absolute;left:37%;top:300px;width:10px;height:410px;background:rgba(32,28,45,.28);border-radius:999px}
+.street-ghost .lamp::before{content:"";position:absolute;left:-22px;top:-25px;width:58px;height:58px;border-radius:50%;background:rgba(255,198,123,.22);box-shadow:0 0 46px rgba(255,198,123,.20)}
+.street-ghost .window{position:absolute;width:92px;height:58px;border-radius:14px;background:rgba(255,213,143,.12);box-shadow:0 0 24px rgba(255,213,143,.08)}
+.street-ghost .w1{left:12%;bottom:310px}.street-ghost .w2{right:14%;bottom:335px}.street-ghost .w3{right:24%;bottom:245px}
+
+
+.app { width:min(100%,430px); margin:0 auto; min-height:100vh; position:relative; z-index:1; padding:32px 20px 34px; }
+.sticker {
+  position:absolute; z-index:2; display:inline-flex; align-items:center; justify-content:center; padding:8px 12px;
+  background:rgba(255,248,236,.9); border:2px solid rgba(17,17,17,.85); border-radius:999px; box-shadow:3px 3px 0 rgba(17,17,17,.65);
+  font-size:13px; font-weight:900; transform:rotate(-7deg); animation:floaty 4.8s ease-in-out infinite alternate; opacity:.88;
+}
+.s1{top:18px;right:18px;background:#ffe600} .s2{top:118px;left:9px;background:#a9cf7d;transform:rotate(8deg);animation-delay:.2s}
+.s3{display:none} .s4{bottom:88px;left:10px;background:#e96978;color:#fff;transform:rotate(10deg);animation-delay:.65s}
+@keyframes floaty { from{translate:0 0} to{translate:0 -5px} }
+.hero { padding-top:32px; margin-bottom:22px; }
+.status { display:inline-block; background:#111; color:#ffe600; border:2px solid #ffe600; border-radius:999px; padding:8px 12px; font-size:13px; font-weight:900; transform:rotate(-2deg); box-shadow:4px 4px 0 rgba(0,0,0,.4); }
+h1 { margin:18px 0 10px; font-size:48px; line-height:.95; color:#fff6d8; letter-spacing:-2px; text-shadow:0 5px 20px rgba(0,0,0,.42),0 0 28px rgba(255,232,184,.16); -webkit-text-stroke:.8px rgba(17,17,17,.82); transform:rotate(-2deg); animation:titlePop 1.1s cubic-bezier(.2,1.5,.2,1) both; }
+@keyframes titlePop { 0%{opacity:0;transform:scale(.6) rotate(-8deg)} 65%{opacity:1;transform:scale(1.04) rotate(-1deg)} 100%{transform:scale(1) rotate(-2deg)} }
+.sub { display:inline-block; background:#fff0a6; border:3px solid #111; box-shadow:4px 4px 0 rgba(17,17,17,.78); padding:9px 12px; border-radius:14px; font-size:15px; font-weight:900; transform:rotate(2deg); }
+.mood-meter { margin-top:18px; width:100%; background:#fff; border:3px solid #111; border-radius:999px; box-shadow:4px 4px 0 rgba(17,17,17,.78); padding:5px; }
+.mood-bar { height:18px; width:68%; border-radius:999px; background:linear-gradient(90deg,#39ff14,#ffe600,#ff2d55); border:2px solid #111; transition:.35s cubic-bezier(.2,1.4,.2,1); }
+.mood-text { margin-top:8px; font-size:12px; color:#fff; font-weight:900; text-shadow:2px 2px 0 #111; }
+.section-title { margin:26px 0 12px; color:#fff; font-size:17px; font-weight:900; text-shadow:3px 3px 0 #111; letter-spacing:.5px; }
+.category-wrap { display:flex; gap:10px; flex-wrap:wrap; }
+.cat { border:3px solid #111; background:#fff; color:#111; border-radius:15px; box-shadow:4px 4px 0 #111; padding:10px 12px; font-size:14px; font-weight:900; cursor:pointer; transform:rotate(var(--r)); transition:.16s ease; }
+.cat.active { background:#fff0a6; box-shadow:5px 5px 0 #ff2d55; transform:scale(1.04) rotate(var(--r)); }
+.cat:active,button:active { transform:translate(4px,4px) scale(.98) rotate(var(--r,0deg)); box-shadow:1px 1px 0 #111!important; }
+
+.card-shell { position:relative; margin-top:26px; }
+.card-label { position:absolute; left:18px; top:-17px; z-index:3; background:#e96978; color:#fff; border:3px solid #111; border-radius:999px; padding:8px 14px; box-shadow:4px 4px 0 #111; font-size:13px; font-weight:900; transform:rotate(-5deg); }
+.emoji-badge { position:absolute; right:14px; top:-22px; z-index:3; width:54px; height:54px; display:grid; place-items:center; background:#89d5ce; border:3px solid #111; border-radius:18px; box-shadow:4px 4px 0 rgba(17,17,17,.78); font-size:31px; transform:rotate(10deg); }
+.emoji-badge.spin { animation:spinPop .42s ease both; }
+@keyframes spinPop { 0%{transform:rotate(-20deg) scale(.5)} 70%{transform:rotate(18deg) scale(1.18)} 100%{transform:rotate(10deg) scale(1)} }
+.mad-card { min-height:284px; background:linear-gradient(145deg,rgba(255,250,239,.94),rgba(255,239,216,.88)); backdrop-filter:blur(10px); border:3px solid rgba(17,17,17,.86); border-radius:30px; padding:42px 22px 24px; box-shadow:8px 8px 0 rgba(17,17,17,.68),0 18px 42px rgba(32,24,44,.24); position:relative; overflow:hidden; }
+.mad-card::before { content:"MOONLIGHT / CRAZY / STREET"; position:absolute; right:-55px; top:44px; transform:rotate(90deg); font-size:18px; color:rgba(112,82,123,.12); font-weight:900; letter-spacing:2px; }
+.mad-card::after { content:"!!!"; position:absolute; left:12px; bottom:-20px; font-size:96px; line-height:1; color:rgba(255,210,134,.32); -webkit-text-stroke:2px rgba(0,0,0,.15); font-weight:900; }
+.mad-text { position:relative; z-index:2; font-size:26px; line-height:1.38; font-weight:750; white-space:pre-line; letter-spacing:-.5px; }
+.mad-text .hot { background:#fff0a6; color:#ff2d55; padding:0 4px; border:2px solid #111; box-shadow:2px 2px 0 rgba(17,17,17,.78),0 0 14px rgba(255,226,153,.26); display:inline-block; transform:rotate(-2deg); }
+.tools { margin-top:22px; display:grid; gap:12px; }
+.primary { width:100%; height:62px; border:4px solid #111; border-radius:20px; background:#fff0a6; color:#111; box-shadow:7px 7px 0 #111; font-size:21px; font-weight:900; cursor:pointer; position:relative; overflow:hidden; }
+.primary::after { content:""; position:absolute; inset:-40%; background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.7),transparent 65%); transform:translateX(-120%) rotate(8deg); }
+.primary:hover::after { animation:shine .75s ease; } @keyframes shine { to{transform:translateX(120%) rotate(8deg)} }
+.secondary-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.secondary { min-height:50px; border:3px solid #111; border-radius:16px; background:rgba(255,248,236,.94); color:#111; box-shadow:4px 4px 0 rgba(17,17,17,.76); font-size:15px; font-weight:900; cursor:pointer; }
+.share-stage { margin-top:24px; display:none; animation:rise .28s ease both; } .share-stage.show{display:block}
+@keyframes rise { from{opacity:0;transform:translateY(24px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+.poster-title{color:#fff;font-size:18px;font-weight:900;text-shadow:3px 3px 0 #111;margin:0 0 12px}
+.poster{width:100%;min-height:520px;border:4px solid #111;border-radius:28px;background:radial-gradient(circle at 20% 15%,#ffe600 0 14%,transparent 15%),radial-gradient(circle at 86% 20%,#00e5ff 0 16%,transparent 17%),linear-gradient(145deg,#ff2d55,#7c3aed 58%,#111);box-shadow:9px 9px 0 #111;padding:22px;position:relative;overflow:hidden}
+.poster::before{content:"疯疯文学研究所";position:absolute;right:-42px;top:230px;transform:rotate(90deg);color:rgba(255,255,255,.18);font-size:18px;font-weight:900;letter-spacing:3px}
+.poster-head{color:#fff;font-size:32px;line-height:1;font-weight:900;-webkit-text-stroke:1.5px #111;text-shadow:4px 4px 0 #ffe600;transform:rotate(-3deg)}
+.poster-body{margin-top:36px;background:#fff;border:4px solid #111;border-radius:24px;box-shadow:7px 7px 0 #111;min-height:270px;padding:24px 18px;font-size:28px;line-height:1.35;font-weight:900;white-space:pre-line}
+.poster-foot{margin-top:22px;display:flex;gap:14px;align-items:center}
+.qr{width:78px;height:78px;border:4px solid #111;background:linear-gradient(90deg,#000 10px,transparent 10px 20px,#000 20px 30px,transparent 30px),linear-gradient(#000 10px,transparent 10px 20px,#000 20px 30px,transparent 30px),#fff;background-size:30px 30px;box-shadow:5px 5px 0 #111}
+.poster-tip{flex:1;background:#fff0a6;border:3px solid #111;border-radius:16px;box-shadow:4px 4px 0 rgba(17,17,17,.78);padding:10px;font-size:14px;line-height:1.35;font-weight:900;transform:rotate(2deg)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(30px);opacity:0;background:#111;color:#ffe600;border:3px solid #ffe600;box-shadow:5px 5px 0 #000;border-radius:999px;padding:10px 15px;font-size:14px;font-weight:900;z-index:20;transition:.2s ease;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.shake{animation:shake .24s linear} @keyframes shake{0%{transform:translateX(0) rotate(0deg)}25%{transform:translateX(-6px) rotate(-1deg)}50%{transform:translateX(6px) rotate(1deg)}75%{transform:translateX(-4px) rotate(-1deg)}100%{transform:translateX(0) rotate(0deg)}}
+.burst{position:fixed;z-index:30;pointer-events:none;font-size:21px;font-weight:900;color:#ffe600;-webkit-text-stroke:1.4px #111;animation:burstFly 1.45s ease-out forwards}
+@keyframes burstFly{from{opacity:1;transform:translate(-50%,-50%) scale(.55) rotate(0deg)}to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.25) rotate(var(--rot))}}
+.screen-flash{position:fixed;inset:0;z-index:25;background:rgba(255,225,160,.16);pointer-events:none;opacity:0} .screen-flash.show{animation:flash .28s ease-out} @keyframes flash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+.flying-sticker{position:fixed;left:50%;top:50%;z-index:28;pointer-events:none;padding:7px 11px;border:3px solid #111;border-radius:999px;background:#fff;box-shadow:4px 4px 0 #111;font-weight:900;font-size:13px;animation:stickerFly 1.65s ease-out forwards}
+@keyframes stickerFly{from{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(-20deg)}20%{opacity:1}to{opacity:0;transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.15) rotate(var(--rot))}}
+
+
+/* === v4 艺术装置微调：留白 / 胶片 / 景深 / 空间感 === */
+body{
+  background:
+    radial-gradient(circle at 14% 12%, rgba(255,225,142,.20) 0 7%, transparent 8%),
+    radial-gradient(circle at 88% 14%, rgba(134,208,202,.15) 0 9%, transparent 11%),
+    radial-gradient(ellipse at 50% 108%, rgba(255,205,146,.12), transparent 42%),
+    linear-gradient(180deg,#29283d 0%,#443d59 48%,#665064 100%);
+}
+/* 更轻的文字残影，避免满屏喊叫 */
+body::after{opacity:.58;color:rgba(255,245,214,.055);font-size:26px;top:46%;}
+/* 胶片颗粒 + 暗角：很轻，不做复古滤镜 */
+.film-layer{position:fixed;inset:0;z-index:4;pointer-events:none;mix-blend-mode:soft-light;opacity:.42;background:
+  radial-gradient(ellipse at center, transparent 42%, rgba(10,8,18,.32) 100%),
+  repeating-radial-gradient(circle at 18% 28%, rgba(255,255,255,.06) 0 1px, transparent 1px 3px),
+  repeating-linear-gradient(100deg, rgba(255,255,255,.035) 0 1px, transparent 1px 34px);
+}
+.film-layer::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 6%,rgba(255,255,255,.035) 6.2%,transparent 6.5% 72%,rgba(0,0,0,.04) 72.2%,transparent 72.6%);opacity:.45;}
+/* 安静区：页面左下留出一块只剩灯和雾的区域，让“疯”有对比 */
+.quiet-corner{position:fixed;left:0;bottom:0;width:min(54vw,250px);height:36vh;z-index:0;pointer-events:none;opacity:.8;background:
+  radial-gradient(circle at 34% 42%, rgba(255,207,139,.18), transparent 24%),
+  linear-gradient(to top, rgba(20,17,31,.26), transparent 68%);filter:blur(.2px);}
+.quiet-corner::before{content:"";position:absolute;left:52px;bottom:0;width:7px;height:210px;border-radius:99px;background:rgba(21,19,31,.36);}
+.quiet-corner::after{content:"";position:absolute;left:31px;bottom:188px;width:52px;height:52px;border-radius:50%;background:rgba(255,206,128,.18);box-shadow:0 0 58px rgba(255,206,128,.23);}
+/* 前后景深：远景更虚，近景更清 */
+.street-ghost{opacity:.34;filter:blur(.9px);transform:scale(1.02);transform-origin:center bottom;}
+.art-atmosphere::after{opacity:.74;filter:blur(.6px);}
+.art-orb{opacity:.30;filter:blur(20px);animation-duration:18s;}
+.art-line{opacity:.30;animation-duration:14s;}
+/* 大幅减少信息密度：只保留少数“精神标记” */
+.bg-doodle span{opacity:.28;filter:blur(.15px);animation-duration:10s;}
+.d2,.d4,.d6,.d8{display:none!important;}
+.d1{left:22px;top:360px}.d5{left:58%;top:245px}.d3,.d7,.d9,.d10{display:none!important;}
+.sticker{opacity:.72;animation-duration:7.5s;}
+.s2,.s4{display:none!important;}
+.s1{top:34px;right:24px;background:rgba(255,240,166,.82);}
+/* 主视觉更像展览海报，不像普通网页 */
+.app{padding-top:52px;}
+.hero{padding-top:44px;margin-bottom:30px;}
+.status{background:rgba(17,17,17,.74);color:#ffe9a7;border-color:rgba(255,230,166,.78);box-shadow:0 10px 28px rgba(0,0,0,.25);}
+h1{font-size:46px;letter-spacing:-1.5px;text-shadow:0 8px 26px rgba(0,0,0,.5),0 0 36px rgba(255,232,184,.13);}
+.sub{background:rgba(255,240,166,.78);box-shadow:3px 3px 0 rgba(17,17,17,.62),0 10px 28px rgba(0,0,0,.16);}
+.section-title{margin-top:34px;color:rgba(255,247,222,.92);text-shadow:0 4px 18px rgba(0,0,0,.45);}
+.cat{background:rgba(255,248,236,.82);box-shadow:3px 3px 0 rgba(17,17,17,.62);border-color:rgba(17,17,17,.82);}
+.cat.active{background:rgba(255,240,166,.86);box-shadow:4px 4px 0 rgba(233,105,120,.72);}
+.card-shell{margin-top:36px;perspective:900px;}
+.card-label{background:rgba(218,101,120,.88);box-shadow:3px 3px 0 rgba(17,17,17,.68);}
+.emoji-badge{opacity:.92;box-shadow:3px 3px 0 rgba(17,17,17,.62),0 12px 32px rgba(0,0,0,.18);}
+.mad-card{transform:rotateX(.8deg);background:linear-gradient(145deg,rgba(255,251,241,.88),rgba(255,237,216,.78));border-color:rgba(17,17,17,.72);box-shadow:7px 7px 0 rgba(17,17,17,.50),0 28px 68px rgba(22,17,33,.34);}
+.mad-card::before{color:rgba(112,82,123,.075);}
+.mad-card::after{opacity:.58;}
+.mad-text{font-weight:700;color:rgba(22,20,27,.96);}
+.mad-text .hot{background:rgba(255,240,166,.84);box-shadow:2px 2px 0 rgba(17,17,17,.58),0 0 18px rgba(255,226,153,.22);}
+.tools{margin-top:26px;}
+.primary{background:rgba(255,240,166,.9);box-shadow:5px 5px 0 rgba(17,17,17,.72),0 16px 36px rgba(0,0,0,.18);}
+.secondary{background:rgba(255,248,236,.82);box-shadow:3px 3px 0 rgba(17,17,17,.58);}
+/* 点击反馈收敛：不再像爆炸特效，像小纸片飘出 */
+.screen-flash{background:rgba(255,225,160,.09);}
+.burst{font-size:18px;color:#fff0a6;-webkit-text-stroke:1px rgba(17,17,17,.72);opacity:.9;}
+.flying-sticker{opacity:.82;box-shadow:3px 3px 0 rgba(17,17,17,.58);}
+/* 海报区域同步降噪 */
+.poster{background:radial-gradient(circle at 20% 15%,rgba(255,230,166,.42) 0 14%,transparent 15%),radial-gradient(circle at 86% 20%,rgba(137,213,206,.32) 0 16%,transparent 17%),linear-gradient(145deg,#6d5269,#443d59 58%,#16131f);box-shadow:7px 7px 0 rgba(17,17,17,.65),0 26px 70px rgba(0,0,0,.28);}
+.poster-body{background:rgba(255,248,236,.9);font-weight:760;}
+
+@media(max-width:360px){h1{font-size:42px}.mad-text{font-size:23px}.poster-body{font-size:24px}}
+</style>
+
+<style>
+.home-back-btn{
+  position:fixed;
+  left:16px;
+  top:16px;
+  z-index:9999;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 14px;
+  border:3px solid #111;
+  border-radius:999px;
+  background:rgba(255,248,236,.94);
+  color:#111;
+  box-shadow:4px 4px 0 #111;
+  font-size:14px;
+  font-weight:900;
+  text-decoration:none;
+}
+.home-back-btn:active{
+  transform:translate(3px,3px);
+  box-shadow:1px 1px 0 #111;
+}
+</style>
+
+
+
+<style>
+/* === final 微光晕 / 景深小动画 / 更像成品的最终微调 === */
+:root{--final-warm:rgba(255,218,155,.72);--final-ink:rgba(20,17,30,.86)}
+body{background-attachment:fixed;}
+/* 右上月光、远处橱窗、地面反光：增强空间，不增加信息噪音 */
+.final-depth{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.final-depth .moon{position:absolute;right:13%;top:8%;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle at 36% 32%,rgba(255,235,185,.95),rgba(218,153,105,.55) 58%,rgba(255,211,151,.08) 72%,transparent 74%);box-shadow:0 0 40px rgba(255,205,139,.22),0 0 120px rgba(153,117,211,.10);opacity:.58;filter:blur(.15px);animation:moonBreathe 9s ease-in-out infinite alternate;}
+.final-depth .far-shop{position:absolute;right:5%;bottom:10%;width:188px;height:245px;border-radius:22px 22px 8px 8px;background:linear-gradient(180deg,rgba(30,24,44,.30),rgba(18,15,28,.22));box-shadow:inset 0 0 35px rgba(255,218,155,.045),0 0 55px rgba(0,0,0,.14);filter:blur(1.1px);opacity:.44;}
+.final-depth .far-shop::before{content:"";position:absolute;left:28px;top:42px;width:112px;height:58px;border-radius:14px;background:linear-gradient(180deg,rgba(236,119,198,.18),rgba(255,204,143,.10));box-shadow:0 0 34px rgba(236,119,198,.16);animation:windowPulse 7s ease-in-out infinite alternate;}
+.final-depth .ground-glow{position:absolute;left:50%;bottom:2%;width:520px;height:160px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,204,139,.14),rgba(106,77,112,.07) 45%,transparent 70%);filter:blur(10px);opacity:.7;}
+.final-depth .dust{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,235,185,.55);box-shadow:0 0 12px rgba(255,218,155,.45);opacity:.42;animation:dustFloat 12s ease-in-out infinite alternate;}
+.final-depth .p1{left:17%;top:24%;animation-delay:.2s}.final-depth .p2{left:76%;top:36%;animation-delay:1.3s}.final-depth .p3{left:64%;top:18%;animation-delay:2.1s}.final-depth .p4{left:28%;top:70%;animation-delay:3.2s}.final-depth .p5{left:86%;top:76%;animation-delay:4s}
+@keyframes moonBreathe{from{opacity:.48;transform:translateY(0) scale(.98)}to{opacity:.66;transform:translateY(-5px) scale(1.03)}}
+@keyframes windowPulse{from{opacity:.45;filter:blur(.2px)}to{opacity:.82;filter:blur(.6px)}}
+@keyframes dustFloat{from{transform:translate3d(0,0,0);opacity:.22}to{transform:translate3d(10px,-26px,0);opacity:.58}}
+/* 让中心内容像“被灯照到的纸”，更有装置感 */
+.app::before{content:"";position:absolute;left:50%;top:120px;width:520px;height:760px;transform:translateX(-50%);border-radius:42% 58% 40% 60%;background:radial-gradient(ellipse at center,rgba(255,230,185,.07),rgba(255,230,185,.025) 44%,transparent 70%);filter:blur(10px);z-index:-1;pointer-events:none;}
+.status,.sub,.mood-meter,.cat,.mad-card,.primary,.secondary{transition:transform .28s ease, box-shadow .28s ease, filter .28s ease;}
+.mad-card{animation:paperBreath 8.5s ease-in-out infinite alternate;}
+@keyframes paperBreath{from{filter:saturate(.98) brightness(1)}to{filter:saturate(1.04) brightness(1.025)}}
+/* 手写/展览细节：少量，不抢主内容 */
+.side-note{position:fixed;z-index:1;pointer-events:none;color:rgba(255,221,176,.36);font-size:15px;line-height:1.9;letter-spacing:2px;font-weight:700;text-shadow:0 0 18px rgba(255,171,119,.12);}
+.side-note.left{left:7%;bottom:18%;transform:rotate(-6deg)}
+.side-note.right{right:8%;top:38%;transform:rotate(4deg)}
+.side-note small{font-size:12px;opacity:.7;}
+/* 最终降噪：标签更少、更像漂浮纸片 */
+body::after{display:none;}
+.bg-doodle .d5{opacity:.20;filter:blur(.3px);}
+.sticker.s1{font-size:12px;padding:7px 11px;border-color:rgba(17,17,17,.68);box-shadow:2px 2px 0 rgba(17,17,17,.48);}
+.home-back-btn{background:rgba(255,248,236,.82)!important;backdrop-filter:blur(8px);border-color:rgba(17,17,17,.68)!important;box-shadow:3px 3px 0 rgba(17,17,17,.48)!important;}
+/* 按钮交互更轻，减少“小游戏廉价感” */
+.primary:hover,.secondary:hover,.cat:hover{filter:brightness(1.04);transform:translateY(-1px) rotate(var(--r,0deg));}
+.primary:active,.secondary:active,.cat:active{transform:translate(2px,2px) scale(.99) rotate(var(--r,0deg));}
+/* 手机端右侧景深压淡，避免挤 */
+@media(max-width:640px){.final-depth .far-shop{right:-42px;opacity:.28}.final-depth .moon{right:8%;top:9%;width:58px;height:58px}.side-note{display:none}.app::before{width:430px}}
+</style>
+
+
+<style>
+/* === 呼吸感微动增强：微光晕闪烁 + 远景轻微漂移 === */
+.final-depth .moon{
+  animation:moonBreathe 9s ease-in-out infinite alternate, softHaloFlicker 5.8s ease-in-out infinite;
+}
+.final-depth .far-shop{
+  animation:farShopDrift 12s ease-in-out infinite alternate;
+  transform-origin:center bottom;
+}
+.final-depth .far-shop::before{
+  animation:windowPulse 7s ease-in-out infinite alternate, windowTinyFlicker 4.6s ease-in-out infinite;
+}
+.final-depth .ground-glow{
+  animation:groundGlowBreath 8s ease-in-out infinite alternate;
+}
+.street-ghost{
+  animation:ghostStreetDrift 16s ease-in-out infinite alternate;
+}
+.street-ghost .lamp::before{
+  animation:lampWarmBreath 5.5s ease-in-out infinite alternate;
+}
+.street-ghost .window{
+  animation:tinyWindowBreathe 7.5s ease-in-out infinite alternate;
+}
+.street-ghost .w2{animation-delay:1.4s}.street-ghost .w3{animation-delay:2.2s}
+.art-orb{
+  animation:orbDrift 18s ease-in-out infinite alternate, orbBreath 6.8s ease-in-out infinite;
+}
+.sticker.s1{
+  animation:floaty 7.5s ease-in-out infinite alternate, stickerSoftBlink 5.2s ease-in-out infinite;
+}
+.bg-doodle span{
+  animation:bgFloat 10s ease-in-out infinite alternate, paperSignBlink 7.2s ease-in-out infinite;
+}
+.card-label,.emoji-badge{
+  animation:labelTinyFloat 6.5s ease-in-out infinite alternate;
+}
+.emoji-badge{animation-delay:1.1s}
+.home-back-btn{
+  animation:backBtnGlow 8s ease-in-out infinite alternate;
+}
+
+@keyframes softHaloFlicker{
+  0%,100%{box-shadow:0 0 40px rgba(255,205,139,.22),0 0 120px rgba(153,117,211,.10)}
+  42%{box-shadow:0 0 52px rgba(255,205,139,.30),0 0 145px rgba(153,117,211,.14)}
+  57%{box-shadow:0 0 34px rgba(255,205,139,.18),0 0 108px rgba(153,117,211,.08)}
+}
+@keyframes farShopDrift{
+  from{transform:translate3d(0,0,0) scale(1)}
+  to{transform:translate3d(-8px,-4px,0) scale(1.012)}
+}
+@keyframes windowTinyFlicker{
+  0%,100%{box-shadow:0 0 34px rgba(236,119,198,.16)}
+  48%{box-shadow:0 0 45px rgba(236,119,198,.24),0 0 22px rgba(255,204,143,.13)}
+  54%{box-shadow:0 0 25px rgba(236,119,198,.11)}
+}
+@keyframes groundGlowBreath{
+  from{opacity:.54;filter:blur(10px);}
+  to{opacity:.78;filter:blur(14px);}
+}
+@keyframes ghostStreetDrift{
+  from{transform:translate3d(0,0,0) scale(1.02);}
+  to{transform:translate3d(7px,-3px,0) scale(1.025);}
+}
+@keyframes lampWarmBreath{
+  from{opacity:.68;box-shadow:0 0 36px rgba(255,198,123,.18)}
+  to{opacity:.92;box-shadow:0 0 58px rgba(255,198,123,.28),0 0 96px rgba(255,198,123,.08)}
+}
+@keyframes tinyWindowBreathe{
+  from{opacity:.55;filter:blur(.1px)}
+  to{opacity:.82;filter:blur(.45px)}
+}
+@keyframes orbBreath{
+  0%,100%{opacity:.24}
+  50%{opacity:.36}
+}
+@keyframes stickerSoftBlink{
+  0%,100%{filter:brightness(1);box-shadow:2px 2px 0 rgba(17,17,17,.48),0 0 0 rgba(255,226,153,0)}
+  50%{filter:brightness(1.08);box-shadow:2px 2px 0 rgba(17,17,17,.48),0 0 18px rgba(255,226,153,.20)}
+}
+@keyframes paperSignBlink{
+  0%,100%{filter:blur(.15px) brightness(1)}
+  50%{filter:blur(.18px) brightness(1.10)}
+}
+@keyframes labelTinyFloat{
+  from{translate:0 0;filter:brightness(1)}
+  to{translate:0 -3px;filter:brightness(1.035)}
+}
+@keyframes backBtnGlow{
+  from{filter:brightness(1)}
+  to{filter:brightness(1.06)}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .final-depth .moon,.final-depth .far-shop,.final-depth .far-shop::before,.final-depth .ground-glow,.street-ghost,.street-ghost .lamp::before,.street-ghost .window,.art-orb,.sticker.s1,.bg-doodle span,.card-label,.emoji-badge,.home-back-btn{animation:none!important;}
+}
+</style>
+
+
+<style>
+/* === 偶然性增强：随机电压闪烁 + 低透明漂浮句子 === */
+.ambient-whisper-layer{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;}
+.ambient-whisper{
+  position:fixed;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  color:rgba(255,243,216,.24);
+  text-shadow:0 0 20px rgba(255,210,150,.08);
+  letter-spacing:2px;
+  font-size:14px;
+  line-height:1.9;
+  font-weight:600;
+  white-space:nowrap;
+  opacity:0;
+  filter:blur(.2px);
+  animation:ambientWhisperDrift 13.8s ease-out forwards;
+}
+.ambient-whisper.alt{font-size:13px;color:rgba(214,235,233,.20)}
+@keyframes ambientWhisperDrift{
+  0%{opacity:0;transform:translate(calc(-50% + 0px), calc(-50% + 12px)) scale(.985)}
+  10%{opacity:.42}
+  65%{opacity:.24}
+  100%{opacity:0;transform:translate(calc(-50% + var(--dx, 28px)), calc(-50% + var(--dy, -38px))) scale(1.03)}
+}
+@keyframes voltageBlink {
+  0%,100%{opacity:1;filter:none}
+  12%{opacity:.92}
+  18%{opacity:.64}
+  24%{opacity:1}
+  41%{opacity:.82}
+  52%{opacity:.96}
+  63%{opacity:.58}
+  71%{opacity:1}
+}
+body.voltage-flicker .street-ghost .lamp::before{
+  animation:lampWarmBreath 5.5s ease-in-out infinite alternate, voltageBlink .42s steps(1,end) 1;
+}
+body.voltage-flicker .street-ghost .window,
+body.voltage-flicker .final-depth .far-shop::before{
+  animation:tinyWindowBreathe 7.5s ease-in-out infinite alternate, voltageBlink .42s steps(1,end) 1!important;
+}
+body.voltage-flicker .final-depth .moon{
+  animation:moonBreathe 9s ease-in-out infinite alternate, softHaloFlicker 5.8s ease-in-out infinite, voltageBlink .42s steps(1,end) 1;
+}
+body.voltage-flicker .street-ghost .lamp::before{box-shadow:0 0 28px rgba(255,198,123,.15),0 0 70px rgba(255,198,123,.05)}
+body.voltage-flicker .street-ghost .w2{opacity:.38}
+body.voltage-flicker .street-ghost .w3{opacity:.52}
+@media (prefers-reduced-motion: reduce){
+  .ambient-whisper{animation:none!important;opacity:.16}
+}
+</style>
+
+
+
+<style id="mobile-responsive-fix-20260609">
+/* 手机端修复：把主内容改为单列、安全宽度，弱化背景装饰，避免卡片和贴纸覆盖 */
+html,body{width:100%;min-width:0;}
+@supports (min-height:100svh){body{min-height:100svh;}}
+@media (max-width: 760px){
+  body{overflow-x:hidden!important;}
+  .app{width:100%!important; max-width:100vw!important; padding:72px 14px 28px!important; margin:0!important; overflow:visible!important;}
+  .home-back-btn,a[href="../"]{top:12px!important; left:12px!important; padding:8px 12px!important; font-size:12px!important; border-width:2px!important; box-shadow:3px 3px 0 #111!important; z-index:99999!important;}
+  h1{font-size:clamp(38px,12vw,58px)!important; line-height:.95!important; letter-spacing:-1px!important; margin:0 0 10px!important; word-break:keep-all!important;}
+  .sub{font-size:14px!important; line-height:1.45!important; max-width:88vw!important; margin:8px auto 0!important;}
+  .status{font-size:12px!important; padding:8px 12px!important; max-width:88vw!important; margin:0 auto 10px!important;}
+  .mood-meter{width:90vw!important; max-width:460px!important; height:14px!important; margin:12px auto 6px!important;}
+  .mood-text{font-size:12px!important;}
+  .section-title{font-size:15px!important; margin-top:22px!important;}
+  .category-wrap{display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:9px!important; width:100%!important; max-width:480px!important; margin:12px auto 0!important;}
+  .cat{font-size:12px!important; padding:9px 8px!important; min-height:38px!important; border-width:2px!important; box-shadow:3px 3px 0 rgba(17,17,17,.68)!important;}
+  .card-shell{width:100%!important; max-width:480px!important; margin:28px auto 0!important;}
+  .card-label{left:8px!important; top:-14px!important; font-size:11px!important; padding:6px 9px!important; border-width:2px!important;}
+  .emoji-badge{right:8px!important; top:-18px!important; width:42px!important; height:42px!important; font-size:24px!important; border-width:2px!important; border-radius:14px!important;}
+  .mad-card{width:100%!important; min-height:148px!important; padding:26px 16px 20px!important; border-width:3px!important; border-radius:22px!important; box-shadow:5px 5px 0 rgba(17,17,17,.55),0 18px 48px rgba(22,17,33,.26)!important; transform:none!important; overflow:hidden!important;}
+  .mad-card::before{display:none!important;}
+  .mad-card::after{font-size:64px!important; bottom:-15px!important; opacity:.35!important;}
+  .mad-text{font-size:clamp(22px,7vw,31px)!important; line-height:1.35!important; word-break:break-word!important; overflow-wrap:anywhere!important;}
+  .tools{display:grid!important; grid-template-columns:1fr!important; gap:10px!important; width:100%!important; max-width:480px!important; margin:18px auto 0!important;}
+  .primary,.secondary{width:100%!important; min-height:44px!important; font-size:15px!important; padding:11px 12px!important; border-width:2px!important; box-shadow:3px 3px 0 rgba(17,17,17,.72)!important;}
+  .secondary-grid{display:grid!important; grid-template-columns:1fr 1fr!important; gap:10px!important; width:100%!important; max-width:480px!important; margin:12px auto 0!important;}
+  .poster{width:100%!important; max-width:480px!important; margin:24px auto 0!important; border-width:3px!important; border-radius:22px!important; padding:16px!important; box-shadow:5px 5px 0 rgba(17,17,17,.62),0 18px 48px rgba(0,0,0,.24)!important;}
+  .poster::before{display:none!important;}
+  .poster-head{font-size:16px!important;}
+  .poster-body{font-size:clamp(20px,6.4vw,28px)!important; line-height:1.45!important; min-height:108px!important; padding:16px!important; word-break:break-word!important; overflow-wrap:anywhere!important;}
+  .poster-foot{gap:10px!important; align-items:center!important;}
+  .qr{width:48px!important; height:48px!important; flex:0 0 auto!important;}
+  .poster-tip{font-size:11px!important; line-height:1.35!important;}
+  .sticker{transform:scale(.72)!important; opacity:.55!important; pointer-events:none!important;}
+  .sticker.s1{left:-12px!important; top:92px!important;}
+  .sticker.s2{right:-18px!important; top:170px!important;}
+  .sticker.s3,.sticker.s4{display:none!important;}
+  .side-note{display:none!important;}
+  .street-ghost{opacity:.28!important; transform:scale(.78)!important; transform-origin:center bottom!important; pointer-events:none!important;}
+  .street-ghost .wire{top:190px!important;}
+  .street-ghost .lamp{left:8%!important; top:320px!important; height:260px!important; opacity:.52!important;}
+  .final-depth .far-shop{right:-75px!important; bottom:6%!important; transform:scale(.72)!important; opacity:.22!important;}
+  .final-depth .moon{right:8%!important; top:8%!important; width:56px!important; height:56px!important; opacity:.48!important;}
+  .final-depth .ground-glow{width:88vw!important; height:110px!important;}
+  .art-orb,.art-line,.bg-doodle{opacity:.35!important; pointer-events:none!important;}
+  .toast{left:50%!important; transform:translateX(-50%)!important; width:auto!important; max-width:86vw!important; font-size:13px!important;}
+}
+@media (max-width: 360px){
+  .category-wrap,.secondary-grid{grid-template-columns:1fr!important;}
+  .mad-text{font-size:22px!important;}
+  .poster-body{font-size:20px!important;}
+}
+</style>
+
+</head>
+<body>
+
+<a href="../" style="
+position:fixed;top:18px;left:18px;z-index:99999;
+padding:11px 20px;border-radius:999px;
+background:#fff0c8;color:#4a3651;
+font-weight:900;text-decoration:none;
+box-shadow:0 6px 18px rgba(0,0,0,.25);
+border:2px solid rgba(70,48,54,.18);
+">主页</a>
+
+<div class="quiet-corner" aria-hidden="true"></div>
+<div class="final-depth" aria-hidden="true"><i class="moon"></i><i class="far-shop"></i><i class="ground-glow"></i><i class="dust p1"></i><i class="dust p2"></i><i class="dust p3"></i><i class="dust p4"></i><i class="dust p5"></i></div>
+<div class="side-note left" aria-hidden="true">今晚的月亮<br><small>也没能劝我想通</small></div>
+<div class="side-note right" aria-hidden="true">别管我<br>我在发光</div>
+
+<div class="film-layer" aria-hidden="true"></div>
+<div class="art-atmosphere"><i class="art-orb o1"></i><i class="art-orb o2"></i><i class="art-orb o3"></i><i class="art-line l1"></i><i class="art-line l2"></i><i class="art-line l3"></i></div>
+<a class="home-back-btn" href="../">← 返回街景主页</a>
+<div class="screen-flash" id="screenFlash"></div>
+<div class="ambient-whisper-layer" id="ambientWhisperLayer" aria-hidden="true"></div>
+<div class="street-ghost"><i class="wire"></i><i class="lamp"></i><i class="window w1"></i><i class="window w2"></i><i class="window w3"></i></div>
+<div class="bg-doodle">
+  <span class="d1">啊啊啊</span><span class="d2">救命</span><span class="d3">禁止内耗</span><span class="d4">别管</span>
+  <span class="d5">情绪过载</span><span class="d6">已疯</span><span class="d7">重开？</span><span class="d8">脑子冒烟</span>
+  <span class="d9">别催</span><span class="d10">ON</span>
+</div>
+<main class="app">
+  <div class="sticker s1">ON FIRE</div><div class="sticker s2">救命</div><div class="sticker s3">别管我</div><div class="sticker s4">已疯</div>
+  <section class="hero">
+    <div class="status" id="statusText">今日精神状态：非常不稳定</div>
+    <h1>发疯文学<br>生成器</h1>
+    <div class="sub">今天不发疯，明天就发霉。</div>
+    <div class="mood-meter"><div class="mood-bar" id="moodBar"></div></div>
+    <div class="mood-text" id="moodText">崩溃值：68%｜还能抢救一下</div>
+  </section>
+  <section>
+    <div class="section-title">选择你的崩溃频道</div>
+    <div class="category-wrap">
+      <button class="cat active" style="--r:-2deg" data-type="work">上班发疯｜已黑化</button>
+      <button class="cat" style="--r:1deg" data-type="study">学习发疯｜脑子冒烟</button>
+      <button class="cat" style="--r:-1deg" data-type="night">熬夜发疯｜灵魂出走</button>
+      <button class="cat" style="--r:2deg" data-type="worker">打工人发疯｜工牌成精</button>
+      <button class="cat" style="--r:-2deg" data-type="love">恋爱发疯｜心脏报警</button>
+    </div>
+  </section>
+  <section class="card-shell">
+    <div class="card-label" id="cardLabel">当前精神状态</div><div class="emoji-badge" id="emojiBadge">🤯</div>
+    <div class="mad-card" id="madCard"><div class="mad-text" id="madText">点击下面按钮，<span class="hot">开始合法发疯</span>。</div></div>
+  </section>
+  <section class="tools">
+    <button class="primary" id="generateBtn">💥 开始发疯</button>
+    <div class="secondary-grid">
+      <button class="secondary" id="againBtn">🔄 再疯一次</button>
+      <button class="secondary" id="copyBtn">📋 复制发疯</button>
+      <button class="secondary" id="shareBtn">📸 生成疯图</button>
+      <button class="secondary" id="chaosBtn">⚡ 随机崩溃</button>
+    </div>
+  </section>
+  <section class="share-stage" id="shareStage">
+    <p class="poster-title">截图分享页｜小红书传播图</p>
+    <div class="poster">
+      <div class="poster-head">今日发疯文学</div>
+      <div class="poster-body" id="posterBody">点击“生成疯图”，这里会出现你的发疯海报。</div>
+      <div class="poster-foot"><div class="qr"></div><div class="poster-tip">扫码生成你的今日发疯文学<br>转发给同样快疯的人</div></div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast">已复制，继续发疯！</div>
+<script>
+const library = {"work": {"label": "上班发疯｜已黑化", "emoji": ["🤯", "💼", "🔥", "😵‍💫", "🧨", "🫠", "📎", "☠️"], "status": ["今日精神状态：工位起火", "今日精神状态：老板别看", "今日精神状态：灵魂旷工", "今日精神状态：会议过敏", "今日精神状态：表格中毒"], "lines": ["我不是来上班的，\n我是来见证<span class='hot'>人类忍耐力极限</span>的。\n这个班我先上着，\n但我的灵魂已经递交离职申请了。", "老板说要有主人翁精神，\n我懂了，\n现在公司是我的，\n所以我宣布：<span class='hot'>全体下班</span>。", "我每天都准时到公司，\n不是因为我自律，\n是因为<span class='hot'>贫穷</span>比闹钟更响。", "这个会开得很好，\n好到我的灵魂已经离开工位，\n在天花板上写：<span class='hot'>别叫我</span>。", "电脑开机了，\n我的人也开机了，\n但是我的精神系统显示：<span class='hot'>未响应</span>。", "我对工作没有意见，\n我只是对每天都要工作这件事\n产生了强烈的<span class='hot'>宇宙级疑问</span>。", "同事问我怎么了，\n我说没事。\n其实我的内心正在开十万个窗口，\n每个窗口都写着：<span class='hot'>想下班</span>。", "我今天很稳定，\n稳定地想逃跑，\n稳定地想暴富，\n稳定地对着表格<span class='hot'>发出尖叫</span>。", "上班第一小时，\n我已经把今天的耐心用完了。\n剩下七小时靠<span class='hot'>表情管理</span>续命。", "我不是情绪不好，\n我是对工位产生了\n非常具体的<span class='hot'>逃离冲动</span>。", "每次打开工作群，\n我的手机都像在提醒我：\n你的快乐余额<span class='hot'>不足</span>。", "我和老板之间最稳定的关系，\n就是他画饼，\n我假装<span class='hot'>吃饱了</span>。", "这不是早会，\n这是大型人类清醒度\n<span class='hot'>消耗仪式</span>。", "我在工位上坐得很端正，\n但我的灵魂已经在楼下\n<span class='hot'>骑共享单车跑路</span>。", "我现在不是困，\n我是被工作抽走了\n<span class='hot'>人类电量</span>。", "邮件一封接一封，\n像命运往我脸上\n疯狂贴<span class='hot'>便利贴</span>。", "我今天的目标很简单：\n不崩溃，\n不暴走，\n不对 Excel <span class='hot'>说脏话</span>。", "领导说辛苦一下，\n我笑了。\n我已经辛苦成了\n<span class='hot'>人形压缩包</span>。", "我在公司最大的成长，\n是学会了把尖叫\n压缩成一句：<span class='hot'>好的</span>。", "这份工作让我明白，\n人类的极限不是体力，\n是<span class='hot'>装没事</span>。", "上班像开盲盒，\n你永远不知道今天会抽到\n哪个<span class='hot'>离谱任务</span>。", "我不想摸鱼，\n我只是需要确认自己\n还属于<span class='hot'>自然界</span>。", "老板让我积极一点，\n我已经很积极了，\n积极地想<span class='hot'>下班</span>。", "我对工作充满热情，\n主要是火气。\n火很旺，\n情很少。", "今日办公状态：\n身体在工位，\n脑子在缓存，\n灵魂在<span class='hot'>排队离职</span>。", "我不是效率低，\n我是大脑正在对任务进行\n<span class='hot'>道德审判</span>。", "我和打印机一样，\n表面正常运行，\n内心一直<span class='hot'>卡纸</span>。", "如果沉默有声音，\n我的工位现在应该正在\n<span class='hot'>报警</span>。", "我不是想请假，\n我是觉得我的灵魂\n需要一次<span class='hot'>系统升级</span>。", "今天的我很适合工作，\n适合把工作放一边，\n先研究一下<span class='hot'>人生意义</span>。"]}, "study": {"label": "学习发疯｜脑子冒烟", "emoji": ["📚", "🧠", "😭", "⚡", "🫨", "🧃", "✏️", "💀"], "status": ["今日精神状态：知识反弹", "今日精神状态：脑子冒烟", "今日精神状态：题目别追", "今日精神状态：书本压迫", "今日精神状态：答案出逃"], "lines": ["知识没有进脑子，\n但我的眼神已经<span class='hot'>失去高光</span>。\n书是翻开了，\n脑子也关机了。", "我和课本的关系很稳定：\n它认识我，\n我不认识它，\n我们彼此<span class='hot'>保持距离</span>。", "题目问我为什么，\n我也想问题目为什么，\n大家都很痛苦，\n不如一起<span class='hot'>沉默</span>。", "今天学习了吗？\n学了。\n学到了什么？\n学到了人类是有<span class='hot'>极限</span>的。", "我把书翻开，\n书把我合上。\n这不是学习，\n这是我和知识的<span class='hot'>拉扯文学</span>。", "老师说这题很简单，\n我听完很感动，\n原来简单也可以这么<span class='hot'>不认识我</span>。", "我背单词的速度，\n赶不上我忘单词的速度。\n这是大脑在<span class='hot'>反向创业</span>。", "卷子发下来那一刻，\n我感觉它不是纸，\n是命运递给我的<span class='hot'>挑战书</span>。", "我学习的时候很专注，\n专注地看着同一行字\n反复<span class='hot'>失忆</span>。", "知识像外卖，\n显示已送达，\n但我的脑子门口<span class='hot'>没人收</span>。", "我不是不努力，\n我是努力和结果之间\n隔着一条<span class='hot'>银河</span>。", "题目长得很礼貌，\n但内容非常不尊重我。\n我宣布它<span class='hot'>越界了</span>。", "复习计划写得很好，\n执行起来像科幻片，\n主打一个<span class='hot'>不存在</span>。", "我看书的样子很认真，\n但脑子已经切到了\n<span class='hot'>省电模式</span>。", "考试不是检验知识，\n是检验我能不能在绝望里\n<span class='hot'>保持握笔</span>。", "我和答案只有一步之遥，\n这一步叫：\n<span class='hot'>完全不会</span>。", "今天的知识点很活泼，\n它们在我的脑子门口\n<span class='hot'>掉头就走</span>。", "我背了，\n我忘了，\n我又背了，\n我又忘了。\n这叫<span class='hot'>循环经济</span>。", "老师讲得很清楚，\n我也听得很清楚，\n只是听完以后\n<span class='hot'>清空了</span>。", "我不是学不会，\n我是知识和我\n暂时没有建立<span class='hot'>外交关系</span>。", "这道题我不会，\n但它也别太得意，\n我至少会<span class='hot'>跳过</span>。", "学习使我快乐，\n这句话应该是\n哪个平行宇宙传来的<span class='hot'>谣言</span>。", "我打开笔记本，\n笔记本打开我，\n发现里面全是<span class='hot'>空白灵魂</span>。", "知识在前面跑，\n我在后面追，\n追着追着我开始怀疑\n<span class='hot'>人生路线</span>。", "今天的我很适合学习，\n适合学习如何接受\n<span class='hot'>自己学不进去</span>。", "我写作业不是写作业，\n是和时间进行\n<span class='hot'>殊死搏斗</span>。", "我感觉脑子里有东西，\n仔细一看，\n是<span class='hot'>加载动画</span>。", "书上每个字我都认识，\n连在一起以后，\n它们选择了<span class='hot'>背叛我</span>。", "复习到最后，\n我已经不追求会了，\n我追求的是\n<span class='hot'>情绪稳定</span>。", "我不是放弃，\n我是和知识暂时达成\n<span class='hot'>停火协议</span>。"]}, "night": {"label": "熬夜发疯｜灵魂出走", "emoji": ["🌙", "👁️", "🫠", "🛸", "🦉", "🧿", "🛌", "📱"], "status": ["今日精神状态：凌晨加载中", "今日精神状态：天花板好友", "今日精神状态：灵魂夜游", "今日精神状态：睡意断联", "今日精神状态：月亮同事"], "lines": ["凌晨三点，\n我和天花板达成了<span class='hot'>精神共振</span>。\n不是我不睡，\n是我的脑子在开年会。", "夜深了，\n别人睡了，\n我的精神状态开始<span class='hot'>加载失败</span>。", "我本来只是想刷五分钟，\n结果手机说：\n欢迎来到<span class='hot'>凌晨宇宙</span>。", "困是真的困，\n清醒也是真的清醒，\n我现在像一杯忘记关机的<span class='hot'>奶茶</span>。", "我和睡眠分手了，\n不是不爱，\n是它总是在我最清醒的时候<span class='hot'>迟到</span>。", "凌晨一点我说马上睡，\n凌晨两点我说再看一个，\n凌晨三点研究人生为什么<span class='hot'>没有进度条</span>。", "我的眼睛说累了，\n我的脑子说开派对，\n我的身体说你们两个<span class='hot'>别打了</span>。", "现在不是夜晚，\n是精神自由活动时间。\n天花板成为我的<span class='hot'>人生导师</span>。", "我不是熬夜，\n我是被夜晚选中的\n<span class='hot'>精神代言人</span>。", "手机电量 12%，\n我的人生电量 3%，\n但我还在刷，\n这叫<span class='hot'>不服输</span>。", "睡觉这个项目，\n我每天都想启动，\n每天都因为脑子开会\n<span class='hot'>延期</span>。", "凌晨的我最清醒，\n清醒地知道明天一定会\n<span class='hot'>后悔</span>。", "我闭上眼睛，\n脑子开始播放\n今日尴尬合集<span class='hot'>加长版</span>。", "不是我不想睡，\n是我的大脑在夜间\n偷偷<span class='hot'>装修</span>。", "夜深人静，\n只有我的手机、我的眼袋、\n和我的精神状态<span class='hot'>三方会谈</span>。", "我明明躺下了，\n但我的灵魂还在互联网里\n<span class='hot'>滑跪冲浪</span>。", "凌晨两点的我，\n像一台没有关机键的\n<span class='hot'>破风扇</span>。", "我准备睡了，\n然后突然想起一个问题，\n然后人生开始<span class='hot'>无限展开</span>。", "睡眠说它来了，\n我说等一下，\n然后它转身就走，\n非常<span class='hot'>有原则</span>。", "我和夜晚的关系，\n已经从偶遇发展成了\n<span class='hot'>长期合作</span>。", "白天我像个人，\n晚上我像一个会刷手机的\n<span class='hot'>问号</span>。", "我不是失眠，\n我是和清醒签了\n<span class='hot'>不平等条约</span>。", "凌晨三点的空气，\n充满了自由，\n也充满了<span class='hot'>第二天的报应</span>。", "我想睡觉，\n但短视频想让我\n再见识一下<span class='hot'>世界</span>。", "困意在门口敲门，\n我没听见，\n因为手机正在给我播放\n<span class='hot'>命运推荐</span>。", "我的作息不是乱，\n是拥有自己的\n<span class='hot'>时区主权</span>。", "我和枕头面对面，\n但睡眠站在远方，\n像一个不回消息的<span class='hot'>前任</span>。", "夜晚把我变成哲学家，\n白天把我变成\n<span class='hot'>废电池</span>。", "我不是晚睡，\n我是把今天强行\n<span class='hot'>续费</span>。", "当我说再玩五分钟，\n那不是时间单位，\n那是一种<span class='hot'>人生幻想</span>。"]}, "worker": {"label": "打工人发疯｜工牌成精", "emoji": ["🧾", "🏃‍♂️", "💸", "😵", "🥲", "🚇", "🍱", "📉"], "status": ["今日精神状态：工牌成精", "今日精神状态：钱包空响", "今日精神状态：地铁压缩饼干", "今日精神状态：外卖续命", "今日精神状态：工资失踪"], "lines": ["工资没涨，\n脾气涨了。\n经验没涨，\n怨气涨了。\n我每天都在上班，\n但我每天都不知道<span class='hot'>为什么</span>。", "我的工牌不是工牌，\n是现代社会给我的<span class='hot'>电子项圈</span>。", "地铁把我运到公司，\n公司把我运到崩溃，\n晚上再把我运回床上，\n第二天<span class='hot'>循环播放</span>。", "打工人的一天：\n早上想离职，\n中午想暴富，\n晚上想重开，\n睡前想想还是<span class='hot'>明天再说</span>。", "我不是没有梦想，\n我的梦想正在被房租、外卖和通勤\n联合<span class='hot'>精准打击</span>。", "老板画饼的时候，\n我点头如捣蒜。\n不是我信了，\n是我饿了，什么饼都想<span class='hot'>尝两口</span>。", "打工打到最后，\n我已经没有情绪了，\n只有工牌在胸前替我<span class='hot'>闪烁求救</span>。", "我每天都在努力，\n努力保持不崩溃，\n努力让工资卡别太<span class='hot'>安静</span>。", "我的工资像路过，\n刚到账就和房租、外卖\n完成了<span class='hot'>交接仪式</span>。", "打工人的快乐很简单：\n下班、发工资、休假。\n可惜这三个词经常<span class='hot'>不在场</span>。", "我不是在通勤，\n我是被城市流水线\n精准<span class='hot'>投递</span>。", "每个月最富有的时候，\n是工资到账那三分钟。\n三分钟后，\n世界恢复<span class='hot'>贫穷本色</span>。", "我的工位很小，\n但装得下我的电脑、杯子，\n和一整片<span class='hot'>精神废墟</span>。", "早高峰不是交通，\n是把打工人压缩成\n<span class='hot'>社会罐头</span>。", "我不是摆烂，\n我是用最低能耗\n维持人类形态。", "打工让我成熟，\n成熟到每天都能冷静地\n<span class='hot'>想辞职</span>。", "我的钱包很安静，\n安静得像在进行\n<span class='hot'>默哀</span>。", "上班路上我很坚定，\n坚定地想知道自己\n到底欠了生活<span class='hot'>什么</span>。", "工作经验增加了，\n快乐经验清零了，\n这就是成年人的<span class='hot'>版本更新</span>。", "我每天都在赚钱，\n但钱每天都在证明\n它只是来我这里<span class='hot'>旅游</span>。", "打工打久了，\n我看见 Excel 都觉得它\n像一片<span class='hot'>赛博农田</span>。", "我不是不热爱生活，\n我是生活总让我\n先热爱<span class='hot'>上班</span>。", "如果勤劳能致富，\n那我的银行卡应该早就\n<span class='hot'>金光闪闪</span>。", "我最熟悉的路线，\n不是回家的路，\n是精神崩溃前的<span class='hot'>预警曲线</span>。", "打工人的超能力：\n明明很累，\n还能回复：<span class='hot'>收到</span>。", "我不是缺钱，\n我是钱和我之间\n缺少<span class='hot'>长期关系</span>。", "今天也很努力，\n努力把自己从床上\n拖进现实这个<span class='hot'>大型副本</span>。", "我和工资之间，\n像网友，\n见面很短，\n分别很快。", "打工使我坚强，\n坚强到外卖少送筷子\n我都能<span class='hot'>原地破防</span>。", "我的人生目前由三部分组成：\n上班、下班、\n以及思考为什么还要<span class='hot'>继续上班</span>。"]}, "love": {"label": "恋爱发疯｜心脏报警", "emoji": ["💘", "💔", "😵‍💫", "📱", "🫶", "🥀", "💬", "🫀"], "status": ["今日精神状态：心脏报警", "今日精神状态：已读乱想", "今日精神状态：恋爱过载", "今日精神状态：消息侦探", "今日精神状态：情绪地震"], "lines": ["你回我一个“嗯”，\n我已经在脑子里演完<span class='hot'>三季连续剧</span>。\n恋爱不是必需品，\n但发疯是。", "我以为我很冷静，\n直到你三分钟没回消息，\n我的内心已经开始<span class='hot'>灾后重建</span>。", "喜欢你这件事，\n像手机后台程序，\n关不掉，\n还一直<span class='hot'>耗电</span>。", "你说早点睡，\n我说好，\n然后开始分析这两个字里到底有没有<span class='hot'>爱</span>。", "我嘴上说随便，\n心里已经开了八百个会，\n主题是：他到底<span class='hot'>什么意思</span>。", "你发一个句号，\n我开始复盘关系；\n你发一个表情，\n我开始规划未来。\n我不是恋爱脑，\n我是<span class='hot'>剧情脑</span>。", "我的理智说别想了，\n我的心说再想五分钟，\n结果五分钟变成了<span class='hot'>一整晚</span>。", "别人谈恋爱像喝奶茶，\n我谈恋爱像误入悬疑片，\n每条消息都值得<span class='hot'>逐帧分析</span>。", "你一上线，\n我的心就像手机信号，\n突然<span class='hot'>满格</span>。", "我不是在等你消息，\n我是在参与一场\n心跳和通知栏的<span class='hot'>极限运动</span>。", "你说随便，\n我开始研究这个随便\n是随便还是<span class='hot'>不随便</span>。", "喜欢你以后，\n我的大脑从正常模式\n切到了<span class='hot'>侦探模式</span>。", "你不回消息的时候，\n我表面平静，\n内心已经开了\n<span class='hot'>八级大风</span>。", "别人一句晚安就睡了，\n我一句晚安之后\n开始复盘语气。", "我不是恋爱脑，\n我只是脑子里\n多了一个你的<span class='hot'>常驻插件</span>。", "你发的每个字，\n都被我拿去做了\n<span class='hot'>阅读理解</span>。", "我说不在意，\n其实心里已经把聊天记录\n翻成了<span class='hot'>考古现场</span>。", "喜欢你像开盲盒，\n每天都不知道会抽到\n甜蜜还是<span class='hot'>内耗</span>。", "我的心动很不争气，\n你一出现，\n它就开始<span class='hot'>自动投降</span>。", "你回消息慢一点，\n我就从恋爱频道\n切到悬疑频道。", "我本来很酷，\n直到你出现，\n我的人设当场<span class='hot'>掉线</span>。", "你一句在干嘛，\n我差点把人生规划\n全部<span class='hot'>上传</span>。", "爱情让我成长，\n成长为一个能从标点符号里\n看出<span class='hot'>八百种意思</span>的人。", "我不是敏感，\n我是情绪雷达\n对你<span class='hot'>全天候在线</span>。", "你今天少发一个表情，\n我的内心已经开始\n<span class='hot'>气象预警</span>。", "别人恋爱是甜甜的，\n我恋爱是脑内弹幕\n疯狂<span class='hot'>刷屏</span>。", "你说没事，\n我知道有事。\n你说真没事，\n我开始觉得\n<span class='hot'>事情更大了</span>。", "喜欢你以后，\n我的手机不是手机，\n是我的<span class='hot'>情绪遥控器</span>。", "你一冷淡，\n我就开始怀疑\n昨天、今天、人生和宇宙。", "我不是想太多，\n我是对喜欢的人\n拥有过高的<span class='hot'>脑补产能</span>。"]}};
+const cats = document.querySelectorAll(".cat");
+const madText = document.getElementById("madText");
+const madCard = document.getElementById("madCard");
+const label = document.getElementById("cardLabel");
+const emojiBadge = document.getElementById("emojiBadge");
+const posterBody = document.getElementById("posterBody");
+const shareStage = document.getElementById("shareStage");
+const toast = document.getElementById("toast");
+const moodBar = document.getElementById("moodBar");
+const moodText = document.getElementById("moodText");
+const statusText = document.getElementById("statusText");
+const flash = document.getElementById("screenFlash");
+let current = "work";
+let lastTextPlain = "";
+function plain(html) { const div = document.createElement("div"); div.innerHTML = html; return div.innerText; }
+function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+function rand(min,max) { return Math.floor(Math.random()*(max-min+1))+min; }
+function generate(type = current) {
+  current = type;
+  const group = library[current];
+  const html = pick(group.lines);
+  const emoji = pick(group.emoji);
+  const madness = rand(64,99);
+  madText.innerHTML = html;
+  lastTextPlain = plain(html);
+  label.textContent = group.label;
+  emojiBadge.textContent = emoji;
+  statusText.textContent = pick(group.status);
+  moodBar.style.width = madness + "%";
+  moodText.textContent = "崩溃值：" + madness + "%｜" + (madness > 90 ? "建议立即发疯" : madness > 78 ? "已经开始冒烟" : "还能抢救一下");
+  madCard.classList.remove("shake"); emojiBadge.classList.remove("spin"); flash.classList.remove("show");
+  void madCard.offsetWidth;
+  madCard.classList.add("shake"); emojiBadge.classList.add("spin"); flash.classList.add("show");
+  burst(window.innerWidth/2, window.innerHeight*.45);
+  flySticker();
+}
+cats.forEach(btn => {
+  btn.addEventListener("click", () => {
+    cats.forEach(c => c.classList.remove("active"));
+    btn.classList.add("active");
+    generate(btn.dataset.type);
+  });
+});
+document.getElementById("generateBtn").addEventListener("click", e => { generate(); burstFromButton(e.currentTarget); });
+document.getElementById("againBtn").addEventListener("click", e => { generate(); burstFromButton(e.currentTarget); });
+document.getElementById("chaosBtn").addEventListener("click", e => {
+  const keys = Object.keys(library);
+  const random = pick(keys);
+  cats.forEach(c => c.classList.toggle("active", c.dataset.type === random));
+  generate(random);
+  burstFromButton(e.currentTarget);
+});
+document.getElementById("copyBtn").addEventListener("click", async e => {
+  const text = lastTextPlain || madText.innerText;
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast("已复制，继续发疯！");
+    burstFromButton(e.currentTarget, ["复制成功","发出去","让朋友也疯"]);
+  } catch(error) {
+    showToast("复制失败，手动长按复制！");
+  }
+});
+document.getElementById("shareBtn").addEventListener("click", e => {
+  const text = lastTextPlain || madText.innerText;
+  posterBody.textContent = text;
+  shareStage.classList.add("show");
+  shareStage.scrollIntoView({behavior:"smooth",block:"start"});
+  burstFromButton(e.currentTarget, ["疯图生成","截图发出去","朋友圈爆炸"]);
+});
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 1600);
+}
+function burstFromButton(btn, words) {
+  const rect = btn.getBoundingClientRect();
+  burst(rect.left + rect.width/2, rect.top + rect.height/2, words);
+}
+function burst(x, y, words = ["纸片飞走","月亮旁观","轻微冒烟","别管我"]) {
+  for(let i=0; i<2; i++) {
+    const el = document.createElement("div");
+    el.className = "burst";
+    el.textContent = pick(words);
+    el.style.left = x + "px";
+    el.style.top = y + "px";
+    el.style.setProperty("--dx", rand(-160,160) + "px");
+    el.style.setProperty("--dy", rand(-210,120) + "px");
+    el.style.setProperty("--rot", rand(-90,90) + "deg");
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1450);
+  }
+}
+function flySticker() {
+  const stickers = ["轻微冒烟","灵魂出走","月光旁观","精神稳定"];
+  for(let i=0; i<1; i++) {
+    const el = document.createElement("div");
+    el.className = "flying-sticker";
+    el.textContent = pick(stickers);
+    const bg = pick(["#fff0a6","#fff8ec","#89d5ce","#e96978"]);
+    el.style.background = bg;
+    el.style.color = bg === "#ff2d55" ? "#fff" : "#111";
+    el.style.setProperty("--dx", rand(-240,240) + "px");
+    el.style.setProperty("--dy", rand(-300,180) + "px");
+    el.style.setProperty("--rot", rand(-45,45) + "deg");
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1700);
+  }
+}
+
+const ambientWhisperLayer = document.getElementById("ambientWhisperLayer");
+const ambientLines = [
+  "今天也没有下雨",
+  "便利店还亮着",
+  "别太晚回家",
+  "它刚刚是不是动了",
+  "风从街口绕了一圈",
+  "月亮今天不太想说话",
+  "灯箱在替谁失眠",
+  "刚刚那阵风像有人经过"
+];
+function randomBetween(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function triggerVoltageFlicker(){
+  document.body.classList.add('voltage-flicker');
+  setTimeout(()=> document.body.classList.remove('voltage-flicker'), 430);
+}
+function scheduleVoltageFlicker(){
+  const delay = randomBetween(18000,24000);
+  setTimeout(() => {
+    triggerVoltageFlicker();
+    scheduleVoltageFlicker();
+  }, delay);
+}
+function spawnAmbientWhisper(){
+  if(!ambientWhisperLayer) return;
+  const el = document.createElement('div');
+  el.className = 'ambient-whisper' + (Math.random() > 0.55 ? ' alt' : '');
+  el.textContent = pick(ambientLines);
+  const positions = [
+    {x: 22, y: 28},
+    {x: 76, y: 22},
+    {x: 18, y: 72},
+    {x: 74, y: 68},
+    {x: 50, y: 18},
+    {x: 52, y: 76}
+  ];
+  const pos = pick(positions);
+  el.style.left = pos.x + '%';
+  el.style.top = pos.y + '%';
+  el.style.setProperty('--dx', randomBetween(-16, 36) + 'px');
+  el.style.setProperty('--dy', randomBetween(-48, -18) + 'px');
+  ambientWhisperLayer.appendChild(el);
+  setTimeout(() => el.remove(), 14000);
+}
+function scheduleAmbientWhisper(){
+  const delay = randomBetween(14000,22000);
+  setTimeout(() => {
+    spawnAmbientWhisper();
+    scheduleAmbientWhisper();
+  }, delay);
+}
+
+scheduleVoltageFlicker();
+scheduleAmbientWhisper();
+generate("work");
+</script>
+</body>
+</html>
