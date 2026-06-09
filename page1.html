@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>凌晨街道 · 普通人生模拟器</title>
+<style>
+:root{
+  --cream:#fff0c8;--ink:#3d3349;--glass:rgba(255,240,216,.72);--glassDark:rgba(52,43,69,.62);
+  --pink:#ef8796;--green:#8ed0a7;--gold:#f2c36f;--blue:#8fcad2;--violet:#9b87bd;
+  --world-hue:0deg;--world-sat:1;--world-bright:1;--rainOpacity:0;--fogOpacity:.25;
+}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:"Trebuchet MS","Microsoft YaHei",system-ui,sans-serif;color:var(--ink);background:#211e35;user-select:none}.game{position:relative;width:100vw;height:100vh;overflow:hidden;filter:hue-rotate(var(--world-hue)) saturate(var(--world-sat)) brightness(var(--world-bright));background:radial-gradient(circle at 50% 18%,#77637c 0,#4b435f 36%,#292641 78%,#18172a 100%)}
+.sky{position:absolute;inset:0;background:linear-gradient(#22243d 0%,#47415d 43%,#9f7d6c 72%,#322845 100%);animation:skyDrift 18s ease-in-out infinite alternate}.moon{position:absolute;right:26%;top:9%;width:48px;height:48px;border-radius:50%;background:#ffeab0;box-shadow:0 0 32px #ffe5a5,0 0 90px rgba(255,230,180,.25);animation:moonBreathe 6s ease-in-out infinite}.moon:after{content:"";position:absolute;left:14px;top:-4px;width:44px;height:44px;border-radius:50%;background:#44405b}.stars i{position:absolute;width:3px;height:3px;background:#ffe8ad;border-radius:50%;box-shadow:0 0 10px #ffeab1;animation:twinkle 2.6s infinite alternate}.stars i:nth-child(1){left:10%;top:16%}.stars i:nth-child(2){left:20%;top:10%;animation-delay:.4s}.stars i:nth-child(3){left:77%;top:13%;animation-delay:1s}.stars i:nth-child(4){left:88%;top:21%;animation-delay:.7s}.stars i:nth-child(5){left:61%;top:18%;animation-delay:.2s}.stars i:nth-child(6){left:42%;top:20%;animation-delay:1.2s}.stars i:nth-child(7){left:33%;top:25%;animation-delay:1.8s}.stars i:nth-child(8){left:70%;top:24%;animation-delay:.9s}@keyframes twinkle{to{opacity:.22;transform:scale(.5)}}@keyframes moonBreathe{50%{box-shadow:0 0 48px #ffe5a5,0 0 125px rgba(255,230,180,.34)}}@keyframes skyDrift{to{transform:translateX(-1.2%) translateY(.8%)}}
+.cloud{position:absolute;width:260px;height:56px;border-radius:999px;background:rgba(255,226,196,.12);filter:blur(8px);animation:cloudMove 55s linear infinite}.cloud.c1{left:-20%;top:18%}.cloud.c2{left:48%;top:26%;width:340px;animation-duration:70s;opacity:.55}.cloud.c3{left:15%;top:8%;width:190px;animation-duration:64s;opacity:.35}@keyframes cloudMove{to{transform:translateX(135vw)}}
+.city{position:absolute;left:-4%;right:-4%;bottom:28%;height:42%;opacity:.55;filter:blur(1.7px);animation:farFloat 12s ease-in-out infinite alternate}.tower{position:absolute;bottom:0;width:70px;background:rgba(31,28,49,.55);border-radius:8px 8px 0 0}.tower:before{content:"";position:absolute;inset:16px 12px;background:repeating-linear-gradient(90deg,rgba(255,225,165,.2) 0 10px,transparent 10px 22px)}.fog{position:absolute;left:-10%;right:-10%;bottom:26%;height:30%;background:radial-gradient(ellipse at 30% 50%,rgba(255,226,197,.35),transparent 60%),radial-gradient(ellipse at 80% 40%,rgba(180,210,230,.24),transparent 55%);filter:blur(14px);opacity:var(--fogOpacity);animation:fogFlow 18s ease-in-out infinite alternate;pointer-events:none}@keyframes farFloat{to{transform:translateY(-8px) translateX(8px)}}@keyframes fogFlow{to{transform:translateX(4%)}}
+.street{position:absolute;left:-6%;right:-6%;bottom:-5%;height:48%;background:radial-gradient(ellipse at 50% 0,#e5b57d 0,#c58b6b 47%,#5c4260 100%);border-radius:50% 50% 0 0/18% 18% 0 0}.street:after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 0 35%,rgba(255,230,180,.18) 45%,transparent 60%),radial-gradient(ellipse at 62% 35%,rgba(255,255,255,.16),transparent 34%);mix-blend-mode:screen;opacity:.7}.road{position:absolute;left:40%;bottom:0;width:20%;height:48%;background:linear-gradient(#bb9071,#775368);clip-path:polygon(42% 0,58% 0,100% 100%,0 100%);opacity:.82}.road:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 22px,rgba(255,226,170,.08) 22px 25px);opacity:.35}.stone{position:absolute;width:48px;height:20px;border:2px solid rgba(61,48,61,.32);border-radius:50%;opacity:.5}.string{position:absolute;left:15%;right:15%;top:21%;height:50px;border-top:3px solid rgba(43,37,54,.45);transform:rotate(-3deg)}.bulb{position:absolute;top:-8px;width:27px;height:20px;border-radius:8px;background:#ffe293;box-shadow:0 0 22px #ffc777;animation:sway 3s ease-in-out infinite}.bulb:nth-child(1){left:10%;background:#f08a7b}.bulb:nth-child(2){left:33%;background:#d9efaa;animation-delay:.4s}.bulb:nth-child(3){left:58%;animation-delay:.8s}.bulb:nth-child(4){left:82%;background:#f2a1a0;animation-delay:1.1s}@keyframes sway{50%{transform:translateY(4px);filter:brightness(1.2)}}
+.lamp{position:absolute;left:37%;top:31%;width:14px;height:320px;background:#332b46;border-radius:8px;cursor:pointer;z-index:3}.lamp:before{content:"";position:absolute;left:-25px;top:-55px;width:68px;height:68px;border-radius:50%;background:#322b45;border:6px solid #675270}.lamp:after{content:"";position:absolute;left:-8px;top:-37px;width:36px;height:36px;border-radius:50%;background:#ffe0a0;box-shadow:0 0 30px #ffca77;animation:glow 4.8s ease-in-out infinite}.lamp.flicker:after{animation:flicker .22s steps(2) 5}.lampCone{position:absolute;left:30%;top:28%;width:260px;height:430px;background:radial-gradient(ellipse at 50% 0,rgba(255,211,135,.24),transparent 66%);filter:blur(12px);transform:rotate(4deg);pointer-events:none;animation:coneBreathe 5s ease-in-out infinite}@keyframes glow{50%{box-shadow:0 0 64px #ffca77}}@keyframes flicker{50%{filter:brightness(.35);box-shadow:0 0 8px #ffca77}}@keyframes coneBreathe{50%{opacity:.62;transform:rotate(4deg) scale(1.05)}}
+.building{position:absolute;bottom:16%;width:28%;height:43%;border-radius:20px 20px 10px 10px;background:linear-gradient(#e6aa76,#b66b6e);box-shadow:0 20px 40px rgba(35,24,41,.35);cursor:pointer;transition:.25s;animation:buildingBreath 7s ease-in-out infinite}.building:hover{transform:translateY(-8px);filter:brightness(1.08)}.left{left:4%}.right{right:4%;animation-delay:1.2s}.studio{left:20%;width:16%;height:32%;bottom:21%;background:linear-gradient(#d2a073,#8a5a68);animation-delay:.5s}.cafe{right:21%;width:17%;height:34%;bottom:21%;background:linear-gradient(#d79a7b,#8a5c72);animation-delay:1.8s}@keyframes buildingBreath{50%{transform:translateY(-3px)}}.awning{position:absolute;left:0;right:0;top:0;height:58px;border-radius:20px 20px 8px 8px;background:repeating-linear-gradient(90deg,#fff1bf 0 42px,#ec7868 42px 84px);box-shadow:0 8px 10px rgba(48,33,44,.25)}.sign{position:absolute;left:50%;top:28px;transform:translateX(-50%);padding:10px 26px;border-radius:14px;background:rgba(86,61,72,.75);color:#fff1c8;font-size:27px;font-weight:900;box-shadow:0 8px 15px rgba(0,0,0,.25);animation:signBuzz 6s ease-in-out infinite}.window{position:absolute;border:6px solid rgba(89,68,75,.5);background:linear-gradient(#ffe2a5,#ffa967);box-shadow:0 0 25px #ffd28a;border-radius:15px;animation:windowGlow 4s infinite}.w1{left:12%;top:36%;width:32%;height:28%}.w2{right:12%;top:42%;width:28%;height:22%}.door{position:absolute;bottom:0;left:42%;width:25%;height:38%;background:#4b3152;border-radius:12px 12px 0 0}.chalk{position:absolute;bottom:5%;left:12%;padding:12px 18px;border-radius:10px;background:#543d56;color:#fff0c8;font-weight:700;font-size:18px;box-shadow:0 8px 15px rgba(0,0,0,.18)}.plant{position:absolute;bottom:0;right:8%;width:44px;height:54px;background:#c97954;border-radius:7px}.plant:before{content:"";position:absolute;left:-12px;top:-24px;width:28px;height:28px;background:#6eb073;border-radius:50%;box-shadow:28px -10px 0 #78bd7a,50px 3px 0 #62a768}@keyframes windowGlow{50%{filter:brightness(1.24)}}@keyframes signBuzz{50%{filter:brightness(1.12);transform:translateX(-50%) rotate(.3deg)}}
+.cat{position:absolute;left:31%;bottom:19%;width:58px;height:34px;background:#423148;border-radius:50% 50% 45% 45%;cursor:pointer;animation:catNap 2.8s ease-in-out infinite;z-index:4}.cat:before,.cat:after{content:"";position:absolute;top:-15px;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:20px solid #423148}.cat:before{left:9px}.cat:after{right:9px}@keyframes catNap{50%{transform:translateY(3px) scaleX(1.06)}}.vending{position:absolute;right:31%;bottom:23%;width:92px;height:160px;background:#75aaa6;border-radius:16px;box-shadow:0 12px 24px rgba(0,0,0,.25),0 0 35px rgba(155,238,230,.18);cursor:pointer;animation:vendingLight 2.5s infinite;z-index:4}.vending:before{content:"";position:absolute;left:20px;top:24px;width:52px;height:60px;background:linear-gradient(#fff6c4,#ffc084);border-radius:10px;box-shadow:0 0 18px #ffe0a2}.vending:after{content:"";position:absolute;left:25px;bottom:25px;width:44px;height:24px;background:#3c3048;border-radius:6px}@keyframes vendingLight{50%{filter:brightness(1.18)}}
+.hero{position:absolute;left:50%;bottom:20%;transform:translateX(-50%);width:120px;height:260px;cursor:pointer;animation:float 3s ease-in-out infinite;z-index:5;filter:drop-shadow(0 0 14px rgba(255,208,150,.2))}.head{position:absolute;left:16px;top:0;width:88px;height:88px;background:#312947;border:12px solid #252039;border-radius:50%;box-shadow:inset 12px 8px 0 rgba(255,255,255,.18),0 0 10px rgba(255,230,170,.28)}.body{position:absolute;left:22px;top:78px;width:76px;height:120px;background:#f49a66;border-radius:40px 40px 22px 22px;animation:cloth 2.8s ease-in-out infinite}.body:after{content:"";position:absolute;left:18px;top:10px;width:40px;height:92px;background:#91cfbd;border-radius:24px;border:6px solid rgba(255,240,190,.65)}.leg{position:absolute;bottom:8px;width:29px;height:80px;background:#333071;border-radius:12px}.l1{left:31px;transform:rotate(3deg)}.l2{right:31px;transform:rotate(-3deg)}.foot{position:absolute;bottom:0;width:50px;height:25px;background:#252039;border-radius:50%}.f1{left:18px}.f2{right:18px}@keyframes float{50%{transform:translateX(-50%) translateY(-8px)}}@keyframes cloth{50%{border-radius:36px 42px 26px 20px}}
+.rainLayer{position:absolute;inset:0;pointer-events:none;opacity:var(--rainOpacity);background:repeating-linear-gradient(105deg,rgba(230,240,255,.25) 0 1px,transparent 1px 9px);animation:rainMove .5s linear infinite;z-index:6}.rainLayer:after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:radial-gradient(ellipse at 55% 62%,rgba(255,255,255,.22),transparent 35%);filter:blur(5px)}@keyframes rainMove{to{background-position:0 28px}}
+.grain{position:absolute;inset:0;pointer-events:none;z-index:30;opacity:.14;background-image:radial-gradient(rgba(255,255,255,.45) .6px,transparent .6px);background-size:4px 4px;mix-blend-mode:soft-light}.top{position:absolute;top:2%;left:2%;right:2%;display:flex;justify-content:space-between;align-items:flex-start;z-index:20}.title{text-align:center;color:#fff0c5;text-shadow:0 6px 24px rgba(255,228,160,.5)}.title h1{font-size:58px;margin:8px 0 0;letter-spacing:5px}.title p{font-size:18px;font-weight:700;margin:8px}.panel{background:var(--glassDark);border:1px solid rgba(255,238,210,.24);border-radius:24px;padding:16px 20px;color:#fff0c8;box-shadow:0 15px 35px rgba(0,0,0,.2);backdrop-filter:blur(14px)}.stats{width:286px}.row{display:flex;align-items:center;gap:8px;margin:8px 0;font-weight:800}.bar{flex:1;height:13px;background:rgba(255,255,255,.18);border-radius:20px;overflow:hidden}.fill{height:100%;border-radius:20px;transition:width .6s ease}.date{font-size:20px;text-align:center}.toolBtn{border:0;border-radius:999px;background:rgba(255,240,205,.22);color:#fff0c8;padding:6px 10px;font-weight:900;cursor:pointer;margin-top:8px}.choiceBar{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);width:88%;z-index:22;background:var(--glass);border:1px solid rgba(255,255,255,.28);border-radius:24px;padding:16px;box-shadow:0 -10px 35px rgba(58,39,58,.25);backdrop-filter:blur(15px);animation:uiBreathe 5s ease-in-out infinite}.question{text-align:center;font-size:23px;font-weight:900;margin-bottom:12px}.choices{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.choice{position:relative;overflow:hidden;border:0;border-radius:16px;padding:13px 8px;background:linear-gradient(#fff5d4,#eecda9);box-shadow:0 7px 0 rgba(117,78,72,.2);font-size:16px;font-weight:900;color:#4a3651;cursor:pointer;transition:.18s}.choice:hover{transform:translateY(-5px);filter:brightness(1.03)}.choice:active{transform:translateY(2px);box-shadow:0 3px 0 rgba(117,78,72,.25)}.choice:after{content:"";position:absolute;inset:auto auto 50% 50%;width:10px;height:10px;background:rgba(255,255,255,.45);border-radius:50%;transform:scale(0);opacity:0}.choice:active:after{animation:ripple .55s ease-out}@keyframes ripple{to{transform:scale(28);opacity:0}}@keyframes uiBreathe{50%{box-shadow:0 -14px 42px rgba(255,210,160,.22)}}
+.toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.95);width:min(640px,90vw);background:rgba(255,239,213,.96);border:1px solid rgba(255,255,255,.55);border-radius:28px;padding:26px;z-index:60;box-shadow:0 25px 80px rgba(0,0,0,.35);display:none;backdrop-filter:blur(16px)}.toast.show{display:block;animation:pop .25s}.toast h2{margin:0 0 12px;font-size:28px}.toast p{line-height:1.75;font-size:18px;white-space:pre-line}.toast button,.eventBtn{width:100%;border:0;border-radius:16px;background:#75566d;color:#fff0c8;padding:14px;font-size:18px;font-weight:900;cursor:pointer;margin-top:10px}.eventBtn{background:#9b6e7a}@keyframes pop{from{opacity:0;transform:translate(-50%,-45%) scale(.9)}}.log{position:absolute;left:2%;bottom:23%;width:28%;max-height:190px;overflow:auto;z-index:20;background:rgba(255,238,210,.72);border-radius:22px;padding:16px;box-shadow:0 15px 30px rgba(0,0,0,.15);backdrop-filter:blur(12px)}.log h3{margin:0 0 8px}.log div{font-size:14px;margin:6px 0;padding-bottom:6px;border-bottom:1px dashed rgba(80,55,70,.25)}.ending{position:absolute;right:2%;bottom:23%;width:28%;z-index:20;background:rgba(255,238,210,.72);border-radius:22px;padding:18px;box-shadow:0 15px 30px rgba(0,0,0,.15);backdrop-filter:blur(12px)}.ending h3{margin:0 0 8px}.badge{display:inline-block;background:#75566d;color:#fff0c8;border-radius:999px;padding:7px 10px;margin:5px;font-size:13px;font-weight:800}.hint{position:absolute;left:50%;bottom:17%;transform:translateX(-50%);z-index:20;background:rgba(72,55,78,.68);color:#fff0c8;border-radius:20px;padding:12px 24px;font-weight:900;backdrop-filter:blur(8px)}.smallbubble{position:absolute;z-index:70;background:#fff0c8;color:#5d4559;border-radius:18px;padding:12px 16px;box-shadow:0 10px 20px rgba(0,0,0,.2);font-weight:900;display:none}.floatingText{position:absolute;z-index:12;color:rgba(255,241,205,.48);font-weight:700;font-size:18px;text-shadow:0 0 18px rgba(255,230,180,.35);animation:floatText 12s linear forwards;pointer-events:none}.petal{position:absolute;width:12px;height:8px;background:#ffc2bd;border-radius:50%;animation:fall 5s linear forwards;z-index:50}.meteor{position:absolute;width:140px;height:3px;background:linear-gradient(90deg,#fff8be,transparent);box-shadow:0 0 15px #fff1aa;transform:rotate(-25deg);animation:meteor 1.2s linear forwards;z-index:8}.achievement{position:absolute;right:2%;top:18%;z-index:80;background:rgba(255,240,200,.94);border-radius:18px;padding:14px 18px;box-shadow:0 15px 45px rgba(0,0,0,.25);font-weight:900;animation:achieve 3.2s ease forwards}.cosmos .sky{background:radial-gradient(circle at 50% 20%,#6a5ca9 0,#242244 45%,#080912 100%)}.cosmos .building.right{box-shadow:0 0 55px rgba(160,210,255,.35)}@keyframes floatText{from{opacity:0;transform:translateY(20px)}15%{opacity:1}to{opacity:0;transform:translateY(-130px) translateX(80px)}}@keyframes fall{to{transform:translateY(105vh) rotate(420deg);opacity:0}}@keyframes meteor{from{right:-10%;top:12%;opacity:1}to{right:85%;top:50%;opacity:0}}@keyframes achieve{0%{opacity:0;transform:translateX(40px)}15%,80%{opacity:1;transform:none}to{opacity:0;transform:translateX(30px)}}@media(max-width:900px){.title h1{font-size:34px}.title p{font-size:14px}.choices{grid-template-columns:repeat(2,1fr)}.log,.ending{display:none}.building{width:36%}.studio,.cafe{display:none}.stats{width:210px;font-size:13px}.hero{transform:translateX(-50%) scale(.8)}.hint{display:none}.choiceBar{width:96%;bottom:1%}.choice{font-size:14px}.panel{padding:12px}.date{font-size:15px}}
+
+/* extra easter eggs + hidden npc */
+.secretNpc{position:absolute;left:63%;bottom:31%;width:42px;height:86px;z-index:4;opacity:0;pointer-events:none;transition:opacity .8s ease,transform .8s ease;filter:drop-shadow(0 0 18px rgba(255,238,190,.3));animation:npcFloat 4s ease-in-out infinite}.secretNpc.show{opacity:.82;pointer-events:auto;cursor:pointer}.secretNpc:before{content:"";position:absolute;left:9px;top:0;width:25px;height:25px;border-radius:50%;background:#fff0c8;box-shadow:0 0 16px rgba(255,240,200,.65)}.secretNpc:after{content:"";position:absolute;left:5px;top:25px;width:34px;height:58px;border-radius:18px 18px 8px 8px;background:linear-gradient(rgba(120,96,145,.95),rgba(62,51,82,.75));box-shadow:inset 0 0 14px rgba(255,255,255,.18)}@keyframes npcFloat{50%{transform:translateY(-6px)}}
+.ticket,.paperNote{position:absolute;z-index:72;background:rgba(255,241,203,.94);border-radius:12px;padding:9px 12px;font-size:13px;font-weight:900;color:#60465d;box-shadow:0 12px 32px rgba(0,0,0,.24);animation:noteRise 4.8s ease forwards;pointer-events:none}.paperNote{background:rgba(255,255,255,.82)}@keyframes noteRise{0%{opacity:0;transform:translateY(18px) rotate(-2deg)}14%,72%{opacity:1}to{opacity:0;transform:translateY(-55px) rotate(3deg)}}
+.aurora{position:absolute;left:-10%;right:-10%;top:7%;height:26%;z-index:2;pointer-events:none;opacity:0;background:linear-gradient(100deg,transparent,rgba(137,255,209,.24),rgba(176,143,255,.18),transparent);filter:blur(18px);animation:auroraMove 9s ease-in-out forwards}.aurora.show{opacity:1}@keyframes auroraMove{0%{transform:translateX(-10%);opacity:0}20%,76%{opacity:.9}to{transform:translateX(10%);opacity:0}}
+
+
+/* 修复版：侧栏不遮挡选项，通关动画独立浮层 */
+.ending{right:1.6%;top:27%;bottom:auto;width:25%;max-height:42vh;overflow:auto;z-index:18;padding:16px}.ending::-webkit-scrollbar{width:6px}.ending::-webkit-scrollbar-thumb{background:rgba(90,65,88,.35);border-radius:99px}.choiceBar{z-index:24}.passOverlay{position:absolute;inset:0;z-index:95;display:none;align-items:center;justify-content:center;pointer-events:none;background:radial-gradient(circle at 50% 45%,rgba(255,235,180,.34),rgba(37,31,58,.16) 48%,rgba(18,16,30,.42));backdrop-filter:blur(3px)}.passOverlay.show{display:flex;animation:passFade 5.2s ease forwards}.passCard{width:min(560px,86vw);padding:30px 34px;border-radius:30px;background:rgba(255,240,210,.92);box-shadow:0 30px 100px rgba(0,0,0,.38),0 0 80px rgba(255,216,142,.32);text-align:center;color:#4d3a56;animation:passCard 5.2s ease forwards}.passCard h2{margin:0 0 12px;font-size:36px}.passCard p{font-size:18px;line-height:1.8;margin:0}.passSpark{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff2b8;box-shadow:0 0 16px #fff0a6;animation:passSpark 2.8s linear forwards}@keyframes passFade{0%{opacity:0}10%,84%{opacity:1}100%{opacity:0}}@keyframes passCard{0%{opacity:0;transform:translateY(30px) scale(.92)}16%,78%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-20px) scale(.96)}}@keyframes passSpark{to{opacity:0;transform:translateY(-120px) translateX(var(--dx)) scale(.2)}}
+@media(max-width:900px){.ending{display:block;left:2%;right:auto;top:18%;width:45%;max-height:30vh;font-size:12px}.ending .badge{font-size:11px;padding:5px 7px}.ending p{display:none}}
+
+/* === 2026-06-08：面板避让版，不挡底部选项与主体背景 === */
+.log{left:1.4%!important;top:24%!important;bottom:auto!important;width:23.5%!important;max-height:32vh!important;z-index:14!important;background:rgba(255,238,210,.58)!important;box-shadow:0 10px 24px rgba(0,0,0,.12)!important;}
+.ending{right:1.4%!important;top:24%!important;bottom:auto!important;width:23.5%!important;max-height:32vh!important;z-index:14!important;background:rgba(255,238,210,.58)!important;box-shadow:0 10px 24px rgba(0,0,0,.12)!important;}
+.log:hover,.ending:hover{background:rgba(255,238,210,.82)!important;z-index:45!important;}
+.log h3,.ending h3{font-size:20px;margin-bottom:8px!important}.log div{font-size:13px}.ending p{font-size:14px;line-height:1.65}.badge{font-size:12px!important;padding:6px 9px!important;margin:4px!important}
+.choiceBar{z-index:80!important;bottom:1.4%!important}.hint{z-index:12!important;bottom:16.5%!important;opacity:.68}.hero{z-index:18}.building,.cat,.vending,.lamp{z-index:16}
+.passOverlay{z-index:120!important}.toast{z-index:130!important}.achievement{z-index:140!important}
+@media(max-width:1100px){.log{display:none!important}.ending{left:2%!important;right:auto!important;top:16%!important;width:40%!important;max-height:25vh!important;opacity:.78}.ending:hover{opacity:1}.ending p{display:none}.choices{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:700px){.ending{display:none!important}.choices{grid-template-columns:repeat(2,1fr)!important}.choiceBar{width:96%!important}.top{z-index:22}.title h1{font-size:30px!important}}
+
+
+
+/* === 悬浮抽屉：人生方向 / 最新动态 === */
+.log,.ending{
+  position:absolute!important;
+  top:27%!important;
+  bottom:auto!important;
+  width:340px!important;
+  max-width:calc(100vw - 86px)!important;
+  max-height:48vh!important;
+  overflow:auto!important;
+  z-index:42!important;
+  background:rgba(255,238,210,.78)!important;
+  border:1px solid rgba(255,255,255,.45)!important;
+  border-radius:24px!important;
+  padding:18px 20px!important;
+  box-shadow:0 18px 48px rgba(30,20,40,.24)!important;
+  backdrop-filter:blur(16px)!important;
+  transition:transform .55s cubic-bezier(.2,.8,.2,1), opacity .35s ease, background .35s ease, box-shadow .35s ease!important;
+  cursor:pointer;
+}
+.log{
+  left:0!important;
+  right:auto!important;
+  transform:translateX(calc(-100% + 58px));
+  padding-left:74px!important;
+}
+.ending{
+  right:0!important;
+  left:auto!important;
+  transform:translateX(calc(100% - 58px));
+  padding-right:74px!important;
+}
+.log.panelOpen,.ending.panelOpen{
+  transform:translateX(0)!important;
+  opacity:1!important;
+  background:rgba(255,238,210,.92)!important;
+  box-shadow:0 22px 70px rgba(30,20,40,.34),0 0 45px rgba(255,226,150,.16)!important;
+}
+.log::before,.ending::before{
+  position:absolute;
+  top:18px;
+  width:42px;
+  height:calc(100% - 36px);
+  min-height:128px;
+  border-radius:18px;
+  background:linear-gradient(180deg,rgba(119,82,108,.92),rgba(83,60,93,.88));
+  color:#fff0c8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  writing-mode:vertical-rl;
+  letter-spacing:4px;
+  font-size:16px;
+  font-weight:900;
+  box-shadow:inset 0 0 18px rgba(255,235,180,.12),0 10px 24px rgba(0,0,0,.18);
+  pointer-events:none;
+}
+.log::before{content:'最新动态';left:14px;}
+.ending::before{content:'人生方向';right:14px;}
+.log.panelOpen::before{content:'收起动态';}
+.ending.panelOpen::before{content:'收起方向';}
+.log h3,.ending h3{font-size:22px!important;margin:0 0 12px!important;}
+.log div{font-size:15px!important;line-height:1.55;}
+.ending p{font-size:15px!important;line-height:1.72;}
+.log::-webkit-scrollbar,.ending::-webkit-scrollbar{width:6px}.log::-webkit-scrollbar-thumb,.ending::-webkit-scrollbar-thumb{background:rgba(90,65,88,.35);border-radius:99px}
+.choiceBar{z-index:32!important}.hint{z-index:18!important}.toast{z-index:90!important}.top{z-index:36!important}
+.panelHintDot{position:absolute;width:9px;height:9px;border-radius:50%;background:#fff1a7;box-shadow:0 0 16px #ffe899;animation:panelDot 1.9s ease-in-out infinite;pointer-events:none}.log .panelHintDot{left:30px;top:34px}.ending .panelHintDot{right:30px;top:34px}@keyframes panelDot{50%{opacity:.35;transform:scale(.7)}}
+@media(max-width:900px){
+  .log,.ending{display:block!important;top:18%!important;width:300px!important;max-height:34vh!important;font-size:12px!important;}
+  .log{transform:translateX(calc(-100% + 50px));padding-left:64px!important;}
+  .ending{transform:translateX(calc(100% - 50px));padding-right:64px!important;}
+  .log::before,.ending::before{width:36px;font-size:13px;letter-spacing:2px;}
+}
+@media(max-width:620px){
+  .log{top:24%!important;width:280px!important;}
+  .ending{top:42%!important;width:280px!important;}
+}
+
+</style>
+
+<style id="social-building-fix">
+.building.social,
+.social {
+  height: 48% !important;
+  bottom: 15% !important;
+  z-index: 4 !important;
+}
+.building.social .sign,
+.social .sign {
+  z-index: 13 !important;
+}
+.building.social .chalk,
+.social .chalk {
+  z-index: 14 !important;
+}
+</style>
+
+
+<style id="final-building-money-event-fix">
+/* 后排便利店/兼职建筑加高，文字上移，避免被底部选择栏挡住 */
+.building.right,
+.building[data-place="便利店"]{
+  height: 56% !important;
+  bottom: 13% !important;
+  z-index: 14 !important;
+}
+.building.right .chalk,
+.building[data-place="便利店"] .chalk{
+  bottom: 22% !important;
+  left: 10% !important;
+  z-index: 30 !important;
+  font-size: 20px !important;
+  line-height: 1.35 !important;
+  padding: 12px 18px !important;
+  white-space: nowrap !important;
+  box-shadow: 0 0 18px rgba(255,230,160,.28), 0 8px 18px rgba(0,0,0,.22) !important;
+}
+.building.right .door,
+.building[data-place="便利店"] .door{
+  z-index: 8 !important;
+  height: 34% !important;
+}
+.building.right .sign,
+.building[data-place="便利店"] .sign{
+  z-index: 32 !important;
+  top: 24px !important;
+}
+.building .awning{z-index: 5 !important;}
+.choiceBar{z-index: 70 !important;}
+
+/* 金钱彩蛋：地面偶尔出现的小硬币 */
+.coinDrop{
+  position:absolute;
+  width:30px;height:30px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 28%, #fff4b2 0 18%, #ffd16c 35%, #b16b2e 100%);
+  box-shadow:0 0 16px rgba(255,210,100,.75), inset 0 0 0 3px rgba(255,255,255,.25);
+  z-index:55;
+  cursor:pointer;
+  animation:coinBreath 1.8s ease-in-out infinite;
+}
+.coinDrop:after{
+  content:"￥";
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  color:#6b3e36;font-weight:900;font-size:15px;
+}
+@keyframes coinBreath{
+  50%{transform:translateY(-6px) scale(1.08);filter:brightness(1.18)}
+}
+
+/* 点击路灯的明显闪烁反馈 */
+.lamp.clickedFlash:after{
+  animation:lampClickBurst .7s steps(2) 1 !important;
+}
+.lamp.clickedFlash + .lampClickRipple{}
+.lampClickRipple{
+  position:absolute;
+  width:110px;height:110px;
+  border-radius:50%;
+  border:2px solid rgba(255,232,165,.75);
+  box-shadow:0 0 40px rgba(255,215,140,.65);
+  pointer-events:none;
+  z-index:54;
+  animation:lampRipple .9s ease-out forwards;
+}
+@keyframes lampClickBurst{
+  0%,100%{filter:brightness(1);box-shadow:0 0 30px #ffca77}
+  20%{filter:brightness(.25);box-shadow:0 0 6px #ffca77}
+  40%{filter:brightness(1.9);box-shadow:0 0 90px #ffe7a9}
+  60%{filter:brightness(.45);box-shadow:0 0 12px #ffca77}
+  80%{filter:brightness(1.6);box-shadow:0 0 70px #ffe7a9}
+}
+@keyframes lampRipple{
+  from{opacity:.9;transform:scale(.2)}
+  to{opacity:0;transform:scale(1.4)}
+}
+</style>
+
+
+<style id="absolute-building-labels-final-fix">
+/* 隐藏原来容易被建筑/屋檐/底部栏压住的文字块 */
+.building .chalk {
+  display: none !important;
+}
+
+/* 独立建筑文字层：永远浮在建筑和底部栏之上 */
+.float-building-label {
+  position: absolute;
+  z-index: 9999;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: rgba(82, 54, 82, 0.88);
+  color: #fff4c8;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.22;
+  white-space: nowrap;
+  text-align: center;
+  box-shadow:
+    0 10px 22px rgba(0,0,0,.26),
+    0 0 18px rgba(255,235,170,.28);
+  pointer-events: none;
+  text-shadow: 0 2px 4px rgba(0,0,0,.25);
+}
+
+/* 不同建筑文字位置，避开屋檐和底部 choiceBar */
+.float-label-bookstore { left: 8.8%; bottom: 24.5%; }
+.float-label-studio { left: 21.4%; bottom: 25.2%; }
+.float-label-cafe { right: 22.2%; bottom: 25.2%; }
+.float-label-store { right: 7.8%; bottom: 25.5%; }
+
+/* 建筑层级低于独立文字层 */
+.building { z-index: 20 !important; overflow: visible !important; }
+.building .sign { z-index: 70 !important; }
+.choiceBar { z-index: 700 !important; }
+
+/* 如果底部栏较高，独立文字自动再上移 */
+@media (max-height: 760px) {
+  .float-label-bookstore { bottom: 31%; }
+  .float-label-studio { bottom: 31%; }
+  .float-label-cafe { bottom: 31%; }
+  .float-label-store { bottom: 31%; }
+}
+@media (max-width: 900px) {
+  .float-building-label { font-size: 15px; padding: 8px 12px; }
+  .float-label-bookstore { left: 7%; bottom: 34%; }
+  .float-label-store { right: 7%; bottom: 34%; }
+  .float-label-studio,
+  .float-label-cafe { display:none; }
+}
+</style>
+
+</head>
+<body>
+
+<a href="index.html" style="
+position:fixed;top:18px;left:18px;z-index:99999;
+padding:11px 20px;border-radius:999px;
+background:#fff0c8;color:#4a3651;
+font-weight:900;text-decoration:none;
+box-shadow:0 6px 18px rgba(0,0,0,.25);
+border:2px solid rgba(70,48,54,.18);
+">主页</a>
+
+<div class="game" id="game">
+  <div class="sky"></div><div class="moon"></div><div class="stars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="string"><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span><span class="bulb"></span></div>
+  <div class="city" id="city"></div><div class="fog"></div><div class="street"></div><div class="road"></div><div class="lampCone"></div><div class="lamp" id="lamp"></div>
+  <div class="building left" data-place="书店"><div class="awning"></div><div class="sign">书店</div><div class="window w1"></div><div class="window w2"></div><div class="door"></div><div class="chalk">阅读书籍<br>思考未来</div></div>
+  <div class="building studio" data-place="画室"><div class="awning"></div><div class="sign">画室</div><div class="window w1"></div><div class="door"></div><div class="chalk">创作<br>表达自己</div></div>
+  <div class="building cafe" data-place="咖啡馆"><div class="awning"></div><div class="sign">咖啡馆</div><div class="window w1"></div><div class="door"></div><div class="plant"></div></div>
+  <div class="building right" data-place="便利店"><div class="awning"></div><div class="sign">便利店</div><div class="window w1"></div><div class="window w2"></div><div class="door"></div><div class="chalk">兼职<br>赚取收入</div></div>
+  <div class="cat" id="cat"></div><div class="vending" id="vending"></div>
+  <div class="hero" id="hero"><div class="head"></div><div class="body"></div><div class="leg l1"></div><div class="leg l2"></div><div class="foot f1"></div><div class="foot f2"></div></div>
+  <div class="rainLayer"></div><div class="grain"></div>
+  <div class="top"><div class="panel stats"><b id="heroName">平凡的小明</b><div class="row">心情 ❤ <div class="bar"><div id="moodBar" class="fill" style="background:var(--pink)"></div></div><span id="moodText"></span></div><div class="row">精力 ⚡ <div class="bar"><div id="energyBar" class="fill" style="background:var(--green)"></div></div><span id="energyText"></span></div><div class="row">金钱 🪙 <span id="moneyText"></span></div><div class="row">自我 ⭐ <div class="bar"><div id="selfBar" class="fill" style="background:var(--violet)"></div></div><span id="selfText"></span></div><div class="row">人格 🌙 <span id="personalityText"></span></div><button class="toolBtn" onclick="toggleSound()">环境音</button><button class="toolBtn" onclick="resetGame()">重开</button></div><div class="title"><h1>凌晨街道</h1><p>不是赢，而是在这个世界待一会儿</p></div><div class="panel date"><b id="dayText"></b><br><span id="seasonText"></span><br><span id="weatherText"></span><br><small>世界会记得你的选择</small></div></div>
+  <div class="hint">彩蛋：点路灯 / 小猫 / 贩卖机；长按角色；挂机；凌晨进入便利店</div><div class="log"><h3>最新动态</h3><div id="logs"></div></div><div class="ending"><h3>人生方向</h3><div id="badges"></div><p id="endingText">你的故事还在街灯下慢慢发生。</p><h3>隐藏成就</h3><div id="achievements"></div></div>
+  <div class="choiceBar"><div class="question">今天你想做些什么？</div><div class="choices" id="choices"></div></div><div class="toast" id="toast"><h2 id="toastTitle"></h2><p id="toastBody"></p><div id="eventChoices"></div><button id="closeBtn" onclick="closeToast()">继续今天</button></div><div class="smallbubble" id="bubble"></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const game=$('game');
+for(let i=0;i<13;i++){let t=document.createElement('div');t.className='tower';t.style.left=(i*8+1)+'%';t.style.height=(110+Math.random()*170)+'px';$('city').appendChild(t)}
+for(let i=0;i<24;i++){let s=document.createElement('div');s.className='stone';s.style.left=(40+Math.random()*20)+'%';s.style.bottom=(6+Math.random()*36)+'%';game.appendChild(s)}
+const passOverlay=document.createElement('div');passOverlay.className='passOverlay';passOverlay.innerHTML='<div class="passCard"><h2>第一次通关</h2><p id="passText">你走过了一段普通人生。<br>世界没有结束，只是记住了你。</p></div>';game.appendChild(passOverlay);
+const defaultState={day:1,mood:65,energy:70,money:300,self:35,study:0,work:0,free:0,art:0,social:0,rest:0,nightWalk:0,late:0,lampClicks:0,catClicks:0,vendingClicks:0,heroHold:0,events:0,weather:'晴夜',catSaved:false,firstClear:false,recentEvents:[],actionCount:{},achievements:[],visited:{sea:0,store:0,studio:0,book:0,cafe:0},logic:0,romance:0,nihil:0,artP:0,photo:0,letters:0,metNpc:0};
+let state;try{state=JSON.parse(localStorage.getItem('midnightLifeSaveV3')||'null')||structuredClone(defaultState)}catch(e){state=structuredClone(defaultState)}
+function save(){localStorage.setItem('midnightLifeSaveV3',JSON.stringify(state))}
+function resetGame(){if(confirm('确定重开这一段人生吗？')){localStorage.removeItem('midnightLifeSaveV3');localStorage.removeItem('midnightLifeSave');location.reload()}}
+function clamp(v){return Math.max(0,Math.min(100,Math.round(v)))}
+function apply(d={}){state.mood=clamp(state.mood+(d.mood||0));state.energy=clamp(state.energy+(d.energy||0));state.self=clamp(state.self+(d.self||0));state.money=Math.max(0,state.money+(d.money||0));['logic','romance','nihil','artP'].forEach(k=>state[k]=(state[k]||0)+(d[k]||0));if(state.mood<30)state.nihil=(state.nihil||0)+1;if(state.energy<22)state.late++}
+const actions=[
+{name:'📚 学习',kind:'study',d:{mood:-4,energy:-13,self:9,logic:3},text:'你在书店读完一本旧书，书页里夹着一张陌生人的便签：愿你不要太早变成无聊的大人。'},
+{name:'💼 打工',kind:'work',d:{mood:-8,energy:-18,self:2,money:90,logic:1,nihil:1},text:'便利店的灯亮到很晚。你给一位加班的人加热便当，他说：谢谢，今晚终于像样一点了。'},
+{name:'🎮 娱乐',kind:'play',d:{mood:18,energy:-8,self:-2,money:-30},text:'你在游戏厅赢了一局很普通的游戏，却突然觉得今天也不是完全失败。'},
+{name:'🏃 运动',kind:'move',d:{mood:8,energy:-15,self:4},text:'你沿着河边慢跑，风从耳边穿过去，身体像重新开机了一次。'},
+{name:'🎨 创作',kind:'art',d:{mood:6,energy:-12,self:10,money:-20,artP:3},text:'你画了一张看不懂的画。它不像作品，更像今天的心情留下的影子。'},
+{name:'☕ 社交',kind:'social',d:{mood:12,energy:-10,self:3,money:-25},text:'咖啡馆里你和一个陌生人聊起小时候的梦想。离开时，你们都轻了一点。'},
+{name:'🌙 夜晚散步',kind:'walk',d:{mood:14,energy:8,self:5,romance:3},text:'你坐在长椅上什么都没做。奇怪的是，今天反而像被好好保存了下来。'},
+{name:'🌊 去海边',kind:'sea',d:{mood:22,energy:-22,self:12,money:-120,romance:4},text:'你买了一张很近的车票，去了一个没人在等你的地方。自由感很短，但很亮。'},
+{name:'🛏 睡觉',kind:'sleep',d:{mood:5,energy:30},text:'你早早睡下。梦里有一条没有尽头的街，所有灯都在等你路过。'},
+{name:'📝 写日记',kind:'diary',d:{mood:3,energy:-4,self:8,artP:1,romance:1},text:'你写下：我还没有想清楚人生，但今天我没有逃走。'},
+{name:'📷 拍照',kind:'photo',d:{mood:5,energy:-6,self:7,artP:2,romance:1},text:'你拍下街角的灯、水洼和一个模糊的人影。照片不清楚，但很像今晚。'},
+{name:'🎧 听歌',kind:'music',d:{mood:10,energy:4,self:2,romance:1},text:'耳机里响起很轻的钢琴声。城市没有变好，但你暂时能继续待下去。'}
+];
+const eventByKind={
+study:[['书页里的车票','旧书最后一页夹着一张去海边的车票，日期是明天。你没有立刻决定。',{self:5,romance:1}],['图书馆停电','灯突然灭了，所有人同时安静下来。你听见雨打在窗上的声音。',{mood:3,self:6,logic:1}],['被划线的一句话','书里有人划下：“普通不是失败，是一种很慢的勇敢。”',{mood:6,self:5}],['夜校海报','墙上贴着夜校海报。你发现学习不是为了赢过谁，而是为了不被自己丢下。',{self:8,logic:2}]],
+work:[['凌晨便当','你把最后一份便当卖给一个疲惫的人。他笑了一下，像城市短暂恢复供电。',{mood:5,money:20}],['多掉一枚硬币','收银机里多出一枚旧硬币，上面刻着很小的月亮。',{money:10,self:3,romance:1}],['白光里的海','便利店自动门打开的一瞬间，里面像一片很浅的海。下一秒又恢复货架。',{mood:7,self:5,romance:2}],['夜班交接','同事说：别把所有夜晚都卖给生活。你假装没听见。',{mood:-2,self:7,nihil:1}]],
+play:[['游戏厅冠军','你赢了一局没人看的游戏，屏幕上却出现：今天也很厉害。',{mood:9,self:2}],['抓娃娃失败','夹子又松开了。老板看不下去，偷偷递给你一个歪歪的小熊。',{mood:8,self:1}],['街机存档','游戏机问你是否保存当前人生。你按了“是”。',{self:6,artP:1}],['陌生队友','随机匹配到的人说：明天见。你们都知道不一定会再见。',{mood:4,social:1}]],
+move:[['河边热身','你跑到一半停下，发现月亮也像在慢跑。',{energy:-2,mood:8,romance:1}],['运动鞋湿了','雨后路面反光，你踩碎一整条街的灯。',{mood:5,self:4}],['桥上的风','桥上的风把疲惫吹散一点，也把问题吹得更远。',{energy:4,self:3}],['凌晨便利跑','便利店店员隔着玻璃朝你点头，像给你打卡。',{mood:6,self:2}]],
+art:[['颜料没有干','你画下一个不像人的人，他站在灯下，看起来很懂你。',{artP:3,self:8}],['画室旧收音机','收音机放出不存在的频道：今晚适合把心事涂成蓝色。',{mood:5,artP:4}],['被看见的草稿','有人在你的草稿前停留很久，说：它有点难过，但很漂亮。',{mood:10,self:10,artP:2}],['奇怪的颜色','你调出一种叫“凌晨三点”的颜色。它不是蓝，也不是紫。',{artP:5,self:5}]],
+social:[['咖啡馆靠窗位','陌生人说，成年以后很少有人认真问“你累不累”。',{mood:10,self:3,social:1}],['旧朋友语音','朋友发来一段 8 秒语音，里面只有风声和一句：有空来海边。',{mood:6,romance:2}],['错拿的杯子','你拿错了别人的咖啡，杯套上写着：别太晚回家。',{mood:7,self:2}],['小型告别','有人在咖啡馆写辞职信。你们没有认识，但你祝他顺利。',{self:5,nihil:1}]],
+walk:[['路灯闪三下','你经过路灯时，它很轻地闪了三下，像电压不稳，也像在回答你。',{mood:7,self:4}],['空长椅','长椅上有一张纸条：如果你坐下，这里就不算空。',{mood:8,romance:2}],['雾里的路人','雾里有个人和你擦肩而过，低声说：别急，今晚也算往前走。',{self:8,artP:1}],['风把名字吹走','你想起一个名字，又被风吹散了。心里空了一下，也轻了一下。',{mood:3,nihil:1,romance:2}]],
+sea:[['海边没有问你','海没有问你为什么这么久才来，它只是一直在那里。',{mood:12,self:7,romance:3}],['夜海便利店','海边有一家亮着的便利店，货架上卖“还没说出口的话”。',{mood:8,self:8,artP:2}],['湿掉的车票','回程车票湿了一角，像这趟短暂自由留下的证据。',{self:6,romance:2}],['海风回信','你对海说了一句很小的话，风把它还给你：会好起来的。',{mood:14,romance:3}]],
+sleep:[['梦里的街','梦里这条街没有尽头，所有灯都在等你路过。',{energy:8,self:2}],['早睡奖励','你比平时早一点睡着，第二天醒来觉得世界没有那么尖锐。',{mood:8,energy:10}],['猫来梦里','小猫在梦里把一颗星星推到你手边。',{mood:9,romance:1}],['未完成的梦','梦醒时你只记得一句话：不要急着把自己解释清楚。',{self:6,artP:1}]],
+diary:[['日记第七行','你写到第七行时突然停住，因为那句话太像真正的你。',{self:9,artP:2}],['没有标题','你给今天的日记留了空标题。空白反而很准确。',{self:6,nihil:1}],['写给未来','你写：未来的我，如果看到这里，请不要嘲笑今晚的我。',{mood:6,self:8}],['墨水晕开','字迹被水滴晕开，像把情绪变成了一小片天气。',{artP:3,romance:1}]],
+photo:[['照片里的第二个月亮','照片里多出第二个月亮。你抬头看，天空只有一个。',{self:8,artP:3}],['便利店胶片感','你拍到便利店白光，照片像一张会发热的小票。',{mood:7,artP:2}],['失焦的人影','照片失焦了，但那个人影很像未来的你。',{self:9,nihil:1}],['水洼构图','水洼把路灯倒过来，你突然觉得反面也很好看。',{mood:8,artP:3,romance:1}]],
+music:[['雨声里的歌','耳机里的节拍刚好和雨声重合，城市像被轻轻混音。',{mood:12,energy:4,romance:2}],['旧歌推荐','软件推荐了一首十年前的歌，你不知道为什么一听就想起明天。',{mood:6,self:4}],['电流噪声','歌中间混进电流声，像便利店冰柜在给你伴奏。',{artP:2,self:3}],['循环播放','你把一首歌循环到凌晨，心情没有变好，但变得可描述了。',{mood:5,artP:3}]]
+};
+const specials=[
+{t:'特殊事件：旧友邀请',need:()=>state.social>=1||state.day>4,b:'很久没联系的朋友发来消息：周末要不要一起去海边？',opts:[['答应',{mood:12,energy:-8,self:5,romance:3},'你们在海边说了很多没用的话，但心里轻松了。'],['婉拒',{mood:-3,energy:5,self:4,nihil:1},'你没有去。夜里你打开聊天框，又关上。'],['只发一个表情',{mood:4,self:1},'关系没有恢复，也没有结束。它像街边一盏半亮的灯。']]},
+{t:'特殊事件：突来的机会',need:()=>state.art>=1,b:'画室门口贴着征集启事：城市插画比赛，奖金 800。你只有三天时间。',opts:[['参加',{mood:2,energy:-20,self:18,artP:5},'你画到凌晨，手很酸，但第一次觉得自己不是在浪费时间。'],['算了',{mood:-5,energy:8,self:-2,nihil:1},'你把启事拍下来，却没有再打开。'],['先打工攒钱',{mood:-4,energy:-12,self:3,money:120,logic:1},'你错过了比赛，但多赚了一点生活费。']]},
+{t:'特殊事件：雨夜小猫',need:()=>state.weather==='雨夜'||state.day>5,b:'小猫躲在自动贩卖机后面，纸箱已经湿透。',opts:[['带回家',{mood:16,energy:-8,self:9,money:-80},'你多了一个麻烦，也多了一个等你回家的小生命。',()=>{state.catSaved=true;unlock('雨夜小猫')}],['买罐头喂它',{mood:10,self:5,money:-30},'它吃完后蹭了蹭你的鞋。'],['撑伞等它',{mood:8,energy:-8,self:10,romance:1},'你们在雨里等了十分钟。它没有跟你走，但记住了你。']]},
+{t:'特殊事件：宇宙便利店',need:()=>state.work>=3&&state.day%7===0,b:'凌晨的便利店自动门打开，里面不是货架，而是一片安静的宇宙。',opts:[['进去看看',{mood:18,self:16,artP:4},'你买到一罐写着“明天”的汽水。味道像很远的星光。',()=>{cosmos();unlock('宇宙便利店')}],['只在门口看',{mood:8,self:8,romance:2},'你没有进去。也许有些奇迹只适合远远看。'],['假装没看见',{mood:-2,logic:2},'你继续整理货架。生活有时需要你先装作正常。']]},
+{t:'特殊事件：神秘撑伞人',need:()=>state.weather==='雾夜'||state.weather==='雨夜',b:'雾夜里，一个撑透明伞的人站在路口。他问：你想知道自己会变成谁吗？',opts:[['想知道',{self:12,nihil:2,artP:2},'他说：你会变成一个仍然会停下来听雨的人。'],['不想知道',{mood:8,self:6},'他说：很好。未知有时比答案温柔。'],['反问他是谁',{self:10,artP:3},'他笑了一下：我是这个游戏忘记删除的一行对白。',()=>unlock('没被删除的人')]]},
+{t:'特殊事件：画展邀请',need:()=>state.art>=3,b:'画室老板说：明晚有个很小的展，缺一张“不像作品的作品”。',opts:[['拿出自己的画',{mood:15,self:20,artP:6},'没有很多人看懂，但有人在画前站了很久。你第一次觉得被看见。',()=>unlock('被看见的一张画')],['临时再画',{mood:2,energy:-20,self:16,artP:5},'你画到手指发麻。最后那张画很乱，但很真。'],['拒绝',{mood:-4,self:4,nihil:1},'你说还没准备好。老板说：很多人一生都没准备好。']]},
+{t:'特殊事件：海边很久没见你',need:()=>state.day-(state.visited.sea||0)>8,b:'手机地图突然弹出海边的照片，像某个地方在提醒你：你已经很久没来了。',opts:[['现在就去',{mood:20,energy:-20,money:-80,self:12,romance:4},'夜风很大，海没有问你为什么这么久才来。',()=>{state.visited.sea=state.day;unlock('海边记得你')}],['收藏地点',{mood:5,self:4,logic:1},'你把它存进收藏夹，像把一个愿望暂时放好。'],['关掉提醒',{mood:-2,nihil:1},'屏幕暗下去，房间又只剩下你。']]},
+{t:'特殊事件：电话亭来电',need:()=>state.day>6,b:'废弃电话亭突然响起。街上没有别人。',opts:[['接起来',{self:12,mood:4,artP:2},'听筒里传来你的声音：不要害怕现在的普通。',()=>unlock('接到自己的电话')],['让它响完',{nihil:2,self:4},'铃声停下后，夜晚更安静了。'],['记下号码',{logic:2,self:6},'号码只有 7 位，像一个不完整的答案。']]},
+{t:'特殊事件：第一张明信片',need:()=>state.photo>=2||state.romance>=6,b:'信箱里多了一张没有邮票的明信片，照片是你刚刚走过的街。',opts:[['收起来',{mood:8,self:8,romance:2},'你把它夹进日记。这个世界好像真的保存过你。'],['贴在墙上',{mood:10,artP:3,self:4},'房间因此多了一扇通向夜晚的小窗。'],['寻找寄件人',{energy:-6,self:10,logic:1},'你找了一圈，没有找到人，只找到一盏刚熄灭的灯。']]}
+];
+
+// === 扩展：更大的事件池 / 彩蛋池 / 特殊事件池，降低重复 ===
+function addEvents(kind, arr){ if(!eventByKind[kind]) eventByKind[kind]=[]; eventByKind[kind].push(...arr); }
+addEvents('study',[
+ ['凌晨自习室','自习室只剩你和自动贩卖机的嗡鸣。你忽然理解：努力有时不是热血，是安静地不放弃。',{self:7,logic:3,mood:2}],
+ ['借书卡背面','借书卡背面有人写：愿你被生活考倒之前，先学会休息。',{self:6,logic:2,energy:3}],
+ ['旧地图夹页','书里夹着一张旧地图，海边被人画了一个很小的圈。',{romance:2,self:5}],
+ ['没有答案的题','你解不出那道题，却突然接受了不是所有问题都需要今晚解决。',{mood:5,self:6,logic:1}]
+]);
+addEvents('work',[
+ ['冰柜的电流声','冰柜嗡嗡作响，像城市的低频心跳。你在白光里站了一会儿。',{mood:3,nihil:1,self:4}],
+ ['最后一班客人','最后一位客人买走热牛奶，临走前说：店还亮着真好。',{mood:8,money:10}],
+ ['过期饭团','你处理一枚过期饭团，突然想到：有些心情也不能放太久。',{self:5,nihil:1}],
+ ['收银小票','小票末尾打印出一句不该存在的话：今晚辛苦了。',{mood:7,self:3}]
+]);
+addEvents('play',[
+ ['像素月亮','小游戏结算界面出现一枚像素月亮，你盯着它看了很久。',{mood:8,artP:1}],
+ ['无人排行榜','排行榜第一名叫“明天再说”。你输给了一个很像自己的名字。',{self:5,mood:4}],
+ ['抽卡保底','你终于抽到了想要的角色。快乐很短，但确实发生过。',{mood:12,energy:-2}],
+ ['耳机共享','旁边的人把另一只耳机递给你，歌名叫《普通夜晚》。',{mood:7,social:1,romance:1}]
+]);
+addEvents('move',[
+ ['自动贩卖机倒影','跑步经过贩卖机，你在玻璃里看见一个更轻的自己。',{self:6,mood:5}],
+ ['桥下猫影','桥下有只猫跟着你跑了十几步，然后假装只是路过。',{mood:8,romance:1}],
+ ['路面发光','雨后的路像被城市偷偷上了一层釉。',{mood:7,artP:2}],
+ ['喘气的节奏','你听见自己的喘息，忽然确认自己还认真活着。',{self:8,energy:-1}]
+]);
+addEvents('art',[
+ ['便利店配色','你把便利店白光和橙色招牌记下来，调成一组新的颜色。',{artP:5,self:4}],
+ ['失败的线稿','线稿很失败，但你没有删掉。它像一个没长好的自己。',{self:8,artP:3}],
+ ['窗上的雾气','你在窗雾上画了一颗小星星，几分钟后它消失了。',{mood:6,romance:2,artP:2}],
+ ['没署名的画','你把一张画贴在街角，没有署名。第二天它还在那里。',{self:10,artP:4,mood:5}]
+]);
+addEvents('social',[
+ ['便利店门口聊天','你们站在便利店门口聊到饮料变凉。没有结论，但不孤单。',{mood:10,social:2}],
+ ['被认真倾听','你说了一件很小的烦恼，对方没有急着安慰，只是认真听完。',{mood:12,self:5}],
+ ['失联的人上线','一个很久没亮的头像突然上线，又很快暗下去。你没有打扰。',{nihil:1,self:4}],
+ ['陌生人的伞','雨忽然变大，陌生人把伞往你这边偏了一点。',{mood:9,romance:1}]
+]);
+addEvents('walk',[
+ ['三楼窗户','三楼有扇窗户亮着，里面的人也许正在和你一样晚睡。',{mood:5,nihil:1,romance:1}],
+ ['旧海报','墙上的旧海报被雨泡皱，标题只剩“去生活”。',{self:7,artP:2}],
+ ['路口红灯','深夜没有车，红灯还是认真亮着。你突然尊重这种没必要的坚持。',{logic:1,self:5}],
+ ['风里的塑料袋','一个塑料袋被风吹得像小动物，跑过半条街。',{mood:8,artP:1}]
+]);
+addEvents('sea',[
+ ['浪把话带走','你对海说了一句不敢告诉别人的话，浪把它带走了。',{mood:13,self:8,romance:4}],
+ ['凌晨码头','码头的灯一盏一盏排开，像有人把未来放得很远。',{self:7,romance:3}],
+ ['沙上的脚印','你回头看自己的脚印，发现风正在慢慢替你擦掉。',{mood:7,nihil:1,romance:2}],
+ ['海边自动门','海边便利店自动门打开，白光照在你身上，像很短的拥抱。',{mood:10,self:5}]
+]);
+addEvents('sleep',[
+ ['梦见小时候','你梦见小时候的自己坐在路边，问你：后来开心吗？',{self:9,mood:3}],
+ ['被窝宇宙','闭眼之后，被窝像一个很小的宇宙，刚好装下今晚。',{mood:8,energy:8,romance:1}],
+ ['醒来前一秒','醒来前一秒，有人对你说：不用马上成为大人。',{mood:9,self:5}],
+ ['没有梦','你没有做梦。醒来时反而觉得身体被安静修好了一点。',{energy:14,mood:5}]
+]);
+addEvents('diary',[
+ ['撕掉的一页','你撕掉一页，又把它夹回本子里。丢掉自己太难了。',{self:8,nihil:1}],
+ ['便利店贴纸','你把饮料上的贴纸贴进日记，像给今晚盖了章。',{mood:6,artP:2}],
+ ['写到凌晨','你写到凌晨，窗外第一辆车经过。城市开始重启。',{self:9,energy:-4}],
+ ['给陌生人的信','你写了一封不会寄出的信，收件人是“以后路过这里的人”。',{artP:3,romance:2,self:6}]
+]);
+addEvents('photo',[
+ ['自动对焦失败','相机一直对不上焦，你却觉得模糊刚刚好。',{artP:4,self:5}],
+ ['猫的残影','照片里小猫只剩一条尾巴，像一条黑色逗号。',{mood:8,artP:2}],
+ ['夜色过曝','照片过曝了，路灯像一颗太近的星星。',{artP:4,romance:2}],
+ ['拍到空座位','空长椅被你拍得像有人刚刚离开。',{nihil:1,artP:3,self:4}]
+]);
+addEvents('music',[
+ ['城市白噪音','你摘下一只耳机，发现现实也在播放环境音。',{mood:7,artP:2}],
+ ['随机到老歌','一首老歌突然出现，把你带回一个不具体的夏天。',{mood:9,romance:2}],
+ ['歌词听错','你听错一句歌词，却觉得错得更适合现在。',{self:6,artP:2}],
+ ['耳机没电','耳机没电后，雨声接替了音乐。',{mood:5,nihil:1,romance:1}]
+]);
+
+specials.push(
+ {t:'特殊事件：便利店停电',need:()=>state.work>=2&&state.weather!=='晴夜',b:'便利店突然停电。黑暗里，冰柜的电流声消失了，所有人都小声说话。',opts:[['打开手机手电',{mood:6,self:7,logic:2},'白光从你手里亮起来，像临时把世界托住了一点。'],['陪客人等电',{mood:10,self:8,social:2},'陌生人们在黑暗里聊起今天晚饭，停电反而让夜晚有人情味。'],['走到门口看雨',{mood:5,romance:3,artP:2},'雨把街灯拖得很长，便利店像漂在海上的船。']]},
+ {t:'特殊事件：凌晨邮差',need:()=>state.day>8&&state.letters>=2,b:'凌晨两点，一个邮差敲了敲不存在的门，说这里有一封寄给“普通人”的信。',opts:[['收下',{self:12,artP:3},'信里只有一句：普通人也值得被郑重寄达。',()=>unlock('收到凌晨来信')],['问寄件人',{logic:2,self:8},'邮差说：是很久以后还记得今晚的你。'],['把信退回',{nihil:2,mood:-2,self:5},'邮差点点头，把信放回风里。']]},
+ {t:'特殊事件：海边语音留言',need:()=>state.visited.sea>0&&state.day-state.visited.sea>=5,b:'手机里出现一条没有来源的语音留言，背景是海浪。',opts:[['听完',{mood:12,romance:4,self:5},'海浪后面有一句很轻的话：下次别隔太久。'],['保存',{self:7,artP:2},'你把它保存下来，像保存一小段不会责怪你的地方。'],['删除',{nihil:1,logic:2},'删除后，房间突然安静得有点过分。']]},
+ {t:'特殊事件：旧相机自动拍照',need:()=>state.photo>=2||state.artP>=8,b:'旧相机自己亮了一下，屏幕里出现你站在未来街角的背影。',opts:[['相信它',{self:14,romance:3,artP:4},'未来的你没有回头，但看起来比现在更轻。',()=>unlock('未来背影')],['格式化',{logic:3,self:3},'你删掉照片，却记住了那个背影。'],['把它画下来',{artP:6,self:9,energy:-6},'你画得不像，但你知道那是你。']]},
+ {t:'特殊事件：雨里没有脚印的人',need:()=>state.weather==='雨夜'||state.nihil>=6,b:'雨里有个人从你身边走过，地面没有留下脚印。',opts:[['追上去',{energy:-8,self:12,nihil:2},'他停下来说：我只是一个还没做出的选择。'],['假装没看见',{logic:2,mood:2},'你继续往前走，但心里多了一小块雾。'],['问他冷不冷',{mood:8,self:10,romance:2},'他说：被问到的时候就不冷了。',()=>unlock('问幽灵冷不冷')]]},
+ {t:'特殊事件：长椅上的录音笔',need:()=>state.nightWalk>=2,b:'长椅上有一支录音笔，里面录着风声和一句断断续续的“别忘了回来”。',opts:[['带回去',{self:8,artP:3,romance:2},'你把它放在桌上。夜里它偶尔会自己响一下。'],['放回原处',{mood:6,self:6},'你觉得有些东西在原地等待，才比较完整。'],['继续录一段',{artP:4,self:10},'你录下：我来过。然后把它放回长椅。',()=>unlock('把声音留在街上')]]},
+ {t:'特殊事件：世界调色异常',need:()=>state.artP>=10,b:'街道颜色忽然偏移，便利店变成蓝色，月亮变成橘色，猫变成一小块黑洞。',opts:[['顺着颜色走',{artP:8,mood:8,self:6},'你走进一种不像现实的配色，出来时带回一点灵感。',()=>unlock('世界调色师')],['闭眼十秒',{self:5,romance:2},'再睁眼时一切正常，但你知道刚才不是错觉。'],['记录色值',{logic:2,artP:5},'你写下：#凌晨不是一个标准颜色。']]},
+ {t:'特殊事件：没有人的生日歌',need:()=>state.day%9===0,b:'街角小店突然播放生日歌，但店里没有人过生日。',opts:[['许一个愿',{mood:12,romance:2,self:5},'你没有生日，也还是许了一个愿。愿望很小：明天也能走出去。'],['买一块蛋糕',{mood:10,money:-40,self:4},'你坐在路灯下吃完了蛋糕，像认真庆祝自己还在。'],['离远一点',{nihil:1,logic:1},'歌声在背后变小，像某个平行人生正在庆祝。']]},
+ {t:'特殊事件：小猫带路',need:()=>state.catClicks>=3||state.catSaved,b:'小猫忽然站起来，回头看你一眼，像是要你跟上。',opts:[['跟上',{mood:12,self:8,romance:3},'它带你绕到一条没见过的小巷，尽头有一盏很小的灯。',()=>unlock('跟着猫走')],['原地等它',{mood:5,self:3},'它过了一会儿回来，嘴里叼着一张便利店贴纸。'],['给它买吃的',{mood:9,money:-25,self:5},'它吃完后把尾巴搭在你的鞋上，像盖章。']]},
+ {t:'特殊事件：未来便利贴',need:()=>state.self>=70,b:'你的桌上出现一张便利贴，字迹很像你：别害怕，你正在长成我。',opts:[['贴到墙上',{self:12,mood:8},'你把它贴在墙上。房间看起来像有了出口。'],['夹进日记',{self:10,artP:3},'日记本变得稍微重了一点，像装进了未来。'],['怀疑恶作剧',{logic:3,self:4},'你找不到任何解释，但解释也不是最重要的。']]}
+);
+state.recentSpecials=state.recentSpecials||[];
+
+function personality(){let arr=[['理性',state.logic||0],['浪漫',state.romance||0],['虚无',state.nihil||0],['艺术',state.artP||0]].sort((a,b)=>b[1]-a[1]);return arr[0][1]>2?arr[0][0]:'普通'}
+function setWorld(){let p=personality(),r=document.documentElement.style;r.setProperty('--rainOpacity',state.weather==='雨夜'?.42:0);r.setProperty('--fogOpacity',state.weather==='雾夜'?.48:(state.weather==='雨夜'?.34:.22));let vals={普通:['0deg','1','1'],理性:['-16deg','.82','.98'],浪漫:['12deg','1.18','1.04'],虚无:['-34deg','.62','.86'],艺术:['24deg','1.32','1.05']}[p];r.setProperty('--world-hue',vals[0]);r.setProperty('--world-sat',vals[1]);r.setProperty('--world-bright',vals[2]);$('weatherText').textContent=state.weather}
+function getEndingHint(){if(state.money>900&&state.mood<38)return '你正在靠近《凌晨便利店》：稳定，但有点麻木。';if(state.self>78&&(state.artP||0)>7)return '你正在靠近《未完成的艺术家》：你不确定未来，但越来越像自己。';if(state.mood>78&&state.money<250&&(state.romance||0)>5)return '你正在靠近《看海的人》：贫穷，但自由。';if((state.nihil||0)>8)return '你正在靠近《深夜观察者》：孤独，但清醒。';if(state.mood>70&&state.social>3&&state.rest>3)return '你正在靠近《普通但幸福》：没有大事发生，却一直有光。';if(state.energy<20)return '你的身体在提醒你：人生不是一直向前冲。';return '你的故事还在街灯下慢慢发生。'}
+function update(){moodBar.style.width=state.mood+'%';energyBar.style.width=state.energy+'%';selfBar.style.width=state.self+'%';moodText.textContent=state.mood+'/100';energyText.textContent=state.energy+'/100';selfText.textContent=state.self+'/100';moneyText.textContent=state.money;dayText.textContent='第 '+state.day+' 天';seasonText.textContent=['春季','夏季','秋季','冬季'][Math.floor((state.day-1)/7)%4];personalityText.textContent=personality();let bs=[];if(state.self>65)bs.push('寻找自我');if(state.money>700)bs.push('生活稳定');if(state.mood>75)bs.push('温柔快乐');if(state.energy<25)bs.push('需要休息');if((state.artP||0)>6)bs.push('创作者');if(state.work>4)bs.push('夜班达人');if((state.romance||0)>8)bs.push('看风的人');badges.innerHTML=bs.map(x=>'<span class="badge">'+x+'</span>').join('')||'<span class="badge">普通的一天</span>';achievements.innerHTML=(state.achievements||[]).slice(-12).map(x=>'<span class="badge">'+x+'</span>').join('')||'<span class="badge">还没有被发现</span>';endingText.textContent=getEndingHint();setWorld();save()}
+function log(txt){let d=document.createElement('div');d.textContent='第'+state.day+'天：'+txt;logs.prepend(d);while(logs.children.length>10)logs.lastChild.remove()}
+function show(t,b,opts){toastTitle.textContent=t;toastBody.textContent=b;eventChoices.innerHTML='';closeBtn.style.display=opts?'none':'block';if(opts){opts.forEach(o=>{let btn=document.createElement('button');btn.className='eventBtn';btn.textContent=o[0];btn.onclick=()=>{apply(o[1]);if(typeof o[3]==='function')o[3]();log(t+'：'+o[0]);show('选择结果',o[2]);update();};eventChoices.appendChild(btn)})}toast.classList.add('show')}
+function closeToast(){toast.classList.remove('show')}
+function unlock(name){state.achievements=state.achievements||[];if(!state.achievements.includes(name)){state.achievements.push(name);let a=document.createElement('div');a.className='achievement';a.textContent='隐藏成就：《'+name+'》';game.appendChild(a);setTimeout(()=>a.remove(),3300)}}
+function pickWeather(){let p=personality(),n=Math.random();if(p==='虚无'&&n<.45)state.weather='雨夜';else if(p==='浪漫'&&n<.35)state.weather='晴夜';else if(n<.2)state.weather='雨夜';else if(n<.38)state.weather='雾夜';else state.weather='晴夜'}
+function pickFrom(list){let pool=list.filter(e=>!state.recentEvents.includes(e[0]));if(!pool.length)pool=list;let e=pool[Math.floor(Math.random()*pool.length)];state.recentEvents.push(e[0]);state.recentEvents=state.recentEvents.slice(-8);return e}
+function doAction(a){if(state.energy<=5&&a.kind!=='sleep'){show('太累了','你已经没有力气继续行动。今晚最好早点睡。');return}apply(a.d);state.day++;state.actionCount[a.kind]=(state.actionCount[a.kind]||0)+1;pickWeather();if(a.kind==='study'){state.study++;state.visited.book=state.day}if(a.kind==='work'){state.work++;state.visited.store=state.day}if(a.kind==='walk'){state.free++;state.nightWalk++}if(a.kind==='sea'){state.free++;state.visited.sea=state.day}if(a.kind==='art'){state.art++;state.visited.studio=state.day}if(a.kind==='social'){state.social++;state.visited.cafe=state.day}if(a.kind==='sleep')state.rest++;if(a.kind==='photo')state.photo++;
+ if(a.kind==='walk'&&state.nightWalk>=3)unlock('今晚风很好');if(a.kind==='work'&&state.work>=5)unlock('便利店常客');if(state.late>=1)unlock('第一次熬夜');if(a.kind==='photo'&&state.photo>=3)unlock('把夜晚拍下来');if(a.kind==='music'&&state.weather==='雨夜')unlock('雨声里的歌');
+ let eligible=specials.filter(e=>e.need()&&!state.recentSpecials.includes(e.t));if(!eligible.length)eligible=specials.filter(e=>e.need());let forceSpecial=(state.day%6===0)||Math.random()<.18;let extra='';if(forceSpecial&&eligible.length){let se=eligible[Math.floor(Math.random()*eligible.length)];state.recentSpecials=state.recentSpecials||[];state.recentSpecials.push(se.t);state.recentSpecials=state.recentSpecials.slice(-6);show(se.t,se.b,se.opts);log('触发特殊事件：'+se.t);state.events++}else{let ev=pickFrom(eventByKind[a.kind]||eventByKind.walk);apply(ev[2]);extra='\n\n行动事件：《'+ev[0]+'》\n'+ev[1];show(a.name.replace(/[📚💼🎮🏃🎨☕🌙🌊🛏📝📷🎧]/g,''),a.text+extra);state.events++}
+ log(a.name+'，'+a.text.slice(0,22)+'...');if(a.kind==='work'&&state.day%7===0){cosmos();unlock('宇宙便利店')}if(Math.random()<.2)spawnTinyNote();update();maybeFinal();checkAchievements()}
+function maybeFinal(){if(state.day===15&&!state.firstClear){state.firstClear=true;setTimeout(()=>passAnimation(),400);unlock('第一次通过')}else if(state.day===30){setTimeout(()=>show('第二段人生',getEndingHint()+'\n\n你已经走得更远了，但人生还没有真正结束。'),500)}}
+function passAnimation(){passText.innerHTML=getEndingHint()+'<br>你第一次走到这里。选项还会继续，世界也还会继续。';passOverlay.classList.add('show');for(let i=0;i<42;i++){let sp=document.createElement('div');sp.className='passSpark';sp.style.left=(20+Math.random()*60)+'%';sp.style.top=(50+Math.random()*30)+'%';sp.style.setProperty('--dx',(Math.random()*180-90)+'px');game.appendChild(sp);setTimeout(()=>sp.remove(),3000)}setTimeout(()=>{passOverlay.classList.remove('show');show('第一次通关',getEndingHint()+'\n\n你可以继续玩。人生方向和隐藏成就已经移到右侧，不会挡住底部选项。')},5200)}
+function checkAchievements(){if((state.nihil||0)>=10)unlock('404 情绪');if((state.romance||0)>=12)unlock('把风存起来的人');if((state.artP||0)>=12)unlock('梦境调色师');if(state.money===0&&state.mood>75)unlock('穷但开心');if(state.energy<=10)unlock('电量不足的人生');if(state.events>=12)unlock('被世界频繁想起');if(state.letters>=5)unlock('捡到五封没有寄出的信')}
+function bubble(txt,x,y){let b=$('bubble');b.textContent=txt;b.style.left=Math.min(x,innerWidth-220)+'px';b.style.top=Math.min(y,innerHeight-90)+'px';b.style.display='block';setTimeout(()=>b.style.display='none',2400)}
+function dropNote(txt,x,y){let n=document.createElement('div');n.className='paperNote';n.textContent=txt;n.style.left=x+'vw';n.style.top=y+'vh';document.body.appendChild(n);setTimeout(()=>n.remove(),5000)}
+function spawnTinyNote(){const notes=['有人刚刚经过这里。','这张纸条没有署名。','风把一句话折起来了。','今晚的街道偷偷保存了你。','如果累了，就站在灯下。'];dropNote(notes[Math.floor(Math.random()*notes.length)],20+Math.random()*60,35+Math.random()*30);state.letters++}
+function cosmos(){game.classList.add('cosmos');setTimeout(()=>game.classList.remove('cosmos'),6500)}
+function meteor(){let m=document.createElement('div');m.className='meteor';game.appendChild(m);setTimeout(()=>m.remove(),1300);unlock('没人发现的流星')}
+function aurora(){let a=document.createElement('div');a.className='aurora show';game.appendChild(a);setTimeout(()=>a.remove(),9200);unlock('凌晨极光')}
+choices.innerHTML=actions.map((a,i)=>'<button class="choice" onclick="doAction(actions['+i+'])">'+a.name+'</button>').join('');
+document.querySelectorAll('.building').forEach(el=>el.onclick=()=>{let map={书店:0,便利店:1,画室:4,咖啡馆:5};doAction(actions[map[el.dataset.place]])});
+lamp.onclick=e=>{state.lampClicks++;apply({mood:5});if(state.lampClicks>=5)unlock('今天也辛苦了');if(Math.random()<.25){dropNote('路灯闪了三下，像在回应你。',e.clientX/innerWidth*100,e.clientY/innerHeight*100);unlock('灯语')}log('路灯悄悄对你说今天也辛苦了');bubble('今天也辛苦了。',e.clientX,e.clientY);update()};
+cat.onclick=e=>{state.catClicks++;apply({mood:9,self:2});if(state.catClicks>=7)unlock('猫的朋友');if(Math.random()<.25)spawnTinyNote();log('你摸了摸路边小猫');bubble(state.catSaved?'它好像认得你。':'喵。你被短暂治愈了。',e.clientX,e.clientY);update()};
+vending.onclick=e=>{state.vendingClicks++;if(state.money>=20){apply({money:-20,mood:6});bubble(Math.random()<.18?'隐藏饮料：月亮味汽水。':'掉出一罐热可可。',e.clientX,e.clientY);if(state.vendingClicks>=6)unlock('贩卖机常客');if(Math.random()<.18){apply({mood:8,self:3});unlock('月亮味汽水')}}else bubble('钱不够，但它还是亮了一下。',e.clientX,e.clientY);log('你试了试自动贩卖机');update()};
+let pressTimer;hero.onmousedown=()=>pressTimer=setTimeout(()=>{state.heroHold++;apply({self:3});show('隐藏彩蛋：角色回头','你长按了角色。那一瞬间，他像是知道屏幕外还有一个人。');unlock('屏幕外的人');update()},900);hero.onmouseup=()=>clearTimeout(pressTimer);hero.onmouseleave=()=>clearTimeout(pressTimer);
+const npc=document.createElement('div');npc.className='secretNpc';game.appendChild(npc);npc.onclick=e=>{state.metNpc++;apply({self:6,mood:4,artP:1});let words=['我不是 NPC，我只是也睡不着。','有些人生不是走出来的，是等灯亮出来的。','别急，今晚已经在往前走了。','你以为你在玩它，其实它也在陪你。'];bubble(words[Math.floor(Math.random()*words.length)],e.clientX,e.clientY);if(state.metNpc>=3)unlock('雾里的熟人');log('你遇见了雾里的路人');update()};
+setInterval(()=>{npc.classList.toggle('show',(state.weather==='雾夜'||state.weather==='雨夜'||personality()==='虚无'||personality()==='艺术')&&Math.random()<.42)},15000);
+setInterval(()=>{if(Math.random()<(personality()==='浪漫'?.18:.08))meteor()},12000);setInterval(()=>{if(Math.random()<.32){lamp.classList.add('flicker');setTimeout(()=>lamp.classList.remove('flicker'),1200)}},20000);setInterval(()=>{if((personality()==='浪漫'||personality()==='艺术')&&Math.random()<.14)aurora()},22000);
+const lines=['今天也没有下雨','便利店还亮着','别太晚回家','它刚刚是不是动了','海边已经很久没见到你了','世界记得你来过'];setInterval(()=>{if(Math.random()<.55){let f=document.createElement('div');f.className='floatingText';f.textContent=lines[Math.floor(Math.random()*lines.length)];f.style.left=(15+Math.random()*65)+'vw';f.style.top=(34+Math.random()*30)+'vh';game.appendChild(f);setTimeout(()=>f.remove(),12500)}},11000);
+let idle=setTimeout(idleEvent,30000);['click','mousemove','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{clearTimeout(idle);idle=setTimeout(idleEvent,30000)}));function idleEvent(){for(let i=0;i<28;i++){let p=document.createElement('div');p.className='petal';p.style.left=Math.random()*100+'vw';p.style.top='-20px';p.style.animationDelay=Math.random()*2+'s';document.body.appendChild(p);setTimeout(()=>p.remove(),7000)}show('隐藏彩蛋：一阵花雨','你停留了很久。角色坐在原地，天空落下一阵不像季节的花雨。');apply({mood:10,self:5,artP:1});unlock('挂机的人');update()}
+let audioCtx=null,noiseNodes=[];function toggleSound(){if(audioCtx){noiseNodes.forEach(n=>{try{n.stop&&n.stop();n.disconnect&&n.disconnect()}catch(e){}});audioCtx.close();audioCtx=null;noiseNodes=[];return}audioCtx=new (window.AudioContext||window.webkitAudioContext)();let gain=audioCtx.createGain();gain.gain.value=.035;gain.connect(audioCtx.destination);let osc=audioCtx.createOscillator();osc.type='sine';osc.frequency.value=146;let lfo=audioCtx.createOscillator();let lfoGain=audioCtx.createGain();lfo.frequency.value=.08;lfoGain.gain.value=18;lfo.connect(lfoGain);lfoGain.connect(osc.frequency);osc.connect(gain);osc.start();lfo.start();noiseNodes.push(osc,lfo,gain)}
+
+
+/* === 点击式悬浮抽屉逻辑：点模块展开，点其他地方收回 === */
+function initFloatingPanels(){
+  const panels=[document.querySelector('.log'),document.querySelector('.ending')].filter(Boolean);
+  panels.forEach(panel=>{
+    if(!panel.querySelector('.panelHintDot')){
+      const dot=document.createElement('i');
+      dot.className='panelHintDot';
+      panel.appendChild(dot);
+    }
+    panel.addEventListener('click',ev=>{
+      ev.stopPropagation();
+      const willOpen=!panel.classList.contains('panelOpen');
+      panels.forEach(p=>p.classList.remove('panelOpen'));
+      if(willOpen) panel.classList.add('panelOpen');
+    });
+  });
+  document.addEventListener('click',ev=>{
+    if(!panels.some(p=>p.contains(ev.target))){
+      panels.forEach(p=>p.classList.remove('panelOpen'));
+    }
+  });
+  document.addEventListener('keydown',ev=>{
+    if(ev.key==='Escape') panels.forEach(p=>p.classList.remove('panelOpen'));
+  });
+}
+initFloatingPanels();
+
+
+/* === 最终补丁：房子高度 / 金钱逻辑 / 路灯点击闪烁 / 更大事件池 === */
+(function(){
+  // 1) 确保便利店“兼职”文字被移到选择栏之上
+  const store = document.querySelector('.building.right,[data-place="便利店"]');
+  if(store){
+    store.style.height = '56%';
+    store.style.bottom = '13%';
+    const chalk = store.querySelector('.chalk');
+    if(chalk){
+      chalk.style.bottom = '22%';
+      chalk.style.zIndex = '30';
+      chalk.style.fontSize = '20px';
+      chalk.style.whiteSpace = 'nowrap';
+    }
+  }
+
+  // 2) 金钱逻辑：花钱行动钱不够时不能继续；打工和捡硬币能赚钱
+  const oldDoAction = window.doAction || doAction;
+  window.doAction = function(a){
+    const cost = Math.abs(Math.min(0, (a && a.d && a.d.money) || 0));
+    if(cost > 0 && state.money < cost){
+      show('钱不够', '这次需要 '+cost+' 金钱。\n\n你可以先去便利店打工，或者留意街角偶尔出现的小硬币。');
+      bubble('钱不够，先赚一点吧。', innerWidth/2, innerHeight/2);
+      return;
+    }
+    oldDoAction(a);
+    maybeSpawnCoin();
+  };
+  // 修复按钮仍调用旧闭包函数的问题
+  if(typeof actions !== 'undefined' && document.getElementById('choices')){
+    choices.innerHTML = actions.map((a,i)=>'<button class="choice" onclick="window.doAction(actions['+i+'])">'+a.name+'</button>').join('');
+  }
+  document.querySelectorAll('.building').forEach(el=>{
+    el.onclick = ()=>{
+      let map={书店:0,便利店:1,画室:4,咖啡馆:5};
+      window.doAction(actions[map[el.dataset.place]]);
+    };
+  });
+
+  function maybeSpawnCoin(){
+    if(Math.random() > .38) return;
+    const c = document.createElement('div');
+    c.className = 'coinDrop';
+    c.style.left = (38 + Math.random()*34) + 'vw';
+    c.style.bottom = (18 + Math.random()*18) + 'vh';
+    c.title = '捡起硬币';
+    c.onclick = (ev)=>{
+      ev.stopPropagation();
+      const val = 8 + Math.floor(Math.random()*28);
+      apply({money:val, mood:2});
+      log('你在街角捡到 '+val+' 枚硬币。');
+      bubble('+'+val+' 金钱', ev.clientX, ev.clientY);
+      if(state.money >= 1000) unlock('攒到一千块');
+      c.remove();
+      update();
+    };
+    game.appendChild(c);
+    setTimeout(()=>c.remove(), 9000);
+  }
+  setInterval(maybeSpawnCoin, 18000);
+
+  // 3) 路灯点击事件增强：每次点击都明显闪烁 + 波纹 + 小概率掉事件
+  const oldLampClick = lamp.onclick;
+  lamp.onclick = function(e){
+    lamp.classList.remove('clickedFlash');
+    void lamp.offsetWidth;
+    lamp.classList.add('clickedFlash');
+    setTimeout(()=>lamp.classList.remove('clickedFlash'), 760);
+
+    const r = document.createElement('div');
+    r.className = 'lampClickRipple';
+    r.style.left = (e.clientX - 55) + 'px';
+    r.style.top = (e.clientY - 55) + 'px';
+    document.body.appendChild(r);
+    setTimeout(()=>r.remove(), 950);
+
+    if(typeof oldLampClick === 'function') oldLampClick(e);
+
+    const lampLines = [
+      ['路灯忽然亮得更暖了一点。', {mood:3,self:1}],
+      ['灯泡闪了两下，像在说：我还在。', {mood:4,romance:1}],
+      ['你看见灯柱上贴着一张旧贴纸：今晚也算数。', {self:4,artP:1}],
+      ['路灯下面多了一枚温热的硬币。', {money:15,mood:2}],
+      ['灯光把你的影子拉长，又轻轻放回脚边。', {self:3,nihil:1}]
+    ];
+    if(Math.random()<.65){
+      const ev = lampLines[Math.floor(Math.random()*lampLines.length)];
+      apply(ev[1]);
+      log('路灯事件：'+ev[0]);
+      if(ev[1].money) bubble('路灯下捡到 +'+ev[1].money, e.clientX, e.clientY+20);
+      update();
+    }
+  };
+
+  // 4) 事件池继续扩大：每个选项更多不同事件，降低重复
+  if(typeof addEvents === 'function'){
+    addEvents('work',[
+      ['顾客留下零钱','有位客人说不用找了。那几枚零钱在你掌心里很暖。',{money:35,mood:5}],
+      ['夜班奖金','店长说今晚辛苦了，偷偷给你多记了一小时。',{money:60,self:4,logic:1}],
+      ['错标的价格','你发现货架价格贴错了，及时改回来。小小的认真也算生活能力。',{self:6,logic:3,money:20}],
+      ['暖柜里的包子','暖柜只剩最后一个包子。你买下它，站在门口吃完。',{mood:8,money:-8,self:2}],
+      ['收银机短暂停电','停电十秒，便利店像变成一艘漂在夜里的船。',{artP:2,romance:2,mood:4}]
+    ]);
+    addEvents('social',[
+      ['同桌的沉默','你们没有一直说话，但沉默并不尴尬。',{mood:8,self:3,social:2}],
+      ['群聊突然热闹','深夜群聊突然刷屏，大家都在说一些没用但温暖的话。',{mood:10,social:2}],
+      ['朋友请你喝奶茶','朋友说这杯算他请。你没有推辞，因为被照顾也是一种练习。',{mood:12,money:0,self:3}],
+      ['咖啡馆拼桌','拼桌的人正在写简历。你们互相祝对方顺利。',{self:5,logic:1,social:1}],
+      ['散场后的拥抱','分别前有人轻轻抱了你一下。城市突然没有那么硬。',{mood:14,romance:1}]
+    ]);
+    addEvents('art',[
+      ['便利店速写','你把便利店画成一艘停在夜里的船。',{artP:6,self:6}],
+      ['被雨打湿的画','纸被雨打湿，颜色糊开后反而更像真实心情。',{artP:5,mood:4,romance:2}],
+      ['投稿成功','你的作品被小账号转发了，点赞不多，但有人留言：我懂。',{self:14,mood:10,artP:4}],
+      ['卖出一张小画','有人买走你贴在街角的小画。钱不多，但足够买一顿热饭。',{money:80,self:12,mood:8}],
+      ['画到没电','平板没电前，你刚好画完最后一盏灯。',{energy:-6,artP:5,self:5}]
+    ]);
+    addEvents('walk',[
+      ['便利店玻璃反光','你在玻璃里看见自己，忽然觉得今天没有白过。',{mood:8,self:6}],
+      ['转角的旧歌','某家店放着很老的歌，你不知道歌词，却跟着哼了一句。',{mood:7,romance:2}],
+      ['风吹开传单','传单被风吹到脚边，上面写着：今晚限定。',{artP:2,self:4}],
+      ['没有目的地','你没有目的地，所以整条街都暂时属于你。',{mood:10,romance:3}],
+      ['路灯排队亮起','身后的路灯一盏盏亮起来，像有人替你存档。',{self:8,mood:6}]
+    ]);
+    addEvents('study',[
+      ['自学到凌晨','你把一个难点弄懂的时候，窗外刚好有车经过。',{logic:5,self:8,energy:-4}],
+      ['笔记里的星号','你给重点画了星号，突然想给今天也画一个。',{mood:5,self:5,logic:2}],
+      ['旧课本味道','旧课本有一种干燥的纸味，像很久以前的夏天。',{romance:1,self:4}],
+      ['错题本第一页','第一页写着：不要怕错，怕的是不再开始。',{self:7,logic:3}]
+    ]);
+    addEvents('sea',[
+      ['海边零钱','你在海边自动售货机旁捡到几枚被盐风吹旧的硬币。',{money:25,romance:2}],
+      ['凌晨潮声','潮声像有人在很远的地方替你呼吸。',{mood:14,romance:4,self:4}],
+      ['码头便利店','码头边的小店卖热关东煮，你突然很想活到明天。',{mood:16,money:-30,self:5}],
+      ['海面流星','海面映出一颗流星，你差点以为是海在眨眼。',{romance:5,mood:10}]
+    ]);
+  }
+
+  if(typeof specials !== 'undefined'){
+    specials.push(
+      {t:'特殊事件：工资信封',need:()=>state.work>=4,b:'店长递给你一个小信封，说这是这周多出来的夜班补贴。',opts:[
+        ['收下',{money:180,mood:8,self:5,logic:2},'你把信封放进口袋，第一次觉得“撑住”也会有回声。',()=>unlock('夜班补贴')],
+        ['请大家喝饮料',{money:-80,mood:18,social:2},'便利店门口短暂变成了深夜聚会。'],
+        ['存起来',{money:180,self:8,logic:4},'你打开存款记录，数字很小，但方向是亮的。']
+      ]},
+      {t:'特殊事件：灯下零钱盒',need:()=>state.lampClicks>=3,b:'路灯下面出现一个小铁盒，里面放着零钱和一张纸条：需要的人可以拿一点。',opts:[
+        ['只拿一枚',{money:20,self:5,mood:4},'你只拿了一枚，纸条被风吹得轻轻响。'],
+        ['放进一些钱',{money:-30,self:12,mood:8},'你往里面放了一点钱，像把今天的光传下去。',()=>unlock('把光传下去')],
+        ['合上盒子',{self:6,logic:1},'你没有拿也没有放，只是把盒盖合好。']
+      ]},
+      {t:'特殊事件：社交楼的灯',need:()=>state.social>=3,b:'咖啡馆二楼的灯忽然亮起，有人隔着窗向你挥手。',opts:[
+        ['挥手回应',{mood:12,social:3,self:4},'那个人笑了。你们隔着玻璃完成一次很轻的相识。'],
+        ['走进去',{mood:10,energy:-8,social:4,money:-25},'里面有人在玩桌游，给你留了一个位置。'],
+        ['拍下来',{artP:4,self:7},'照片里那盏灯像一个小小入口。']
+      ]},
+      {t:'特殊事件：丢失的钱包',need:()=>state.day>5,b:'长椅下有一个钱包，里面现金不多，但有一张合照。',opts:[
+        ['送去便利店',{money:0,self:14,mood:8,logic:2},'失主回来时差点哭出来。你收到了一瓶热茶作为谢礼。',()=>unlock('归还钱包')],
+        ['等失主',{energy:-8,self:10,mood:6},'你等了很久，城市慢慢安静下来，失主终于出现。'],
+        ['拿走现金',{money:90,mood:-12,nihil:3},'钱变多了，但街灯好像暗了一点。']
+      ]}
+    );
+  }
+
+  // 5) 金钱相关成就补充
+  const oldCheck = checkAchievements;
+  window.checkAchievements = checkAchievements = function(){
+    oldCheck();
+    if(state.money>=800) unlock('攒钱的人');
+    if(state.money>=1200) unlock('口袋里有月亮');
+    if(state.work>=8) unlock('把夜晚换成生活费');
+  };
+})();
+
+window.actions=actions;window.doAction=window.doAction||doAction;window.closeToast=closeToast;window.toggleSound=toggleSound;window.resetGame=resetGame;update();log('你回到了这个会记得你的街角。');
+</script>
+
+<script id="absolute-building-labels-final-js">
+(function(){
+  function addFloatBuildingLabels(){
+    document.querySelectorAll('.float-building-label').forEach(el => el.remove());
+    const game = document.getElementById('game') || document.body;
+    const labels = [
+      ['float-label-bookstore', '阅读书籍'],
+      ['float-label-studio', '画室'],
+      ['float-label-cafe', '咖啡馆'],
+      ['float-label-store', '兼职']
+    ];
+    labels.forEach(([cls, text])=>{
+      const el = document.createElement('div');
+      el.className = 'float-building-label ' + cls;
+      el.textContent = text;
+      game.appendChild(el);
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', addFloatBuildingLabels);
+  }else{
+    addFloatBuildingLabels();
+  }
+})();
+</script>
+
+</body>
+</html>
