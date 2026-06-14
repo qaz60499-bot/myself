@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>按钮别乱按 - Button Panic</title>
+<style>
+  :root{
+    --bg:#0a0b10;
+    --panel:#202431;
+    --panel2:#161923;
+    --text:#f4f6ff;
+    --muted:#9aa3ba;
+    --good:#36e081;
+    --bad:#ff4658;
+    --blue:#49a7ff;
+    --yellow:#ffd447;
+    --purple:#a66bff;
+    --orange:#ff9a38;
+    --danger:#ff3148;
+    --metal:#343949;
+    --shadow:rgba(0,0,0,.42);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#06070b;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--text);
+  }
+  body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+  button{font:inherit}
+  .phone{
+    position:relative;
+    width:min(100vw,430px);
+    height:100vh;
+    max-height:920px;
+    background:
+      radial-gradient(circle at 50% 6%, rgba(255,70,88,.22), transparent 30%),
+      radial-gradient(circle at 16% 92%, rgba(73,167,255,.14), transparent 30%),
+      linear-gradient(180deg,#171a25,#0d0f16 63%,#08090e);
+    overflow:hidden;
+    border-left:1px solid rgba(255,255,255,.06);
+    border-right:1px solid rgba(255,255,255,.06);
+    transition:box-shadow .18s ease, filter .18s ease;
+    touch-action:manipulation;
+  }
+  .phone::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size:24px 24px;
+    mask-image:linear-gradient(to bottom, transparent, black 8%, black 86%, transparent);
+    pointer-events:none;
+  }
+  .phone::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(180deg,rgba(255,255,255,.04) 0 1px,transparent 1px 5px);
+    opacity:.24;
+    pointer-events:none;
+    mix-blend-mode:screen;
+  }
+  .phone.frenzy{
+    box-shadow:
+      inset 0 0 38px rgba(255,212,71,.9),
+      inset 0 0 72px rgba(255,49,72,.36),
+      0 0 34px rgba(255,212,71,.42);
+  }
+  .phone.lowStability .instructionBox,
+  .phone.lowStability .stabilityPanel{
+    animation:lowPulse .42s linear infinite alternate;
+  }
+  @keyframes lowPulse{
+    from{box-shadow:0 18px 35px rgba(0,0,0,.25),0 0 8px rgba(255,70,88,.22)}
+    to{box-shadow:0 18px 35px rgba(0,0,0,.25),0 0 28px rgba(255,70,88,.78)}
+  }
+  .top{
+    position:relative;
+    z-index:3;
+    padding:12px 14px 8px;
+  }
+  .titleRow{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .brand{line-height:1}
+  .brand .cn{font-size:20px;font-weight:1000;letter-spacing:.5px}
+  .brand .en{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:2px;margin-top:5px}
+  .hud{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(44px,1fr));
+    gap:6px;
+    width:min(66vw,340px);
+  }
+  .pill{
+    min-width:0;
+    padding:6px 7px;
+    border-radius:10px;
+    background:rgba(255,255,255,.075);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 8px 22px rgba(0,0,0,.16) inset;
+    text-align:center;
+  }
+  .pill b{
+    display:block;
+    font-size:14px;
+    line-height:1.05;
+    white-space:nowrap;
+  }
+  .pill span{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+  .stabilityPanel{
+    position:relative;
+    margin-top:10px;
+    padding:8px 10px 10px;
+    border-radius:14px;
+    background:rgba(5,7,12,.52);
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:inset 0 0 18px rgba(0,0,0,.28);
+  }
+  .stabilityLabel{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:7px;
+    font-size:12px;
+    color:#c9d1e6;
+    font-weight:950;
+    letter-spacing:.4px;
+  }
+  .stabilityLabel b{color:#fff;font-size:15px}
+  .stabilityTrack{
+    height:16px;
+    border-radius:99px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.10);
+    overflow:hidden;
+  }
+  .stabilityFill{
+    width:100%;
+    height:100%;
+    border-radius:99px;
+    background:linear-gradient(90deg,#35df82,#ffd447 70%,#ff4658);
+    box-shadow:0 0 16px rgba(54,224,129,.32);
+    transform-origin:left center;
+    transition:transform .18s ease, background .18s ease;
+  }
+  .phone.lowStability .stabilityFill{
+    background:linear-gradient(90deg,#ff3148,#ff7b29);
+    box-shadow:0 0 18px rgba(255,49,72,.75);
+  }
+  .energyLine{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:8px;
+    color:#c9d1e6;
+    font-size:12px;
+    font-weight:900;
+  }
+  .energyLine b{color:#fff16c}
+  .instructionBox{
+    position:relative;
+    margin-top:11px;
+    border-radius:18px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.035)),
+      linear-gradient(135deg, rgba(73,167,255,.14), rgba(255,49,72,.10));
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 18px 35px rgba(0,0,0,.25), 0 0 25px rgba(73,167,255,.08);
+    overflow:hidden;
+  }
+  .instructionBox::before{
+    content:"";
+    position:absolute;
+    left:-20%;
+    top:0;
+    width:40%;
+    height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.13),transparent);
+    animation:sweep 2.8s linear infinite;
+  }
+  @keyframes sweep{to{left:120%}}
+  .instruction{
+    position:relative;
+    min-height:78px;
+    padding:15px 16px 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:23px;
+    font-weight:1000;
+    line-height:1.2;
+    text-shadow:0 2px 0 rgba(0,0,0,.35),0 0 18px rgba(255,70,88,.18);
+  }
+  .subTip{
+    position:relative;
+    padding:0 16px 12px;
+    color:#c1c8da;
+    text-align:center;
+    font-size:12px;
+    line-height:1.35;
+  }
+  .timerShell{
+    position:relative;
+    margin-top:9px;
+    height:12px;
+    background:rgba(255,255,255,.08);
+    border-radius:99px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .timerBar{
+    height:100%;
+    width:100%;
+    border-radius:99px;
+    background:linear-gradient(90deg, #44e083, #ffd447, #ff4658);
+    box-shadow:0 0 15px rgba(255,212,71,.35);
+    transform-origin:left center;
+  }
+  .feverBanner{
+    position:absolute;
+    left:18px;
+    right:18px;
+    top:204px;
+    z-index:6;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:99px;
+    color:#201300;
+    background:linear-gradient(90deg,#fff16c,#ff9a38,#fff16c);
+    font-size:14px;
+    font-weight:1000;
+    letter-spacing:2px;
+    opacity:0;
+    transform:translateY(-8px) scale(.96);
+    box-shadow:0 0 28px rgba(255,212,71,.7);
+    pointer-events:none;
+    transition:opacity .16s ease, transform .16s ease;
+  }
+  .coinBadge{
+    position:absolute;
+    right:18px;
+    top:204px;
+    z-index:6;
+    min-height:30px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 12px;
+    border-radius:999px;
+    color:#fff6bf;
+    background:rgba(6,9,16,.72);
+    border:1px solid rgba(255,212,71,.28);
+    box-shadow:0 0 18px rgba(255,212,71,.18), inset 0 1px 0 rgba(255,255,255,.12);
+    font-size:12px;
+    font-weight:1000;
+    pointer-events:none;
+  }
+  .phone.frenzy .feverBanner{
+    opacity:1;
+    transform:translateY(0) scale(1);
+    animation:feverText .28s linear infinite alternate;
+  }
+  @keyframes feverText{to{filter:brightness(1.16);letter-spacing:3px}}
+  .machine{
+    position:absolute;
+    left:12px;
+    right:12px;
+    top:258px;
+    bottom:70px;
+    border-radius:28px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,255,255,.12), transparent 38%),
+      linear-gradient(180deg,#303648,#171a24 55%,#11131b);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:
+      0 28px 60px rgba(0,0,0,.45),
+      inset 0 1px 0 rgba(255,255,255,.18),
+      inset 0 -25px 50px rgba(0,0,0,.22);
+    overflow:hidden;
+    z-index:2;
+  }
+  .machine::before{
+    content:"";
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    height:70px;
+    background:
+      linear-gradient(90deg, transparent 0 11%, rgba(255,255,255,.08) 11% 12%, transparent 12% 24%, rgba(255,255,255,.06) 24% 25%, transparent 25%),
+      linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,0));
+    pointer-events:none;
+  }
+  .machine::after{
+    content:"";
+    position:absolute;
+    inset:10px;
+    border-radius:22px;
+    border:1px dashed rgba(255,255,255,.08);
+    pointer-events:none;
+  }
+  .consoleDecor{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:1;
+  }
+  .warningLights{
+    position:absolute;
+    left:18px;
+    right:18px;
+    top:14px;
+    height:18px;
+    display:flex;
+    justify-content:space-between;
+    pointer-events:none;
+    z-index:3;
+  }
+  .light{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background:#3b4050;
+    box-shadow:inset 0 -3px 4px rgba(0,0,0,.35);
+  }
+  .light.on1{background:var(--bad);box-shadow:0 0 13px rgba(255,70,88,.75)}
+  .light.on2{background:var(--yellow);box-shadow:0 0 13px rgba(255,212,71,.65)}
+  .light.on3{background:var(--good);box-shadow:0 0 13px rgba(54,224,129,.58)}
+  .gauge{
+    position:absolute;
+    top:36px;
+    width:54px;
+    height:32px;
+    border-radius:32px 32px 8px 8px;
+    background:
+      radial-gradient(circle at 50% 100%, transparent 0 19px, rgba(0,0,0,.35) 20px),
+      conic-gradient(from 240deg,#36e081 0 38deg,#ffd447 38deg 70deg,#ff4658 70deg 118deg,transparent 118deg);
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:inset 0 -9px 12px rgba(0,0,0,.28),0 5px 10px rgba(0,0,0,.22);
+  }
+  .gauge.left{left:18px}
+  .gauge.right{right:18px;transform:scaleX(-1)}
+  .gauge::after{
+    content:"";
+    position:absolute;
+    left:26px;
+    bottom:4px;
+    width:2px;
+    height:20px;
+    background:#ff4658;
+    transform-origin:bottom center;
+    transform:rotate(38deg);
+    box-shadow:0 0 8px rgba(255,70,88,.8);
+  }
+  .screw{
+    position:absolute;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#e2e6f0,#6e7587 58%,#242836);
+    box-shadow:inset 0 -2px 3px rgba(0,0,0,.4);
+  }
+  .screw::after{
+    content:"";
+    position:absolute;
+    left:3px;
+    right:3px;
+    top:5px;
+    height:2px;
+    background:rgba(0,0,0,.45);
+    transform:rotate(-24deg);
+  }
+  .s1{left:12px;top:12px}.s2{right:12px;top:12px}.s3{left:12px;bottom:12px}.s4{right:12px;bottom:12px}
+  .crack{
+    position:absolute;
+    right:54px;
+    top:86px;
+    width:58px;
+    height:62px;
+    opacity:.35;
+  }
+  .crack::before,
+  .crack::after{
+    content:"";
+    position:absolute;
+    background:rgba(0,0,0,.66);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04);
+    transform-origin:top left;
+  }
+  .crack::before{left:28px;top:0;width:2px;height:56px;transform:rotate(18deg)}
+  .crack::after{left:30px;top:24px;width:2px;height:34px;transform:rotate(-52deg)}
+  .buttonZone{
+    position:absolute;
+    left:16px;
+    right:16px;
+    top:48px;
+    bottom:18px;
+    z-index:4;
+    touch-action:none;
+  }
+  .gameBtn{
+    position:absolute;
+    border:none;
+    border-radius:50%;
+    cursor:pointer;
+    font-weight:1000;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(0,0,0,.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:6px;
+    min-width:44px;
+    min-height:44px;
+    box-shadow:
+      0 10px 0 rgba(0,0,0,.38),
+      0 18px 24px rgba(0,0,0,.30),
+      0 0 0 7px rgba(0,0,0,.20),
+      inset 0 4px 4px rgba(255,255,255,.28),
+      inset 0 -10px 10px rgba(0,0,0,.24);
+    transform:translateZ(0);
+    transition:transform .08s ease, filter .08s ease, opacity .16s ease, box-shadow .08s ease;
+    touch-action:none;
+  }
+  .gameBtn::after{
+    content:"";
+    position:absolute;
+    inset:8%;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.18);
+    pointer-events:none;
+  }
+  .gameBtn:hover{filter:brightness(1.08)}
+  .gameBtn:focus-visible{outline:3px solid #fff;outline-offset:4px}
+  .gameBtn:active,
+  .gameBtn.pop{
+    transform:translateY(6px) scale(.97);
+    box-shadow:
+      0 4px 0 rgba(0,0,0,.38),
+      0 8px 12px rgba(0,0,0,.24),
+      0 0 0 7px rgba(0,0,0,.20),
+      inset 0 3px 4px rgba(255,255,255,.20),
+      inset 0 -7px 8px rgba(0,0,0,.20);
+  }
+  .gameBtn.pressed{
+    opacity:.36;
+    filter:saturate(.4);
+    pointer-events:none;
+  }
+  .gameBtn.green{background:radial-gradient(circle at 35% 28%, #b9ffd8, #36e081 34%, #12924e 100%)}
+  .gameBtn.red{background:radial-gradient(circle at 35% 28%, #ffc3ca, #ff4658 34%, #a91426 100%)}
+  .gameBtn.blue{background:radial-gradient(circle at 35% 28%, #c7e7ff, #49a7ff 34%, #1b519f 100%)}
+  .gameBtn.yellow{background:radial-gradient(circle at 35% 28%, #fff4b7, #ffd447 34%, #bd7b05 100%);color:#4d3200;text-shadow:0 1px 0 rgba(255,255,255,.32)}
+  .gameBtn.purple{background:radial-gradient(circle at 35% 28%, #e1caff, #a66bff 34%, #5b24b2 100%)}
+  .gameBtn.orange{background:radial-gradient(circle at 35% 28%, #ffd8af, #ff9a38 34%, #b34b09 100%)}
+  .gameBtn.black{background:radial-gradient(circle at 35% 28%, #aeb4c8, #4a5062 34%, #151821 100%)}
+  .gameBtn.flash{animation:flash .45s infinite alternate}
+  @keyframes flash{
+    from{filter:brightness(.82) saturate(1)}
+    to{filter:brightness(1.5) saturate(1.35);box-shadow:0 10px 0 rgba(0,0,0,.38),0 0 24px rgba(255,255,255,.48),0 0 0 7px rgba(0,0,0,.20), inset 0 4px 4px rgba(255,255,255,.25), inset 0 -10px 10px rgba(0,0,0,.22)}
+  }
+  .gameBtn.fakePulse{animation:fakePulse .7s infinite alternate}
+  @keyframes fakePulse{
+    from{transform:rotate(-1deg)}
+    to{transform:rotate(1deg) scale(1.03)}
+  }
+  .gameBtn.move{animation:drift 1.2s ease-in-out infinite alternate}
+  @keyframes drift{
+    from{margin-left:-6px;margin-top:4px}
+    to{margin-left:7px;margin-top:-6px}
+  }
+  .gameBtn.scanHint{
+    animation:scanHint .5s ease-in-out;
+    outline:4px solid rgba(255,241,108,.96);
+    box-shadow:
+      0 10px 0 rgba(0,0,0,.38),
+      0 0 32px rgba(255,241,108,.95),
+      0 0 0 9px rgba(255,212,71,.22),
+      inset 0 4px 4px rgba(255,255,255,.28),
+      inset 0 -10px 10px rgba(0,0,0,.24);
+  }
+  @keyframes scanHint{
+    0%,100%{filter:brightness(1)}
+    50%{filter:brightness(1.8) saturate(1.4)}
+  }
+  .phone.slowMotion .timerBar,
+  .phone.slowMotion .gameBtn.flash,
+  .phone.slowMotion .gameBtn.move{
+    animation-duration:1.2s!important;
+  }
+  .feedback{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:7;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:38px;
+    font-weight:1000;
+    opacity:0;
+    transform:scale(.85);
+    text-align:center;
+    padding:20px;
+    text-shadow:0 5px 0 rgba(0,0,0,.35),0 0 22px currentColor;
+  }
+  .feedback.show{animation:popFeedback .55s ease}
+  @keyframes popFeedback{
+    0%{opacity:0;transform:scale(.72)}
+    18%{opacity:1;transform:scale(1.08)}
+    70%{opacity:1;transform:scale(1)}
+    100%{opacity:0;transform:scale(.9)}
+  }
+  .effectLayer{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:9;
+  }
+  .scoreFloat{
+    position:absolute;
+    font-size:24px;
+    font-weight:1000;
+    color:#fff16c;
+    text-shadow:0 2px 0 rgba(0,0,0,.45),0 0 18px rgba(255,212,71,.9);
+    transform:translate(-50%,-50%);
+    animation:scoreFloat .72s ease-out forwards;
+  }
+  .phone.frenzy .scoreFloat{
+    font-size:31px;
+    color:#8effff;
+    text-shadow:0 2px 0 rgba(0,0,0,.45),0 0 22px rgba(73,167,255,.95),0 0 28px rgba(255,212,71,.8);
+  }
+  @keyframes scoreFloat{
+    0%{opacity:0;transform:translate(-50%,-35%) scale(.65)}
+    18%{opacity:1;transform:translate(-50%,-60%) scale(1.12)}
+    100%{opacity:0;transform:translate(-50%,-130%) scale(.92)}
+  }
+  .comboBurst{
+    position:absolute;
+    left:50%;
+    top:43%;
+    z-index:10;
+    pointer-events:none;
+    transform:translate(-50%,-50%);
+    color:#fff;
+    font-size:44px;
+    font-weight:1000;
+    opacity:0;
+    text-align:center;
+    text-shadow:0 5px 0 rgba(0,0,0,.38),0 0 28px rgba(255,212,71,.95);
+  }
+  .comboBurst.show{animation:comboBurst .72s cubic-bezier(.2,1.25,.35,1) forwards}
+  @keyframes comboBurst{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.55) rotate(-5deg)}
+    22%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotate(2deg)}
+    72%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-75%) scale(.88)}
+  }
+  .boom{
+    position:absolute;
+    z-index:6;
+    width:94px;
+    height:94px;
+    border-radius:50%;
+    pointer-events:none;
+    background:
+      radial-gradient(circle,#fff 0 8%,#ffd447 9% 22%,#ff4658 23% 45%,transparent 47%),
+      repeating-conic-gradient(from 12deg,rgba(255,255,255,.75) 0 8deg,transparent 8deg 18deg);
+    transform:translate(-50%,-50%) scale(.35);
+    opacity:0;
+    animation:boom .45s ease-out forwards;
+    mix-blend-mode:screen;
+  }
+  @keyframes boom{
+    0%{opacity:1;transform:translate(-50%,-50%) scale(.2)}
+    70%{opacity:.9;transform:translate(-50%,-50%) scale(1.15)}
+    100%{opacity:0;transform:translate(-50%,-50%) scale(1.6)}
+  }
+  .spark{
+    position:absolute;
+    width:5px;
+    height:18px;
+    border-radius:99px;
+    background:#fff16c;
+    box-shadow:0 0 10px #ffd447;
+    transform:translate(-50%,-50%) rotate(var(--r));
+    animation:spark .46s ease-out forwards;
+  }
+  @keyframes spark{
+    from{opacity:1;translate:0 0;scale:1}
+    to{opacity:0;translate:var(--x) var(--y);scale:.25}
+  }
+  .smoke{
+    position:absolute;
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(196,205,218,.45),rgba(77,82,96,.16) 60%,transparent 72%);
+    transform:translate(-50%,-50%);
+    animation:smoke .7s ease-out forwards;
+  }
+  @keyframes smoke{
+    to{opacity:0;transform:translate(-50%,-105%) scale(1.9)}
+  }
+  .shock{animation:shake .22s linear 2}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-7px)}
+    40%{transform:translateX(7px)}
+    60%{transform:translateX(-4px)}
+    80%{transform:translateX(4px)}
+  }
+  .dangerFlash{animation:dangerFlash .18s linear 3}
+  @keyframes dangerFlash{
+    0%,100%{background-color:transparent}
+    50%{background-color:rgba(255,49,72,.25)}
+  }
+  .shortCircuit{animation:shortCircuit .52s linear 1}
+  @keyframes shortCircuit{
+    0%,100%{filter:none}
+    14%{filter:brightness(1.9) contrast(1.35) hue-rotate(45deg)}
+    28%{filter:brightness(.55) saturate(.65)}
+    42%{filter:brightness(1.65) contrast(1.6) hue-rotate(-35deg)}
+    60%{filter:brightness(.72)}
+    76%{filter:brightness(1.45) contrast(1.25)}
+  }
+  .bottom{
+    position:absolute;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    height:46px;
+    display:flex;
+    justify-content:center;
+    gap:7px;
+    z-index:4;
+  }
+  .ctrl{
+    flex:0 1 76px;
+    border:none;
+    border-radius:13px;
+    color:#fff;
+    font-size:12px;
+    font-weight:950;
+    min-height:44px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04)),
+      #202431;
+    border:1px solid rgba(255,255,255,.12);
+    box-shadow:0 10px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.15);
+    cursor:pointer;
+  }
+  .ctrl.primary{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.05)),
+      linear-gradient(135deg,#256aff,#ff3159);
+  }
+  .soundToggle{flex:0 1 72px}
+  .powerBtn{
+    flex:0 1 78px;
+    color:#201300;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.08)),
+      linear-gradient(135deg,#fff16c,#ff9a38);
+  }
+  .powerBtn:disabled,
+  .ctrl:disabled{
+    opacity:.42;
+    filter:saturate(.45);
+    cursor:not-allowed;
+  }
+  .ctrl:focus-visible,
+  .bigBtn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .overlay{
+    position:absolute;
+    inset:0;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:22px;
+    background:rgba(5,6,10,.70);
+    backdrop-filter:blur(10px);
+  }
+  .card{
+    width:100%;
+    max-width:360px;
+    border-radius:24px;
+    padding:23px 20px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,70,88,.22), transparent 38%),
+      linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.045)),
+      #151923;
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 30px 70px rgba(0,0,0,.55);
+    text-align:center;
+  }
+  .card h1{margin:0;font-size:30px;line-height:1.05}
+  .card p{margin:13px 0 0;color:#c0c7da;line-height:1.62;font-size:14px}
+  .rules{
+    text-align:left;
+    margin:16px 0;
+    padding:14px;
+    border-radius:16px;
+    background:rgba(255,255,255,.055);
+    color:#d8def0;
+    font-size:13px;
+    line-height:1.8;
+  }
+  .walletLine{
+    margin:12px 0 0;
+    color:#fff6bf;
+    font-size:13px;
+    font-weight:1000;
+  }
+  .shopList{
+    display:grid;
+    gap:9px;
+    margin:14px 0;
+    text-align:left;
+    max-height:min(58vh,440px);
+    overflow:auto;
+    padding-right:2px;
+  }
+  .upgradeItem{
+    border-radius:14px;
+    padding:12px;
+    background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.10);
+  }
+  .upgradeTop{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+    margin-bottom:5px;
+    font-weight:1000;
+  }
+  .upgradeItem p{
+    margin:0 0 9px;
+    font-size:12px;
+    line-height:1.45;
+    color:#c0c7da;
+  }
+  .upgradeBuy{
+    width:100%;
+    min-height:40px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.16);
+    color:#fff;
+    font-weight:1000;
+    background:linear-gradient(135deg,#2872ff,#ff3159);
+  }
+  .upgradeBuy:disabled{
+    opacity:.48;
+    filter:saturate(.55);
+  }
+  .bigBtn{
+    width:100%;
+    border:none;
+    border-radius:16px;
+    padding:15px 16px;
+    margin-top:12px;
+    font-size:17px;
+    color:white;
+    font-weight:1000;
+    background:linear-gradient(135deg,#2872ff,#ff3159);
+    box-shadow:0 14px 28px rgba(255,49,89,.20), inset 0 1px 0 rgba(255,255,255,.24);
+    cursor:pointer;
+  }
+  .smallText{font-size:12px;color:#9aa3ba;margin-top:12px}
+  .recordNote{
+    margin:10px 0 0;
+    color:#fff16c;
+    font-weight:1000;
+    text-shadow:0 0 18px rgba(255,212,71,.85);
+  }
+  .reviveActions{
+    display:grid;
+    gap:9px;
+    margin-top:16px;
+  }
+  .hidden{display:none!important}
+  .greenText{color:#6cf0a4}
+  .redText{color:#ff6977}
+  @media (max-height:760px){
+    .top{padding-top:10px}
+    .brand .cn{font-size:18px}
+    .instruction{min-height:62px;font-size:19px}
+    .stabilityPanel{padding:7px 9px}
+    .machine{top:238px;bottom:64px}
+    .feverBanner{top:190px;height:30px;font-size:13px}
+    .coinBadge{top:190px;height:30px;font-size:11px}
+    .bottom{height:46px}
+  }
+  @media (max-width:360px){
+    .hud{grid-template-columns:repeat(3,minmax(48px,1fr));gap:5px}
+    .hud .energyPill{grid-column:1 / -1}
+    .hud .coinPill{grid-column:span 1}
+    .pill{padding:5px 4px}
+    .pill b{font-size:12px}
+    .instruction{font-size:20px}
+    .machine{left:8px;right:8px}
+    .buttonZone{left:12px;right:12px}
+    .bottom{gap:5px}
+    .ctrl{font-size:11px;flex-basis:64px}
+  }
+  @media (min-width:700px){
+    .phone{
+      width:min(92vw,760px);
+      height:min(100vh,900px);
+      border-radius:28px;
+    }
+    .machine{left:18px;right:18px}
+    .hud{width:390px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+  <main class="phone" id="phone">
+    <section class="top">
+      <div class="titleRow">
+        <div class="brand">
+          <div class="cn">按钮别乱按</div>
+          <div class="en">MELTDOWN PANEL</div>
+        </div>
+        <div class="hud">
+          <div class="pill"><b id="score">0</b><span>分数</span></div>
+          <div class="pill"><b id="combo">0</b><span>连击</span></div>
+          <div class="pill"><b id="round">0</b><span>轮数</span></div>
+          <div class="pill energyPill"><b id="frenzyEnergy">0 / 8</b><span>狂热能量</span></div>
+          <div class="pill coinPill"><b id="runCoins">0</b><span>金币</span></div>
+        </div>
+      </div>
+
+      <div class="stabilityPanel">
+        <div class="stabilityLabel">
+          <span>系统稳定度</span>
+          <b id="stabilityText">100%</b>
+        </div>
+        <div class="stabilityTrack">
+          <div class="stabilityFill" id="stabilityFill"></div>
+        </div>
+      </div>
+
+      <div class="instructionBox">
+        <div class="instruction" id="instruction">准备进入快爆炸控制台</div>
+        <div class="subTip" id="subTip">看清故障指令，再按。按钮会骗人。</div>
+      </div>
+
+      <div class="timerShell">
+        <div class="timerBar" id="timerBar"></div>
+      </div>
+    </section>
+
+    <div class="feverBanner" id="feverBanner">狂热抢修中</div>
+    <div class="coinBadge" id="coinBadge">金币 0</div>
+
+    <section class="machine" id="machine">
+      <div class="consoleDecor">
+        <span class="screw s1"></span><span class="screw s2"></span><span class="screw s3"></span><span class="screw s4"></span>
+        <span class="gauge left"></span><span class="gauge right"></span>
+        <span class="crack"></span>
+      </div>
+      <div class="warningLights">
+        <span class="light on1"></span><span class="light"></span><span class="light on2"></span><span class="light"></span><span class="light on3"></span>
+      </div>
+      <div class="buttonZone" id="buttonZone"></div>
+      <div class="effectLayer" id="effectLayer"></div>
+    </section>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="comboBurst" id="comboBurst"></div>
+
+    <section class="bottom">
+      <button class="ctrl powerBtn hidden" id="scanBtn">扫描</button>
+      <button class="ctrl powerBtn hidden" id="slowBtn">慢动作</button>
+      <button class="ctrl" id="pauseBtn">暂停</button>
+      <button class="ctrl primary" id="restartBtn">重开</button>
+      <button class="ctrl soundToggle" id="soundBtn">声音开</button>
+    </section>
+
+    <div class="overlay" id="startOverlay">
+      <div class="card">
+        <h1>按钮别乱按</h1>
+        <p>一台快爆炸的疯狂控制台正在失控。看清故障提示，在倒计时内按对按钮，把系统稳定度保住。</p>
+        <div class="rules">
+          前 20 轮会逐步升温：颜色、闪烁、文字真假、大小与移动。<br>
+          第 21 轮后进入持续无尽抢修。<br>
+          按错扣 35% 稳定度，超时扣 25%。<br>
+          连续正确 8 次会进入 8 秒狂热抢修，分数翻倍。
+        </div>
+        <div class="walletLine" id="startCoins">当前金币：0</div>
+        <button class="bigBtn" id="startBtn">开始抢救控制台</button>
+        <button class="bigBtn" id="shopBtn">升级</button>
+        <div class="smallText">手机竖屏优先，电脑鼠标点击也可以。</div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="shopOverlay">
+      <div class="card">
+        <h1>局外升级</h1>
+        <p id="shopCoins">当前金币：0</p>
+        <div class="shopList" id="shopList"></div>
+        <button class="bigBtn" id="shopBackBtn">返回</button>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="reviveOverlay">
+      <div class="card">
+        <h1>应急重启？</h1>
+        <p>消耗30金币，恢复35%稳定度，本局仅限一次。</p>
+        <div class="reviveActions">
+          <button class="bigBtn" id="reviveBtn">消耗30金币复活</button>
+          <button class="ctrl" id="giveUpBtn">放弃，进入结算</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="endOverlay">
+      <div class="card">
+        <h1 id="endTitle">控制台爆炸</h1>
+        <p id="endStats"></p>
+        <button class="bigBtn" id="endShopBtn">升级控制台</button>
+        <button class="bigBtn" id="againBtn">再来一局</button>
+      </div>
+    </div>
+  </main>
+
+<script>
+(() => {
+  const phone = document.getElementById('phone');
+  const zone = document.getElementById('buttonZone');
+  const machine = document.getElementById('machine');
+  const effectLayer = document.getElementById('effectLayer');
+  const instructionEl = document.getElementById('instruction');
+  const subTipEl = document.getElementById('subTip');
+  const timerBar = document.getElementById('timerBar');
+  const scoreEl = document.getElementById('score');
+  const comboEl = document.getElementById('combo');
+  const roundEl = document.getElementById('round');
+  const stabilityText = document.getElementById('stabilityText');
+  const stabilityFill = document.getElementById('stabilityFill');
+  const feedback = document.getElementById('feedback');
+  const comboBurst = document.getElementById('comboBurst');
+  const startOverlay = document.getElementById('startOverlay');
+  const endOverlay = document.getElementById('endOverlay');
+  const endTitle = document.getElementById('endTitle');
+  const endStats = document.getElementById('endStats');
+  const startBtn = document.getElementById('startBtn');
+  const againBtn = document.getElementById('againBtn');
+  const endShopBtn = document.getElementById('endShopBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const soundBtn = document.getElementById('soundBtn');
+  const frenzyEnergyEl = document.getElementById('frenzyEnergy');
+  const runCoinsEl = document.getElementById('runCoins');
+  const coinBadge = document.getElementById('coinBadge');
+  const startCoinsEl = document.getElementById('startCoins');
+  const shopBtn = document.getElementById('shopBtn');
+  const shopOverlay = document.getElementById('shopOverlay');
+  const shopCoinsEl = document.getElementById('shopCoins');
+  const shopList = document.getElementById('shopList');
+  const shopBackBtn = document.getElementById('shopBackBtn');
+  const reviveOverlay = document.getElementById('reviveOverlay');
+  const reviveBtn = document.getElementById('reviveBtn');
+  const giveUpBtn = document.getElementById('giveUpBtn');
+  const scanBtn = document.getElementById('scanBtn');
+  const slowBtn = document.getElementById('slowBtn');
+
+  const colors = ['green','red','blue','yellow','purple','orange','black'];
+  const colorCN = {
+    green:'绿色', red:'红色', blue:'蓝色', yellow:'黄色',
+    purple:'紫色', orange:'橙色', black:'黑色'
+  };
+  const SAVE_KEY = 'button-panic-console:v2';
+  const BALANCE = {
+    wrongDamage:35,
+    fuseWrongDamage:15,
+    timeoutDamage:25,
+    streakRecoverEvery:3,
+    streakRecoverAmount:5,
+    frenzyNeed:8,
+    frenzyMs:8000,
+    reviveCost:30,
+    reviveRound:10,
+    reviveStability:35,
+    coinCap:80,
+    lowRoundCoinCap:2,
+    midRoundCoinCap:8,
+    slowMotionMs:2000,
+    slowMotionRate:.38,
+    scanHighlightMs:500
+  };
+  const UPGRADES = {
+    capacitor:{
+      name:'稳定电容',
+      max:4,
+      prices:[40,80,140,220],
+      describe(level){
+        const current = 100 + level * 5;
+        const next = level >= 4 ? '已达上限 120%' : `下一级初始稳定度 ${current + 5}%`;
+        return `每级 +5% 初始系统稳定度。当前 ${current}%，${next}。`;
+      }
+    },
+    fuse:{
+      name:'保险丝',
+      max:1,
+      prices:[120],
+      describe(level){
+        return level ? '已启用：每局第一次误触只扣 15% 稳定度。' : '每局第一次误触时，扣稳定度从 35% 降为 15%。';
+      }
+    },
+    scan:{
+      name:'扫描模块',
+      max:1,
+      prices:[100],
+      describe(level){
+        return level ? '已启用：每局 1 次，高亮一个正确按钮 0.5 秒。' : '购买后每局可高亮一个未按下的正确按钮。';
+      }
+    },
+    slow:{
+      name:'慢动作模块',
+      max:1,
+      prices:[160],
+      describe(level){
+        return level ? '已启用：每局 1 次，让当前回合倒计时变慢 2 秒。' : '购买后每局可让当前回合倒计时变慢 2 秒。';
+      }
+    }
+  };
+  const labelsEarly = ['按我','别按','安全','危险','YES','NO','OK','RUN','STOP','稳住'];
+  const labelsLate = ['不会炸','别看我','右边是真的','上面那个','我是假的','不是我','快按','等一下','反了','安全？'];
+  const ruleText = {
+    pressColor:'关闭所有红色警报',
+    avoidColor:'别碰红色过热按钮，按任意其他按钮',
+    pressFlash:'按下所有闪烁电源',
+    pressBiggest:'拉下最大的压力阀',
+    pressSmallest:'按下最小备用开关',
+    pressLabel:'只按写着 YES 的按钮',
+    dontPressText:'文字陷阱：避开危险字样',
+    reverseColor:'绿色危险，按任意非绿色按钮',
+    fakeFlash:'假闪烁混入电源阵列',
+    movingTarget:'移动电源失控'
+  };
+  const defaultSave = {
+    version:2,
+    bestScore:0,
+    bestRound:0,
+    bestCombo:0,
+    coins:0,
+    upgrades:{capacitor:0, fuse:0, scan:0, slow:0},
+    cosmetics:{
+      buttonSkin:'default',
+      consoleSkin:'default',
+      explosionFx:'default',
+      unlocked:{buttonSkins:['default'], consoleSkins:['default'], explosionFx:['default']}
+    },
+    soundOn:true
+  };
+  const saveData = loadSave();
+  let audioCtx = null;
+  let shopReturnToEnd = false;
+  const state = {
+    running:false,
+    paused:false,
+    resolving:false,
+    score:0,
+    combo:0,
+    streak:0,
+    maxCombo:0,
+    stability:100,
+    round:0,
+    timeLimit:3600,
+    roundStart:0,
+    remain:3600,
+    targets:new Set(),
+    buttons:[],
+    rule:null,
+    raf:0,
+    pressedTargets:0,
+    neededTargets:1,
+    frenzy:false,
+    frenzyUntil:0,
+    frenzyRemaining:0,
+    frenzyEnergy:0,
+    maxStability:100,
+    revivedThisRun:false,
+    fuseUsedThisRun:false,
+    scanUsedThisRun:false,
+    slowMotionUsedThisRun:false,
+    slowMotionUntil:0,
+    lastLoopAt:0,
+    frenzyCountThisRun:0,
+    coinsEarnedThisRun:0,
+    lastFailureReason:'系统稳定度归零'
+  };
+
+  function rand(min,max){return Math.random()*(max-min)+min}
+  function int(min,max){return Math.floor(rand(min,max+1))}
+  function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+  function shuffle(arr){return arr.sort(()=>Math.random()-.5)}
+  function clamp(n,min,max){return Math.max(min, Math.min(max, n))}
+
+  function vibrate(pattern){
+    if('vibrate' in navigator) navigator.vibrate(pattern);
+  }
+
+  function createDefaultSave(){
+    return JSON.parse(JSON.stringify(defaultSave));
+  }
+
+  function loadSave(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(!raw) return createDefaultSave();
+      const parsed = JSON.parse(raw);
+      const upgrades = {...defaultSave.upgrades, ...(parsed.upgrades || {})};
+      for(const key of Object.keys(UPGRADES)){
+        upgrades[key] = clamp(Number(upgrades[key]) || 0, 0, UPGRADES[key].max);
+      }
+      return {
+        ...defaultSave,
+        ...parsed,
+        bestScore:Math.max(0, Number(parsed.bestScore) || 0),
+        bestRound:Math.max(0, Number(parsed.bestRound) || 0),
+        bestCombo:Math.max(0, Number(parsed.bestCombo) || 0),
+        coins:Math.max(0, Number(parsed.coins) || 0),
+        upgrades,
+        cosmetics:{...defaultSave.cosmetics, ...(parsed.cosmetics || {})},
+        soundOn:parsed.soundOn !== false
+      };
+    }catch(error){
+      console.warn('Save load failed:', error);
+      return createDefaultSave();
+    }
+  }
+
+  function saveGame(){
+    try{
+      localStorage.setItem(SAVE_KEY, JSON.stringify({...saveData, lastPlayedAt:Date.now()}));
+    }catch(error){
+      console.warn('Save write failed:', error);
+    }
+  }
+
+  function updateSoundButton(){
+    soundBtn.textContent = saveData.soundOn ? '声音开' : '静音';
+    soundBtn.setAttribute('aria-pressed', String(saveData.soundOn));
+  }
+
+  function addCoins(amount){
+    const value = Math.max(0, Math.floor(amount) || 0);
+    saveData.coins += value;
+    saveGame();
+    updateCoinDisplays();
+    return value;
+  }
+
+  function spendCoins(amount){
+    const value = Math.max(0, Math.floor(amount) || 0);
+    if(saveData.coins < value) return false;
+    saveData.coins -= value;
+    saveGame();
+    updateCoinDisplays();
+    return true;
+  }
+
+  function getUpgradeLevel(key){
+    return clamp(Number(saveData.upgrades?.[key]) || 0, 0, UPGRADES[key]?.max || 0);
+  }
+
+  function buyUpgrade(key){
+    const config = UPGRADES[key];
+    if(!config) return false;
+    const level = getUpgradeLevel(key);
+    if(level >= config.max) return false;
+    const price = config.prices[level];
+    if(!spendCoins(price)){
+      showFeedback('金币不足', 'warn');
+      return false;
+    }
+    saveData.upgrades[key] = level + 1;
+    saveGame();
+    renderShop();
+    updatePowerButtons();
+    showFeedback('升级完成', 'good');
+    return true;
+  }
+
+  function updateCoinDisplays(){
+    const text = `${saveData.coins}`;
+    runCoinsEl.textContent = text;
+    coinBadge.textContent = `金币 ${text}`;
+    startCoinsEl.textContent = `当前金币：${text}`;
+    shopCoinsEl.textContent = `当前金币：${text}`;
+  }
+
+  function openShop(returnToEnd=false){
+    shopReturnToEnd = !!returnToEnd;
+    renderShop();
+    if(shopReturnToEnd) endOverlay.classList.add('hidden');
+    shopOverlay.classList.remove('hidden');
+  }
+
+  function closeShop(){
+    shopOverlay.classList.add('hidden');
+    if(shopReturnToEnd){
+      endOverlay.classList.remove('hidden');
+      shopReturnToEnd = false;
+    }
+  }
+
+  function renderShop(){
+    updateCoinDisplays();
+    shopList.innerHTML = '';
+    for(const [key, config] of Object.entries(UPGRADES)){
+      const level = getUpgradeLevel(key);
+      const maxed = level >= config.max;
+      const price = maxed ? 0 : config.prices[level];
+      const item = document.createElement('div');
+      item.className = 'upgradeItem';
+      item.innerHTML = `
+        <div class="upgradeTop"><span>${config.name}</span><span>Lv${level} / ${config.max}</span></div>
+        <p>${config.describe(level)}</p>
+      `;
+      const btn = document.createElement('button');
+      btn.className = 'upgradeBuy';
+      btn.type = 'button';
+      btn.textContent = maxed ? '已满级' : `购买 ${price} 金币`;
+      btn.disabled = maxed || saveData.coins < price;
+      btn.addEventListener('click', () => buyUpgrade(key));
+      item.appendChild(btn);
+      shopList.appendChild(item);
+    }
+  }
+
+  function updatePowerButtons(){
+    const hasScan = getUpgradeLevel('scan') > 0;
+    const hasSlow = getUpgradeLevel('slow') > 0;
+    scanBtn.classList.toggle('hidden', !hasScan);
+    slowBtn.classList.toggle('hidden', !hasSlow);
+    scanBtn.disabled = !state.running || state.paused || state.resolving || state.scanUsedThisRun || !hasScannableTarget();
+    slowBtn.disabled = !state.running || state.paused || state.resolving || state.slowMotionUsedThisRun || state.slowMotionUntil > performance.now();
+    if(hasScan) scanBtn.textContent = state.scanUsedThisRun ? '已使用' : '扫描';
+    if(hasSlow) slowBtn.textContent = state.slowMotionUsedThisRun ? '已使用' : '慢动作';
+  }
+
+  function hasScannableTarget(){
+    return state.buttons.some(b => b.isTarget && b.el && !b.el.classList.contains('pressed'));
+  }
+
+  function getAudio(){
+    if(!saveData.soundOn) return null;
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function tone(freq, duration=.08, type='sine', gain=.08, delay=0){
+    const ctx = getAudio();
+    if(!ctx) return;
+    const osc = ctx.createOscillator();
+    const amp = ctx.createGain();
+    const start = ctx.currentTime + delay;
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, start);
+    amp.gain.setValueAtTime(0.0001, start);
+    amp.gain.exponentialRampToValueAtTime(gain, start + .012);
+    amp.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+    osc.connect(amp);
+    amp.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start + duration + .03);
+  }
+
+  function playSound(name){
+    if(!saveData.soundOn) return;
+    if(name === 'correct') return tone(760,.07,'triangle',.07);
+    if(name === 'wrong') return tone(150,.16,'sawtooth',.07);
+    if(name === 'timeout'){
+      tone(90,.12,'square',.08);
+      tone(55,.18,'sawtooth',.06,.08);
+      return;
+    }
+    if(name === 'frenzy'){
+      tone(440,.08,'triangle',.06);
+      tone(660,.08,'triangle',.06,.08);
+      tone(880,.12,'triangle',.07,.16);
+      return;
+    }
+    if(name === 'boom'){
+      tone(72,.22,'sawtooth',.09);
+      tone(42,.26,'square',.055,.05);
+    }
+  }
+
+  function resetState(){
+    state.running=true;
+    state.paused=false;
+    state.resolving=false;
+    state.score=0;
+    state.combo=0;
+    state.streak=0;
+    state.maxCombo=0;
+    state.maxStability=100 + getUpgradeLevel('capacitor') * 5;
+    state.stability=state.maxStability;
+    state.round=0;
+    state.timeLimit=3600;
+    state.targets.clear();
+    state.buttons=[];
+    state.pressedTargets=0;
+    state.frenzy=false;
+    state.frenzyUntil=0;
+    state.frenzyRemaining=0;
+    state.frenzyEnergy=0;
+    state.revivedThisRun=false;
+    state.fuseUsedThisRun=false;
+    state.scanUsedThisRun=false;
+    state.slowMotionUsedThisRun=false;
+    state.slowMotionUntil=0;
+    state.lastLoopAt=performance.now();
+    state.frenzyCountThisRun=0;
+    state.coinsEarnedThisRun=0;
+    state.lastFailureReason='系统稳定度归零';
+    shopReturnToEnd=false;
+    phone.classList.remove('frenzy','lowStability','shock','dangerFlash','shortCircuit','slowMotion');
+    updateHud();
+    endOverlay.classList.add('hidden');
+    startOverlay.classList.add('hidden');
+    shopOverlay.classList.add('hidden');
+    reviveOverlay.classList.add('hidden');
+    pauseBtn.textContent='暂停';
+    updatePowerButtons();
+    nextRound();
+  }
+
+  function updateHud(){
+    scoreEl.textContent=state.score;
+    comboEl.textContent=state.combo;
+    roundEl.textContent=state.round;
+    frenzyEnergyEl.textContent = state.frenzy ? '狂热中' : `${state.frenzyEnergy} / 8`;
+    stabilityText.textContent=`${Math.round(state.stability)}%`;
+    stabilityFill.style.transform=`scaleX(${clamp(state.stability / state.maxStability, 0, 1)})`;
+    phone.classList.toggle('lowStability', state.stability < 30 && state.running);
+    updateCoinDisplays();
+  }
+
+  function showFeedback(text, type='good'){
+    feedback.textContent=text;
+    feedback.style.color = type === 'bad' ? '#ff5265' : type === 'warn' ? '#ffd447' : '#61f39e';
+    feedback.classList.remove('show');
+    void feedback.offsetWidth;
+    feedback.classList.add('show');
+  }
+
+  function getButtonCenter(el){
+    const mr = machine.getBoundingClientRect();
+    const br = el.getBoundingClientRect();
+    return {
+      x: br.left - mr.left + br.width / 2,
+      y: br.top - mr.top + br.height / 2
+    };
+  }
+
+  function spawnScore(el, points){
+    const p = getButtonCenter(el);
+    const s = document.createElement('div');
+    s.className = 'scoreFloat';
+    s.textContent = `+${points}`;
+    s.style.left = `${p.x}px`;
+    s.style.top = `${p.y}px`;
+    effectLayer.appendChild(s);
+    setTimeout(()=>s.remove(),760);
+  }
+
+  function explodeAt(x,y){
+    const b = document.createElement('div');
+    b.className = 'boom';
+    b.style.left = `${x}px`;
+    b.style.top = `${y}px`;
+    effectLayer.appendChild(b);
+
+    for(let i=0;i<9;i++){
+      const spark = document.createElement('span');
+      spark.className = 'spark';
+      spark.style.left = `${x}px`;
+      spark.style.top = `${y}px`;
+      spark.style.setProperty('--r', `${int(0,180)}deg`);
+      spark.style.setProperty('--x', `${rand(-42,42)}px`);
+      spark.style.setProperty('--y', `${rand(-46,30)}px`);
+      effectLayer.appendChild(spark);
+      setTimeout(()=>spark.remove(),500);
+    }
+
+    for(let i=0;i<3;i++){
+      const smoke = document.createElement('span');
+      smoke.className = 'smoke';
+      smoke.style.left = `${x + rand(-10,10)}px`;
+      smoke.style.top = `${y + rand(-8,8)}px`;
+      effectLayer.appendChild(smoke);
+      setTimeout(()=>smoke.remove(),760);
+    }
+    setTimeout(()=>b.remove(),480);
+  }
+
+  function burstCombo(){
+    if(![5,10,15].includes(state.combo)) return;
+    comboBurst.textContent=`${state.combo} COMBO`;
+    comboBurst.classList.remove('show');
+    void comboBurst.offsetWidth;
+    comboBurst.classList.add('show');
+  }
+
+  function addStability(amount){
+    state.stability = clamp(state.stability + amount, 0, state.maxStability);
+    updateHud();
+  }
+
+  function damage(amount, reason, el, isTimeout=false){
+    if(state.resolving || !state.running) return;
+    state.resolving=true;
+    state.combo=0;
+    state.streak=0;
+    state.frenzyEnergy=0;
+    let actualDamage = amount;
+    if(!isTimeout && getUpgradeLevel('fuse') > 0 && !state.fuseUsedThisRun){
+      actualDamage = BALANCE.fuseWrongDamage;
+      state.fuseUsedThisRun = true;
+      showFeedback('保险丝吸收误触', 'warn');
+    }
+    state.stability = clamp(state.stability - actualDamage, 0, state.maxStability);
+    state.lastFailureReason = state.stability <= 0 ? '系统稳定度归零' : (isTimeout ? '超时导致控制台短路' : '误触危险按钮');
+    updateHud();
+    phone.classList.add('shock','dangerFlash');
+    setTimeout(()=>phone.classList.remove('shock','dangerFlash'),520);
+
+    if(isTimeout){
+      phone.classList.add('shortCircuit');
+      setTimeout(()=>phone.classList.remove('shortCircuit'),560);
+      showFeedback('控制台短路', 'warn');
+      playSound('timeout');
+      vibrate([22,24,22]);
+    }else{
+      if(actualDamage === amount) showFeedback(reason || '按错了', 'bad');
+      playSound('wrong');
+      vibrate(18);
+      if(el){
+        const p = getButtonCenter(el);
+        explodeAt(p.x,p.y);
+      }
+    }
+
+    if(state.stability <= 0){
+      playSound('boom');
+      setTimeout(() => {
+        if(!tryRevive()) endGame();
+      },360);
+    }else{
+      setTimeout(nextRound,620);
+    }
+  }
+
+  function enterFrenzy(){
+    state.frenzy = true;
+    state.frenzyUntil = performance.now() + BALANCE.frenzyMs;
+    state.frenzyRemaining = BALANCE.frenzyMs;
+    state.frenzyEnergy = 0;
+    state.frenzyCountThisRun++;
+    phone.classList.add('frenzy');
+    showFeedback('狂热抢修中', 'warn');
+    playSound('frenzy');
+    updateHud();
+    vibrate([10,20,10]);
+  }
+
+  function exitFrenzy(){
+    state.frenzy = false;
+    state.frenzyUntil = 0;
+    state.frenzyRemaining = 0;
+    phone.classList.remove('frenzy');
+    updateHud();
+  }
+
+  function scorePoint(el, base=100){
+    state.combo++;
+    state.streak++;
+    state.maxCombo = Math.max(state.maxCombo, state.combo);
+    if(!state.frenzy) state.frenzyEnergy = clamp(state.frenzyEnergy + 1, 0, 8);
+
+    if(!state.frenzy && state.frenzyEnergy >= BALANCE.frenzyNeed){
+      enterFrenzy();
+    }
+
+    const points = base * (state.frenzy ? 2 : 1);
+    state.score += points;
+    spawnScore(el, points);
+    playSound('correct');
+
+    const recovered = state.streak % BALANCE.streakRecoverEvery === 0 && state.stability < state.maxStability;
+    if(recovered){
+      addStability(BALANCE.streakRecoverAmount);
+      showFeedback('稳定度回升', 'good');
+    }
+
+    burstCombo();
+    updateHud();
+    vibrate(state.frenzy ? 10 : 6);
+    return {points, recovered};
+  }
+
+  function clearZone(){
+    zone.innerHTML='';
+    effectLayer.innerHTML='';
+    state.buttons=[];
+    state.targets.clear();
+  }
+
+  function layoutButtons(count){
+    const rect = zone.getBoundingClientRect();
+    const cols = rect.width > 560 ? 6 : rect.width > 390 ? 5 : 4;
+    const rows = Math.max(3, Math.ceil(count / cols));
+    const gapX = rect.width / cols;
+    const gapY = rect.height / rows;
+    const slots = [];
+
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        slots.push({
+          cx: gapX * c + gapX / 2,
+          cy: gapY * r + gapY / 2
+        });
+      }
+    }
+
+    shuffle(slots);
+    return slots.slice(0,count).map(slot => {
+      const base = Math.min(gapX, gapY);
+      const size = clamp(int(base * .56, base * .74), 46, state.round > 20 ? 70 : 76);
+      const jitterX = rand(-gapX * .10, gapX * .10);
+      const jitterY = rand(-gapY * .10, gapY * .10);
+      return {
+        size,
+        x: clamp(slot.cx - size / 2 + jitterX, 4, rect.width - size - 4),
+        y: clamp(slot.cy - size / 2 + jitterY, 4, rect.height - size - 4)
+      };
+    });
+  }
+
+  function makeButtons(count){
+    const positions = layoutButtons(count);
+    const pool = state.round <= 10 ? labelsEarly : state.round <= 15 ? [...labelsEarly, '真的', '假的'] : [...labelsEarly, ...labelsLate];
+    return positions.map((p, i) => ({
+      id:i,
+      color:pick(colors),
+      label:pick(pool),
+      flash:false,
+      fake:false,
+      move:false,
+      size:p.size,
+      x:p.x,
+      y:p.y
+    }));
+  }
+
+  function ensureColor(btns, color, minCount=1){
+    let arr = btns.filter(b=>b.color===color);
+    while(arr.length < minCount){
+      const b = pick(btns);
+      b.color = color;
+      arr = btns.filter(x=>x.color===color);
+    }
+    return arr;
+  }
+
+  function targetAnyExcept(btns, forbiddenIds){
+    const blocked = new Set(forbiddenIds);
+    return pick(btns.filter(b=>!blocked.has(b.id)));
+  }
+
+  function chooseTutorialType(level){
+    if(level <= 5) return ['pressColor','pressColor','avoidColor','pressColor','pressColor'][level - 1];
+    if(level <= 10) return 'pressFlash';
+    if(level <= 15) return level % 2 ? 'pressLabel' : 'dontPressText';
+    if(level <= 20) return ['pressBiggest','pressSmallest','movingTarget','pressBiggest','movingTarget'][level - 16];
+    return null;
+  }
+
+  function getRoundStage(round){
+    if(round <= 5) return '系统启动';
+    if(round <= 10) return '警报升温';
+    if(round <= 15) return '文字干扰';
+    if(round <= 20) return '机械失控';
+    if(round <= 40) return '高压抢修';
+    if(round <= 70) return '混乱抢修';
+    return '极限抢修';
+  }
+
+  function weightedPick(entries){
+    const total = entries.reduce((sum, item) => sum + item.weight, 0);
+    let roll = Math.random() * total;
+    for(const item of entries){
+      roll -= item.weight;
+      if(roll <= 0) return item.type;
+    }
+    return entries[entries.length - 1].type;
+  }
+
+  function chooseEndlessType(level){
+    if(level <= 40){
+      return weightedPick([
+        {type:'pressColor', weight:20},
+        {type:'avoidColor', weight:12},
+        {type:'pressFlash', weight:22},
+        {type:'pressLabel', weight:12},
+        {type:'dontPressText', weight:8},
+        {type:'pressBiggest', weight:10},
+        {type:'pressSmallest', weight:8},
+        {type:'reverseColor', weight:3},
+        {type:'movingTarget', weight:1}
+      ]);
+    }
+    if(level <= 70){
+      return weightedPick([
+        {type:'pressColor', weight:14},
+        {type:'avoidColor', weight:10},
+        {type:'pressFlash', weight:18},
+        {type:'pressLabel', weight:13},
+        {type:'dontPressText', weight:12},
+        {type:'pressBiggest', weight:8},
+        {type:'pressSmallest', weight:7},
+        {type:'reverseColor', weight:8},
+        {type:'fakeFlash', weight:6},
+        {type:'movingTarget', weight:6}
+      ]);
+    }
+    return weightedPick([
+      {type:'pressColor', weight:10},
+      {type:'avoidColor', weight:8},
+      {type:'pressFlash', weight:14},
+      {type:'pressLabel', weight:14},
+      {type:'dontPressText', weight:13},
+      {type:'pressBiggest', weight:7},
+      {type:'pressSmallest', weight:6},
+      {type:'reverseColor', weight:12},
+      {type:'fakeFlash', weight:11},
+      {type:'movingTarget', weight:12}
+    ]);
+  }
+
+  function chooseRule(btns){
+    const level = state.round;
+    const dangerLevel = Math.max(0, Math.floor((level - 21) / 10));
+    const tutorialType = chooseTutorialType(level);
+    const type = tutorialType || chooseEndlessType(level);
+    const rule = {type, text:'', sub:'', targetIds:[], forbidIds:[]};
+
+    if(type === 'pressColor'){
+      const c = level <= 5 ? ['green','blue','red','yellow','green'][level - 1] : pick(colors.slice(0,6));
+      const amount = level <= 5 ? (level === 4 ? 2 : 1) : int(1, Math.min(4, 2 + Math.floor(dangerLevel / 2)));
+      const arr = ensureColor(btns,c,amount);
+      rule.targetIds = arr.map(b=>b.id);
+      rule.text = `关闭所有${colorCN[c]}警报`;
+      rule.sub = level === 1 ? '新手教学：只看颜色，按绿色。' : '颜色为准，文字暂时不用管。';
+    }
+
+    if(type === 'avoidColor'){
+      const c = level <= 5 ? 'red' : pick(['red','blue','yellow','purple','green']);
+      const arr = ensureColor(btns,c,int(1, Math.min(4, 2 + Math.floor(dangerLevel / 3))));
+      rule.forbidIds = arr.map(b=>b.id);
+      rule.targetIds = btns.filter(b=>!rule.forbidIds.includes(b.id)).map(b=>b.id);
+      rule.completeOnAny = true;
+      rule.text = c === 'green' ? '绿色危险，按任意非绿色按钮' : `别碰${colorCN[c]}过热按钮，按任意其他按钮`;
+      rule.sub = '只要别按禁区颜色，按任意其他按钮都能抢修。';
+    }
+
+    if(type === 'pressFlash'){
+      const num = level <= 10 ? (level < 8 ? 1 : 2) : int(1, Math.min(4, 2 + Math.floor(dangerLevel / 2)));
+      const chosen = shuffle([...btns]).slice(0,num);
+      chosen.forEach(b=>b.flash=true);
+      rule.targetIds = chosen.map(b=>b.id);
+      rule.text = '按下所有闪烁电源';
+      rule.sub = level === 6 ? '新机制：所有闪烁按钮都要按，不闪的不要碰。' : level <= 10 ? '闪烁电源都是真的，先练反应。' : '闪烁就是目标，文字可能干扰你。';
+    }
+
+    if(type === 'pressBiggest'){
+      const target = pick(btns);
+      target.size = 76;
+      btns.forEach(b=>{
+        if(b.id !== target.id) b.size = Math.min(b.size, 64);
+      });
+      rule.targetIds = [target.id];
+      rule.text = '按下最大的按钮';
+      rule.sub = level === 16 ? '新机制：只比较按钮大小，按唯一最大的那一个。' : '大小为准，最大的按钮只有一个。';
+    }
+
+    if(type === 'pressSmallest'){
+      const target = pick(btns);
+      target.size = 46;
+      btns.forEach(b=>{
+        if(b.id !== target.id) b.size = Math.max(b.size, 56);
+      });
+      rule.targetIds = [target.id];
+      rule.text = '按下最小的按钮';
+      rule.sub = '只比较大小，最小的按钮只有一个。';
+    }
+
+    if(type === 'pressLabel'){
+      const targetLabel = level <= 15 ? pick(['YES','OK','RUN']) : pick(['YES','OK','真的','RUN','稳住']);
+      const targetCount = level <= 15 ? 1 : int(1,2);
+      const targets = shuffle([...btns]).slice(0, targetCount);
+      const distractorLabels = [...labelsEarly, ...labelsLate, '假的', '不是我', '等一下', '别看我']
+        .filter(label => label !== targetLabel);
+      btns.forEach(b=>{
+        b.label = targets.includes(b) ? targetLabel : pick(distractorLabels);
+      });
+      rule.targetIds = btns.filter(b=>b.label === targetLabel).map(b=>b.id);
+      rule.text = `只按写着「${targetLabel}」的按钮`;
+      rule.sub = level === 11 ? '新机制：这一阶段只看按钮文字，颜色不重要。' : '文字为准，所有同文字按钮都是真的。';
+    }
+
+    if(type === 'dontPressText'){
+      const forbiddenLabel = pick(['按我','安全','真的','OK','稳住']);
+      const forbids = shuffle([...btns]).slice(0, level <= 15 ? 2 : int(2,4));
+      forbids.forEach(b=>b.label=forbiddenLabel);
+      const safe = btns.filter(b=>b.label!==forbiddenLabel);
+      if(safe.length === 0) btns[0].label='NO';
+      rule.forbidIds = btns.filter(b=>b.label===forbiddenLabel).map(b=>b.id);
+      rule.targetIds = btns.filter(b=>b.label!==forbiddenLabel).map(b=>b.id);
+      rule.completeOnAny = true;
+      rule.text = `别按写着「${forbiddenLabel}」的按钮，按其他任意按钮`;
+      rule.sub = '避开写着陷阱文字的按钮，按其他任意按钮。';
+    }
+
+    if(type === 'reverseColor'){
+      const c = pick(['red','green','blue','yellow']);
+      const arr = ensureColor(btns,c,int(1,3));
+      rule.forbidIds = arr.map(b=>b.id);
+      rule.targetIds = btns.filter(b=>!rule.forbidIds.includes(b.id)).map(b=>b.id);
+      rule.completeOnAny = true;
+      rule.text = c === 'green' ? '绿色危险，按任意非绿色按钮' : `${colorCN[c]}危险，按任意非${colorCN[c]}按钮`;
+      rule.sub = '看到“反转”先停一下，不要按危险颜色。';
+    }
+
+    if(type === 'fakeFlash'){
+      const real = pick(btns);
+      real.flash = true;
+      real.label = '真的';
+      const fakeCandidates = shuffle(btns.filter(b=>b.id!==real.id)).slice(0,int(1,3));
+      fakeCandidates.forEach(b=>{
+        b.flash = true;
+        b.fake = true;
+        b.label = pick(['假的','按我','安全']);
+      });
+      rule.targetIds = [real.id];
+      rule.forbidIds = fakeCandidates.map(b=>b.id);
+      rule.text = '只按写着「真的」的闪烁电源';
+      rule.sub = '闪烁不一定安全，文字也要核对。';
+    }
+
+    if(type === 'movingTarget'){
+      const c = pick(['green','blue','yellow','orange']);
+      const arr = ensureColor(btns,c,level <= 20 ? 1 : int(1, Math.min(3, 1 + Math.floor(dangerLevel / 3))));
+      arr.forEach(b=>b.move=true);
+      rule.targetIds = arr.map(b=>b.id);
+      rule.text = `按下移动中的${colorCN[c]}电源`;
+      rule.sub = '目标会轻微漂移，别点到旁边。';
+    }
+
+    return rule;
+  }
+
+  function fitButtonsInsideZone(btns){
+    const rect = zone.getBoundingClientRect();
+    const maxW = Math.max(44, rect.width - 8);
+    const maxH = Math.max(44, rect.height - 8);
+    btns.forEach(b=>{
+      b.size = clamp(b.size, 44, Math.min(maxW, maxH));
+      b.x = clamp(b.x, 4, rect.width - b.size - 4);
+      b.y = clamp(b.y, 4, rect.height - b.size - 4);
+    });
+  }
+
+  function renderButtons(btns, rule){
+    fitButtonsInsideZone(btns);
+    const targetSet = new Set(rule.targetIds);
+    const forbidSet = new Set(rule.forbidIds || []);
+    state.targets = targetSet;
+    state.neededTargets = rule.completeOnAny ? 1 : targetSet.size;
+    state.pressedTargets = 0;
+    state.buttons = btns;
+
+    btns.forEach(b=>{
+      const el = document.createElement('button');
+      el.className = `gameBtn ${b.color}`;
+      if(b.flash) el.classList.add('flash');
+      if(b.fake) el.classList.add('fakePulse');
+      if(b.move) el.classList.add('move');
+      el.type = 'button';
+      el.textContent = b.label;
+      el.setAttribute('aria-label', `${colorCN[b.color]}按钮 ${b.label}`);
+      el.style.left = `${b.x}px`;
+      el.style.top = `${b.y}px`;
+      el.style.width = `${b.size}px`;
+      el.style.height = `${b.size}px`;
+      el.style.fontSize = `${Math.max(11, Math.min(16, b.size/5))}px`;
+      el.dataset.id = b.id;
+      el.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if(!state.running || state.paused || state.resolving) return;
+        el.setPointerCapture?.(e.pointerId);
+        handlePress(b.id, el);
+      });
+      zone.appendChild(el);
+      b.el = el;
+      b.isTarget = targetSet.has(b.id);
+      b.isForbidden = forbidSet.has(b.id);
+    });
+    updatePowerButtons();
+  }
+
+  function handlePress(id, el){
+    const btn = state.buttons.find(b=>b.id===id);
+    if(!btn || btn.el.classList.contains('pressed')) return;
+
+    if(btn.isForbidden || !btn.isTarget){
+      damage(BALANCE.wrongDamage, '按钮误触', el, false);
+      return;
+    }
+
+    btn.el.classList.add('pressed','pop');
+    setTimeout(()=>btn.el.classList.remove('pop'),120);
+    state.pressedTargets++;
+    const result = scorePoint(el,100);
+    if(!result.recovered && state.combo % 5 !== 0) showFeedback(state.frenzy ? '超载抢修' : '正确', 'good');
+
+    if(state.pressedTargets >= state.neededTargets){
+      state.resolving=true;
+      const timeBonus = Math.floor((state.remain / state.timeLimit) * (state.frenzy ? 120 : 60));
+      state.score += timeBonus;
+      updateHud();
+      updatePowerButtons();
+      setTimeout(nextRound, state.frenzy ? 230 : 330);
+    }
+  }
+
+  function getRoundConfig(){
+    if(state.round === 1) return {count:3, time:4300};
+    if(state.round === 2) return {count:4, time:4200};
+    if(state.round === 3) return {count:4, time:4200};
+    if(state.round === 4) return {count:5, time:4000};
+    if(state.round === 5) return {count:6, time:3400};
+    if(state.round <= 10) return {count:8 + Math.floor((state.round - 6) * .8), time:3500};
+    if(state.round <= 15) return {count:10 + Math.floor((state.round - 11) * .9), time:3100};
+    if(state.round <= 20) return {count:12 + Math.floor((state.round - 16) * 1.1), time:2850};
+    const dangerLevel = Math.floor((state.round - 21) / 10);
+    return {
+      count:Math.min(28, 14 + Math.floor((state.round - 21) * .5)),
+      time:Math.max(900, 2500 - (state.round - 21) * 35),
+      dangerLevel
+    };
+  }
+
+  function getStageSubTip(round, ruleSub){
+    if(round >= 71) return `反应时间极短，${ruleSub}`;
+    if(round >= 41) return `按钮开始更会骗人，${ruleSub}`;
+    return ruleSub;
+  }
+
+  function nextRound(){
+    if(!state.running || state.stability<=0) return;
+    state.resolving=false;
+    clearZone();
+    state.round++;
+
+    const config = getRoundConfig();
+    state.timeLimit = config.time;
+    const btns = makeButtons(config.count);
+    const rule = chooseRule(btns);
+    state.rule = rule;
+
+    instructionEl.textContent = rule.text || ruleText[rule.type];
+    subTipEl.textContent = `第 ${state.round} 轮｜${getRoundStage(state.round)}｜${getStageSubTip(state.round, rule.sub)}`;
+    renderButtons(btns, rule);
+    updateHud();
+
+    state.roundStart = performance.now();
+    state.lastLoopAt = state.roundStart;
+    state.remain = state.timeLimit;
+    cancelAnimationFrame(state.raf);
+    loop();
+  }
+
+  function loop(now=performance.now()){
+    if(!state.running) return;
+    if(state.paused){
+      state.raf = requestAnimationFrame(loop);
+      return;
+    }
+
+    if(state.frenzy && now >= state.frenzyUntil) exitFrenzy();
+
+    const dt = Math.max(0, now - (state.lastLoopAt || now));
+    state.lastLoopAt = now;
+    const slowActive = state.slowMotionUntil > now;
+    phone.classList.toggle('slowMotion', slowActive);
+    if(slowActive){
+      state.roundStart += dt * (1 - BALANCE.slowMotionRate);
+    }
+
+    const elapsed = now - state.roundStart;
+    state.remain = Math.max(0, state.timeLimit - elapsed);
+    const p = state.remain / state.timeLimit;
+    timerBar.style.transform = `scaleX(${p})`;
+
+    if(p < .25){
+      timerBar.style.filter = 'brightness(1.45)';
+      if(Math.random() < .02) phone.classList.add('shock'), setTimeout(()=>phone.classList.remove('shock'),110);
+    }else{
+      timerBar.style.filter = 'none';
+    }
+
+    if(state.remain <= 0){
+      damage(BALANCE.timeoutDamage, '超时', null, true);
+      return;
+    }
+    updatePowerButtons();
+    state.raf = requestAnimationFrame(loop);
+  }
+
+  function calculateCoins(){
+    let coins = Math.floor(state.score / 500) + Math.floor(state.round / 5) + state.frenzyCountThisRun * 2;
+    coins = Math.min(BALANCE.coinCap, coins);
+    if(state.round <= 5) coins = Math.min(BALANCE.lowRoundCoinCap, coins);
+    else if(state.round <= 10) coins = Math.min(BALANCE.midRoundCoinCap, coins);
+    return Math.max(0, coins);
+  }
+
+  function updateRecords(){
+    const prev = {
+      score:saveData.bestScore,
+      round:saveData.bestRound,
+      combo:saveData.bestCombo
+    };
+    const newScore = state.score > saveData.bestScore;
+    const newRound = state.round > saveData.bestRound;
+    const newCombo = state.maxCombo > saveData.bestCombo;
+    saveData.bestScore = Math.max(saveData.bestScore, state.score);
+    saveData.bestRound = Math.max(saveData.bestRound, state.round);
+    saveData.bestCombo = Math.max(saveData.bestCombo, state.maxCombo);
+    return {prev, newScore, newRound, newCombo};
+  }
+
+  function getGameOverTitle(round){
+    if(round <= 10) return '控制台爆炸';
+    if(round <= 30) return '抢修失败';
+    if(round <= 60) return '高压崩溃';
+    return '极限抢修失败';
+  }
+
+  function tryRevive(){
+    if(state.round < BALANCE.reviveRound || state.revivedThisRun || saveData.coins < BALANCE.reviveCost) return false;
+    state.running=false;
+    state.resolving=true;
+    cancelAnimationFrame(state.raf);
+    reviveOverlay.classList.remove('hidden');
+    return true;
+  }
+
+  function reviveRun(){
+    if(state.revivedThisRun || saveData.coins < BALANCE.reviveCost) return;
+    if(!spendCoins(BALANCE.reviveCost)) return;
+    state.revivedThisRun=true;
+    state.running=true;
+    state.resolving=false;
+    state.stability=BALANCE.reviveStability;
+    state.combo=0;
+    state.streak=0;
+    state.frenzyEnergy=0;
+    state.slowMotionUntil=performance.now() + BALANCE.slowMotionMs;
+    reviveOverlay.classList.add('hidden');
+    showFeedback('应急重启', 'warn');
+    updateHud();
+    setTimeout(nextRound, 300);
+  }
+
+  function giveUpRun(){
+    reviveOverlay.classList.add('hidden');
+    endGame();
+  }
+
+  function useScan(){
+    if(getUpgradeLevel('scan') <= 0 || state.scanUsedThisRun || !state.running || state.paused || state.resolving) return;
+    const candidates = state.buttons.filter(b => b.isTarget && b.el && !b.el.classList.contains('pressed'));
+    if(!candidates.length) return;
+    const target = pick(candidates);
+    state.scanUsedThisRun = true;
+    target.el.classList.add('scanHint');
+    showFeedback('扫描锁定目标', 'warn');
+    setTimeout(() => target.el?.classList.remove('scanHint'), BALANCE.scanHighlightMs);
+    updatePowerButtons();
+  }
+
+  function useSlowMotion(){
+    if(getUpgradeLevel('slow') <= 0 || state.slowMotionUsedThisRun || !state.running || state.paused || state.resolving) return;
+    state.slowMotionUsedThisRun = true;
+    state.slowMotionUntil = performance.now() + BALANCE.slowMotionMs;
+    phone.classList.add('slowMotion');
+    showFeedback('慢动作启动', 'warn');
+    updatePowerButtons();
+  }
+
+  function endGame(){
+    state.running=false;
+    state.resolving=false;
+    cancelAnimationFrame(state.raf);
+    clearZone();
+    exitFrenzy();
+    phone.classList.remove('slowMotion');
+    updateHud();
+    state.coinsEarnedThisRun = calculateCoins();
+    addCoins(state.coinsEarnedThisRun);
+    const {prev, newScore, newRound, newCombo} = updateRecords();
+    saveGame();
+    const recordText = (newScore || newRound || newCombo) ? '<div class="recordNote">新纪录！</div>' : '';
+    endTitle.textContent = getGameOverTitle(state.round);
+    endStats.innerHTML = `失败原因：<b class="redText">${state.lastFailureReason}</b><br>
+      本局获得金币：<b class="greenText">${state.coinsEarnedThisRun}</b>｜当前总金币：<b>${saveData.coins}</b><br>
+      本局分数：<b class="greenText">${state.score}</b>｜历史最高分：<b>${saveData.bestScore}</b>${newScore ? ` <span class="greenText">+${state.score - prev.score}</span>` : ''}<br>
+      本局坚持到第 <b>${state.round}</b> 轮｜历史最高轮数：<b>${saveData.bestRound}</b>${newRound ? ` <span class="greenText">+${state.round - prev.round}</span>` : ''}<br>
+      本局最高连击：<b>${state.maxCombo}</b>｜历史最高连击：<b>${saveData.bestCombo}</b>${newCombo ? ` <span class="greenText">+${state.maxCombo - prev.combo}</span>` : ''}<br>
+      系统稳定度：<b class="redText">${Math.round(state.stability)}%</b>${recordText}`;
+    endOverlay.classList.remove('hidden');
+  }
+
+  function togglePause(){
+    if(!state.running || state.resolving) return;
+    state.paused = !state.paused;
+    pauseBtn.textContent = state.paused ? '继续' : '暂停';
+    if(state.paused){
+      state.frenzyRemaining = state.frenzy ? Math.max(0, state.frenzyUntil - performance.now()) : 0;
+    }else{
+      state.roundStart = performance.now() - (state.timeLimit - state.remain);
+      state.lastLoopAt = performance.now();
+      if(state.frenzy) state.frenzyUntil = performance.now() + state.frenzyRemaining;
+    }
+  }
+
+  startBtn.addEventListener('click', resetState);
+  againBtn.addEventListener('click', resetState);
+  restartBtn.addEventListener('click', resetState);
+  pauseBtn.addEventListener('click', togglePause);
+  shopBtn.addEventListener('click', () => openShop(false));
+  endShopBtn.addEventListener('click', () => openShop(true));
+  shopBackBtn.addEventListener('click', closeShop);
+  reviveBtn.addEventListener('click', reviveRun);
+  giveUpBtn.addEventListener('click', giveUpRun);
+  scanBtn.addEventListener('click', useScan);
+  slowBtn.addEventListener('click', useSlowMotion);
+  soundBtn.addEventListener('click', () => {
+    saveData.soundOn = !saveData.soundOn;
+    saveGame();
+    updateSoundButton();
+    if(saveData.soundOn) playSound('correct');
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden && state.running && !state.paused) togglePause();
+  });
+
+  window.__buttonPanicState = state;
+  window.__buttonPanicSave = saveData;
+  window.__buttonPanicBalance = BALANCE;
+  updateSoundButton();
+  updateCoinDisplays();
+  updatePowerButtons();
+})();
+</script>
+</body>
+</html>
