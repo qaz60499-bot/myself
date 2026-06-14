@@ -1,0 +1,4570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>地板塌了 - 逃生优化版</title>
+<style>
+  :root {
+    --bg0: #050711;
+    --bg1: #0b1422;
+    --panel: rgba(10, 18, 30, .78);
+    --line: rgba(139, 218, 255, .24);
+    --text: #f5fbff;
+    --muted: rgba(226, 243, 255, .68);
+    --cyan: #5de7ff;
+    --amber: #ffd36b;
+    --danger: #ff5c37;
+    --tile-gap: 4px;
+    --tile-pad: 7px;
+    --app-height: 100dvh;
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --browser-top-gap: 0px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: var(--app-height, 100dvh);
+    min-height: 100%;
+    overflow: hidden;
+    color: var(--text);
+    font-family: "Trebuchet MS", "Microsoft YaHei", sans-serif;
+    background:
+      radial-gradient(circle at 50% -12%, rgba(89, 220, 255, .28), transparent 34%),
+      radial-gradient(circle at 50% 115%, rgba(255, 95, 43, .16), transparent 30%),
+      linear-gradient(180deg, #101827 0%, var(--bg1) 42%, var(--bg0) 100%);
+    touch-action: none;
+    user-select: none;
+  }
+  button {
+    font: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .app {
+    width: min(100vw, 520px);
+    height: var(--app-height, 100dvh);
+    min-height: min(620px, var(--app-height, 100dvh));
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: calc(clamp(9px, 2vh, 18px) + var(--safe-top, 0px) + var(--browser-top-gap, 0px)) 14px calc(14px + var(--safe-bottom, 0px));
+    position: relative;
+  }
+  .app.shake { animation: screenShake .18s linear; }
+  .topbar {
+    min-height: 50px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .stat, .title, .hint, .card {
+    border: 1px solid rgba(165, 226, 255, .17);
+    background: var(--panel);
+    box-shadow: 0 16px 42px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);
+    backdrop-filter: blur(12px);
+  }
+  .stat {
+    border-radius: 12px;
+    padding: 8px 9px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+  }
+  .stat:nth-child(3) { text-align: right; }
+  .label {
+    color: rgba(226, 243, 255, .54);
+    font-size: 11px;
+    line-height: 1;
+  }
+  .value {
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .title {
+    min-width: 118px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    padding: 7px 10px;
+    text-align: center;
+  }
+  .title strong {
+    display: block;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .title span {
+    display: block;
+    margin-top: 4px;
+    color: rgba(226, 243, 255, .62);
+    font-size: 10px;
+  }
+  .actions {
+    position: absolute;
+    z-index: 12;
+    top: calc(72px + var(--safe-top, 0px) + var(--browser-top-gap, 0px));
+    left: 18px;
+    right: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .actions button { pointer-events: auto; }
+  .level-dots {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    min-height: 12px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border: 0;
+    border-radius: 50%;
+    padding: 0;
+    background: rgba(255,255,255,.17);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.08);
+  }
+  .dot.done { background: rgba(98, 232, 255, .86); box-shadow: 0 0 12px rgba(98, 232, 255, .5); }
+  .dot.current { background: var(--amber); box-shadow: 0 0 14px rgba(255, 211, 107, .72); }
+  .board-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .board-frame {
+    width: min(100%, 430px);
+    aspect-ratio: 7 / 11;
+    border-radius: 26px;
+    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(111, 221, 255, .18), rgba(255,255,255,.04)),
+      rgba(3, 7, 15, .88);
+    border: 1px solid var(--line);
+    box-shadow:
+      0 28px 90px rgba(0,0,0,.55),
+      0 0 54px rgba(75, 211, 255, .12),
+      inset 0 0 28px rgba(255,255,255,.04);
+  }
+  .board-frame::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border-radius: 20px;
+    background:
+      linear-gradient(rgba(96, 184, 255, .06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(96, 184, 255, .05) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: .45;
+    pointer-events: none;
+  }
+  .board-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 19px;
+    overflow: hidden;
+    position: relative;
+    background:
+      radial-gradient(circle at 50% 36%, rgba(26, 62, 103, .46), rgba(4, 6, 12, .98) 60%),
+      #03050b;
+    box-shadow: inset 0 0 52px rgba(0,0,0,.8);
+    touch-action: none;
+  }
+  .board-inner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 42%, rgba(0,0,0,.34) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(11, 1fr);
+    gap: var(--tile-gap);
+    padding: var(--tile-pad);
+    z-index: 1;
+  }
+  .tile {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    transform: translateZ(0);
+    background:
+      linear-gradient(155deg, rgba(90, 114, 150, .96), rgba(31, 43, 68, .96) 62%, rgba(13, 19, 34, .98));
+    border: 1px solid rgba(161, 224, 255, .2);
+    box-shadow:
+      0 10px 18px rgba(0,0,0,.36),
+      0 0 16px rgba(91, 217, 255, .17),
+      inset 0 1px 0 rgba(255,255,255,.22),
+      inset 0 -12px 18px rgba(0,0,0,.25);
+    transition: transform .16s ease, opacity .16s ease, filter .16s ease, box-shadow .16s ease;
+  }
+  .tile::before {
+    content: "";
+    position: absolute;
+    inset: 8% 9%;
+    border-radius: 6px;
+    border-top: 1px solid rgba(255,255,255,.18);
+    background:
+      linear-gradient(120deg, transparent 0 36%, rgba(255,255,255,.08) 38%, transparent 41%),
+      radial-gradient(circle at 34% 24%, rgba(255,255,255,.14) 0 2px, transparent 3px);
+    opacity: .8;
+    pointer-events: none;
+  }
+  .tile::after {
+    content: attr(data-mark);
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    color: rgba(255,255,255,.96);
+    font-size: clamp(13px, 4vw, 22px);
+    font-weight: 900;
+    text-shadow: 0 2px 9px rgba(0,0,0,.62);
+    opacity: 0;
+  }
+  .tile[data-mark]::after { opacity: 1; }
+  .tile.start {
+    background: linear-gradient(155deg, rgba(96, 133, 167, .98), rgba(34, 52, 82, .98));
+  }
+  .tile.goal {
+    transform: scale(1.09);
+    border-color: rgba(190, 250, 255, .72);
+    background:
+      radial-gradient(circle at 50% 48%, rgba(255,255,255,.98), rgba(102, 241, 255, .74) 28%, rgba(21, 108, 177, .98) 62%, rgba(8, 29, 62, .98));
+    box-shadow:
+      0 0 30px rgba(98, 232, 255, .82),
+      0 0 58px rgba(98, 232, 255, .38),
+      inset 0 0 18px rgba(255,255,255,.46);
+    animation: portalPulse 1s ease-in-out infinite alternate;
+  }
+  .tile.safe {
+    background: linear-gradient(155deg, rgba(57, 179, 131, .98), rgba(20, 93, 87, .98));
+    box-shadow: 0 0 22px rgba(75, 255, 191, .32), 0 0 0 2px rgba(74, 255, 188, .15), inset 0 1px 0 rgba(255,255,255,.22);
+  }
+  .tile.fast {
+    background: linear-gradient(155deg, rgba(255, 100, 82, .98), rgba(124, 29, 47, .98) 66%, rgba(53, 13, 25, .98));
+    box-shadow: 0 0 22px rgba(255, 72, 58, .28), inset 0 1px 0 rgba(255,255,255,.18);
+    animation: fastPulse .68s ease-in-out infinite alternate;
+  }
+  .tile.ice {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,.5), transparent 34%),
+      repeating-linear-gradient(118deg, rgba(255,255,255,.22) 0 2px, transparent 2px 10px),
+      linear-gradient(155deg, rgba(197, 247, 255, .98), rgba(48, 150, 205, .96) 62%, rgba(16, 60, 96, .98));
+    box-shadow: 0 0 22px rgba(140, 232, 255, .34), inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .tile.bounce {
+    background:
+      radial-gradient(circle at 50% 34%, rgba(255,255,255,.7), transparent 20%),
+      repeating-linear-gradient(0deg, rgba(66, 38, 7, .34) 0 3px, transparent 3px 8px),
+      linear-gradient(155deg, rgba(255, 231, 112, .98), rgba(255, 153, 43, .98) 60%, rgba(105, 55, 18, .98));
+    box-shadow: 0 0 24px rgba(255, 199, 61, .42), inset 0 1px 0 rgba(255,255,255,.36);
+  }
+  .tile.trap {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255, 40, 62, .55), transparent 18%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.12) 0 4px, transparent 4px 8px),
+      linear-gradient(155deg, rgba(129, 42, 83, .98), rgba(45, 17, 41, .98));
+    box-shadow: 0 0 20px rgba(255, 64, 117, .42), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .tile.teleA, .tile.teleB {
+    background:
+      conic-gradient(from 30deg, rgba(255,255,255,.88), rgba(118, 238, 255,.72), rgba(59, 104, 255,.72), rgba(255,255,255,.88)),
+      radial-gradient(circle, rgba(255,255,255,.85), rgba(66, 50, 150, .98) 68%);
+    box-shadow: 0 0 26px rgba(120, 219, 255, .62), inset 0 0 18px rgba(255,255,255,.3);
+    animation: portalSpin 1.4s linear infinite;
+  }
+  .tile.teleB {
+    background:
+      conic-gradient(from 210deg, rgba(255,255,255,.88), rgba(91, 255, 191,.7), rgba(28, 139, 144,.78), rgba(255,255,255,.88)),
+      radial-gradient(circle, rgba(255,255,255,.85), rgba(23, 86, 86, .98) 68%);
+  }
+  .tile.void,
+  .tile.gone {
+    opacity: .82;
+    border-color: rgba(0,0,0,.45);
+    background:
+      radial-gradient(circle at 50% 22%, rgba(255, 92, 55, .12), transparent 22%),
+      radial-gradient(circle at 50% 55%, rgba(4, 7, 13, .4), rgba(0,0,0,.98) 66%);
+    box-shadow: inset 0 0 28px rgba(0,0,0,.96);
+  }
+  .tile.void::before,
+  .tile.gone::before,
+  .tile.void::after,
+  .tile.gone::after { display: none; }
+  .tile.sink {
+    transform: translateY(4%) scale(.98);
+    filter: brightness(.86);
+  }
+  .tile.crack {
+    transform: translateY(7%) scale(.96);
+    filter: brightness(1.1) saturate(1.2);
+  }
+  .tile.crack .cracks,
+  .tile.shake .cracks {
+    opacity: 1;
+  }
+  .tile.shake {
+    animation: tileShake .11s linear infinite;
+  }
+  .tile.falling {
+    animation: fallAway .36s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .cracks {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0;
+    background:
+      linear-gradient(26deg, transparent 46%, rgba(35, 8, 6, .92) 47%, rgba(255, 106, 43, .74) 48%, transparent 50%),
+      linear-gradient(111deg, transparent 44%, rgba(30, 6, 5, .8) 45%, rgba(255, 132, 47, .65) 46%, transparent 49%),
+      linear-gradient(72deg, transparent 53%, rgba(255, 211, 106, .46) 54%, transparent 56%),
+      radial-gradient(circle at 52% 54%, rgba(255, 92, 43, .42), transparent 48%);
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 0 8px rgba(255, 92, 43, .64));
+    pointer-events: none;
+  }
+  .collapse-line {
+    position: absolute;
+    left: 7px;
+    right: 7px;
+    bottom: -20%;
+    z-index: 6;
+    height: 16px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(255, 77, 46, .92), transparent);
+    box-shadow: 0 0 24px rgba(255, 77, 46, .72), 0 -16px 36px rgba(255, 77, 46, .18);
+    opacity: 0;
+    pointer-events: none;
+    transition: bottom .12s linear, opacity .16s ease;
+  }
+  .collapse-line.show { opacity: 1; }
+  .player {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 8;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    filter: drop-shadow(0 16px 12px rgba(0,0,0,.5));
+    transition: transform .13s cubic-bezier(.17, .95, .27, 1.14), filter .12s ease;
+  }
+  .player.jump { animation: playerJump .18s cubic-bezier(.2,1.2,.38,1); }
+  .player.land { animation: playerLand .14s ease-out; }
+  .player.danger { animation: playerDanger .34s linear; }
+  .player.flyout { animation: flyOut .56s ease-in forwards; }
+  .aura {
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 217, 108, .22), rgba(85, 222, 255, .1) 44%, transparent 70%);
+    animation: auraPulse .9s ease-in-out infinite alternate;
+  }
+  .runner {
+    width: 74%;
+    height: 78%;
+    position: relative;
+    transform-origin: center center;
+    transition: transform .12s ease;
+  }
+  .runner::before {
+    content: "";
+    position: absolute;
+    left: 23%;
+    top: 0;
+    width: 54%;
+    height: 42%;
+    border-radius: 45% 45% 50% 50%;
+    background: linear-gradient(145deg, #ffe1ad, #d9874c);
+    box-shadow: inset 0 2px 3px rgba(255,255,255,.38), 0 0 0 2px rgba(39, 24, 20, .36);
+  }
+  .runner::after {
+    content: "";
+    position: absolute;
+    left: 14%;
+    top: 33%;
+    width: 72%;
+    height: 52%;
+    border-radius: 42% 42% 30% 30%;
+    background: linear-gradient(145deg, #4cd7ff, #1e62b3 70%);
+    box-shadow: inset 0 2px 4px rgba(255,255,255,.35), 0 0 0 2px rgba(6, 18, 34, .42);
+  }
+  .leg {
+    position: absolute;
+    bottom: 0;
+    width: 20%;
+    height: 35%;
+    border-radius: 100px;
+    background: #18233f;
+    z-index: -1;
+  }
+  .leg.a { left: 22%; transform: rotate(20deg); }
+  .leg.b { right: 22%; transform: rotate(-20deg); }
+  .runner.up { transform: rotate(0); }
+  .runner.right { transform: rotate(90deg); }
+  .runner.down { transform: rotate(180deg); }
+  .runner.left { transform: rotate(-90deg); }
+  .dust, .shard {
+    position: absolute;
+    z-index: 7;
+    pointer-events: none;
+    border-radius: 50%;
+    background: rgba(255, 210, 126, .9);
+    animation: dustOut .44s ease-out forwards;
+  }
+  .shard {
+    width: 7px;
+    height: 5px;
+    border-radius: 2px;
+    background: rgba(129, 176, 209, .88);
+    animation: shardFall .46s ease-in forwards;
+  }
+  .bottom {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .hint {
+    min-height: 73px;
+    border-radius: 14px;
+    padding: 10px 12px;
+  }
+  .hint strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  .hint p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.38;
+  }
+  .pad {
+    width: 136px;
+    display: grid;
+    grid-template-columns: repeat(3, 42px);
+    grid-template-rows: repeat(3, 42px);
+    gap: 5px;
+  }
+  .pad button, .small-btn, .primary-btn {
+    border: 1px solid rgba(202, 242, 255, .18);
+    color: var(--text);
+    font-weight: 900;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+    box-shadow: 0 9px 18px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18);
+    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease, border-color .12s ease;
+  }
+  .pad button {
+    min-width: 42px;
+    min-height: 42px;
+    font-size: 19px;
+  }
+  .pad button:focus-visible,
+  .small-btn:focus-visible,
+  .primary-btn:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+  .pad button.pressed,
+  .pad button:active,
+  .small-btn:active,
+  .primary-btn:active {
+    transform: translateY(2px) scale(.94);
+    filter: brightness(1.35);
+    border-color: rgba(255, 211, 107, .75);
+    box-shadow: 0 3px 8px rgba(0,0,0,.32), 0 0 20px rgba(255, 211, 107, .24), inset 0 0 14px rgba(255,255,255,.16);
+  }
+  .pad .up { grid-column: 2; grid-row: 1; }
+  .pad .left { grid-column: 1; grid-row: 2; }
+  .pad .right { grid-column: 3; grid-row: 2; }
+  .pad .down { grid-column: 2; grid-row: 3; }
+  .small-btn {
+    min-height: 36px;
+    padding: 8px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+  }
+  .small-btn:disabled {
+    cursor: not-allowed;
+    opacity: .42;
+    filter: grayscale(.25);
+  }
+  .primary-btn {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 16px;
+    font-size: 16px;
+    background: linear-gradient(180deg, #66edff, #2684dc 60%, #14509d);
+    box-shadow: 0 14px 30px rgba(49, 170, 255, .36), inset 0 1px 0 rgba(255,255,255,.44);
+  }
+  .toast {
+    position: absolute;
+    z-index: 16;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    padding: 11px 15px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.16);
+    background: rgba(7, 13, 24, .78);
+    color: #fff;
+    font-weight: 900;
+    white-space: nowrap;
+    box-shadow: 0 14px 38px rgba(0,0,0,.48);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .16s ease, transform .16s ease;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translate(-50%, -62%);
+  }
+  .overlay {
+    position: absolute;
+    z-index: 20;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: calc(22px + var(--safe-top, 0px) + var(--browser-top-gap, 0px)) 22px calc(22px + var(--safe-bottom, 0px));
+    background: rgba(2, 4, 10, .62);
+    backdrop-filter: blur(10px);
+    transition: opacity .18s ease;
+  }
+  .overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .overlay.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(202, 242, 255, .24);
+    color: var(--text);
+    background: rgba(7, 13, 24, .78);
+    box-shadow: 0 10px 24px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.14);
+    font-size: 24px;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .close-btn:active { transform: scale(.94); }
+
+  /* 主菜单、通关/失败弹窗：不显示关闭 ×；失败后不显示“提示”按钮 */
+  #menuCloseBtn,
+  #resultCloseBtn,
+  #resultHintBtn {
+    display: none !important;
+  }
+  .card {
+    width: min(100%, 386px);
+    border-radius: 18px;
+    padding: 22px;
+    text-align: center;
+    background:
+      radial-gradient(circle at 50% -5%, rgba(102, 237, 255, .2), transparent 36%),
+      linear-gradient(180deg, rgba(23, 36, 58, .96), rgba(7, 12, 22, .98));
+    position: relative;
+  }
+  .select-card {
+    width: min(100%, 460px);
+    max-height: calc(var(--app-height, 100dvh) - var(--safe-top, 0px) - var(--safe-bottom, 0px) - var(--browser-top-gap, 0px) - 44px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card h1 {
+    margin: 0 0 8px;
+    font-size: 29px;
+    line-height: 1.08;
+  }
+  .card p {
+    margin: 8px 0 14px;
+    color: rgba(235, 248, 255, .74);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .rule-list {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0 18px;
+    text-align: left;
+  }
+  .rule {
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.09);
+    background: rgba(255,255,255,.055);
+    padding: 10px 12px;
+    color: rgba(238, 248, 255, .8);
+    font-size: 13px;
+  }
+  .secondary-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .secondary-row .small-btn {
+    flex: 1;
+    border-radius: 10px;
+    min-height: 42px;
+  }
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin: 12px 0 14px;
+  }
+  .result-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .result-actions .primary-btn,
+  .result-actions .small-btn {
+    width: 100%;
+    min-height: 42px;
+    border-radius: 10px;
+  }
+  .result-item {
+    border-radius: 10px;
+    padding: 9px 6px;
+    border: 1px solid rgba(255,255,255,.09);
+    background: rgba(255,255,255,.055);
+  }
+  .result-item span {
+    display: block;
+    color: rgba(226, 243, 255, .55);
+    font-size: 11px;
+  }
+  .result-item strong {
+    display: block;
+    margin-top: 4px;
+    font-size: 16px;
+  }
+  .level-select {
+    display: grid;
+    gap: 12px;
+    margin: 14px 0;
+    max-height: min(58vh, 520px);
+    overflow: auto;
+    padding-right: 2px;
+  }
+  .chapter {
+    border-radius: 14px;
+    border: 1px solid rgba(151, 224, 255, .16);
+    background: rgba(255,255,255,.045);
+    padding: 11px;
+    text-align: left;
+  }
+  .chapter h2 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  .chapter p {
+    margin: 0 0 10px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: rgba(226, 243, 255, .62);
+  }
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 7px;
+  }
+  .level-card {
+    min-height: 48px;
+    border-radius: 9px;
+    border: 1px solid rgba(185, 237, 255, .14);
+    color: var(--text);
+    background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.04));
+    box-shadow: 0 8px 16px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.12);
+    display: grid;
+    place-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+  }
+  .level-card strong {
+    font-size: 15px;
+    line-height: 1;
+  }
+  .level-card span {
+    min-height: 12px;
+    color: rgba(226, 243, 255, .66);
+    font-size: 10px;
+    line-height: 1;
+  }
+  .level-card.current {
+    border-color: rgba(255, 211, 107, .78);
+    box-shadow: 0 0 18px rgba(255, 211, 107, .24), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .level-card.done {
+    border-color: rgba(91, 231, 255, .52);
+    background: linear-gradient(180deg, rgba(91, 231, 255, .18), rgba(255,255,255,.05));
+  }
+  .level-card.locked {
+    cursor: not-allowed;
+    opacity: .44;
+    filter: grayscale(.25);
+  }
+  .level-card:disabled {
+    cursor: not-allowed;
+  }
+  .shop-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+    max-height: min(58vh, 520px);
+    overflow: auto;
+  }
+  .shop-section {
+    border-radius: 14px;
+    border: 1px solid rgba(151, 224, 255, .16);
+    background: rgba(255,255,255,.045);
+    padding: 11px;
+    text-align: left;
+  }
+  .shop-section h2 {
+    margin: 0 0 9px;
+    font-size: 14px;
+  }
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .shop-item {
+    min-height: 62px;
+    border-radius: 10px;
+    border: 1px solid rgba(185, 237, 255, .14);
+    color: var(--text);
+    background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.04));
+    box-shadow: 0 8px 16px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.12);
+    display: grid;
+    align-content: center;
+    gap: 4px;
+    padding: 8px;
+    text-align: left;
+  }
+  .shop-item strong {
+    font-size: 13px;
+  }
+  .shop-item span {
+    color: rgba(226, 243, 255, .64);
+    font-size: 11px;
+  }
+  .shop-item.active {
+    border-color: rgba(255, 211, 107, .82);
+    box-shadow: 0 0 18px rgba(255, 211, 107, .24), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .shop-item.locked {
+    border-color: rgba(255,255,255,.11);
+  }
+  .coin-pill {
+    display: inline-grid;
+    place-items: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    color: #201404;
+    font-weight: 900;
+    background: linear-gradient(180deg, #ffe38a, #f0a92f);
+    box-shadow: 0 0 18px rgba(255, 211, 107, .22);
+  }
+  .tile.hint-cell {
+    animation: hintFlash 1s ease-in-out;
+    outline: 2px solid rgba(255, 232, 130, .95);
+    outline-offset: -2px;
+  }
+  .app[data-theme="glacier"] .tile.normal,
+  .app[data-theme="glacier"] .tile.start {
+    background: linear-gradient(155deg, rgba(205, 247, 255, .98), rgba(53, 139, 196, .95) 62%, rgba(10, 42, 77, .98));
+    box-shadow: 0 0 18px rgba(139, 232, 255, .24), inset 0 1px 0 rgba(255,255,255,.36);
+  }
+  .app[data-theme="lava"] .tile.normal,
+  .app[data-theme="lava"] .tile.start {
+    background: linear-gradient(155deg, rgba(115, 65, 54, .98), rgba(62, 31, 37, .98) 62%, rgba(23, 12, 18, .98));
+    box-shadow: 0 0 18px rgba(255, 91, 44, .22), inset 0 1px 0 rgba(255,255,255,.16);
+  }
+  .app[data-theme="space"] .tile.normal,
+  .app[data-theme="space"] .tile.start {
+    background: linear-gradient(155deg, rgba(75, 88, 155, .98), rgba(31, 36, 86, .98) 62%, rgba(9, 12, 35, .98));
+    box-shadow: 0 0 18px rgba(129, 145, 255, .24), inset 0 1px 0 rgba(255,255,255,.18);
+  }
+  .app[data-skin="robot"] .runner::before { background: linear-gradient(145deg, #e6f3ff, #8ba6bf); border-radius: 24%; }
+  .app[data-skin="robot"] .runner::after { background: linear-gradient(145deg, #8ff0ff, #3258a8); border-radius: 22%; }
+  .app[data-skin="dog"] .runner::before { background: linear-gradient(145deg, #d79a59, #81502d); border-radius: 50% 50% 42% 42%; }
+  .app[data-skin="dog"] .runner::after { background: linear-gradient(145deg, #f1c06a, #8b572e); border-radius: 48% 48% 34% 34%; }
+  .app[data-skin="chicken"] .runner::before { background: linear-gradient(145deg, #fff6bd, #efbd38); border-radius: 50%; }
+  .app[data-skin="chicken"] .runner::after { background: linear-gradient(145deg, #fff2a7, #e5902a); border-radius: 48% 48% 38% 38%; }
+  .app[data-skin="alien"] .runner::before { background: linear-gradient(145deg, #a8ffce, #39b474); border-radius: 50% 50% 40% 40%; }
+  .app[data-skin="alien"] .runner::after { background: linear-gradient(145deg, #7dffe0, #228070); border-radius: 44% 44% 32% 32%; }
+
+
+
+  /* 结算简化 + 奖励动画 */
+  .result-card {
+    padding-top: 24px;
+  }
+  .result-stars {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 4px 0 8px;
+    min-height: 34px;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, .28);
+  }
+  .result-stars .star.on {
+    color: #ffe27a;
+    text-shadow: 0 0 18px rgba(255, 218, 91, .68), 0 2px 8px rgba(0,0,0,.45);
+    animation: starPop .42s cubic-bezier(.2,1.4,.3,1) both;
+  }
+  .reward-pop {
+    min-height: 30px;
+    margin: 4px 0 8px;
+    display: grid;
+    place-items: center;
+    color: #ffe38a;
+    font-size: 20px;
+    font-weight: 900;
+    text-shadow: 0 0 18px rgba(255, 211, 107, .42);
+    animation: rewardPop .55s cubic-bezier(.2,1.35,.3,1) both;
+  }
+  .result-card.compact-result .result-grid {
+    grid-template-columns: repeat(3, 1fr);
+    margin: 8px 0 12px;
+  }
+  .result-card.compact-result #resultDesc {
+    margin: 5px 0 8px;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  .result-card.compact-result .result-item:nth-child(n+4) {
+    display: none;
+  }
+  .result-card.compact-result .result-actions {
+    margin-top: 8px;
+  }
+
+  .level-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 10px 0 2px;
+  }
+  .level-tab {
+    min-height: 34px;
+    border-radius: 999px;
+    border: 1px solid rgba(185, 237, 255, .16);
+    color: var(--text);
+    background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.045));
+    font-size: 12px;
+    font-weight: 900;
+  }
+  .level-tab.active {
+    border-color: rgba(255, 211, 107, .78);
+    box-shadow: 0 0 18px rgba(255, 211, 107, .20), inset 0 1px 0 rgba(255,255,255,.18);
+  }
+  .level-page-title {
+    margin: 8px 0 4px;
+    color: rgba(235, 248, 255, .86);
+    font-size: 13px;
+    font-weight: 900;
+    text-align: left;
+  }
+  .level-page-note {
+    margin: 0 0 8px;
+    color: rgba(226, 243, 255, .62);
+    font-size: 11px;
+    line-height: 1.35;
+    text-align: left;
+  }
+
+  .shop-preview {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 0 18px rgba(93,231,255,.18);
+  }
+  .shop-preview.skin { border-radius: 50%; background: radial-gradient(circle at 50% 28%, #ffe1ad 0 26%, #4cd7ff 27% 64%, #18233f 65%); }
+  .shop-preview.theme { background: linear-gradient(155deg, rgba(90,114,150,.98), rgba(31,43,68,.98)); }
+  .shop-preview.exit { background: radial-gradient(circle, rgba(255,255,255,.98), rgba(102,241,255,.74) 30%, rgba(21,108,177,.98) 68%); }
+  .app[data-exit="aurora"] .tile.goal {
+    background: conic-gradient(from 30deg, rgba(255,255,255,.95), rgba(120,255,214,.9), rgba(108,160,255,.88), rgba(255,255,255,.95));
+    box-shadow: 0 0 34px rgba(104, 255, 217, .82), 0 0 68px rgba(108, 160, 255, .34), inset 0 0 20px rgba(255,255,255,.5);
+  }
+  .app[data-exit="gold"] .tile.goal {
+    background: radial-gradient(circle, rgba(255,255,255,.98), rgba(255,224,104,.9) 31%, rgba(203,119,23,.98) 68%);
+    box-shadow: 0 0 34px rgba(255, 211, 107, .82), 0 0 68px rgba(255, 159, 42, .34), inset 0 0 20px rgba(255,255,255,.5);
+  }
+  .app[data-exit="violet"] .tile.goal {
+    background: radial-gradient(circle, rgba(255,255,255,.98), rgba(206,140,255,.88) 32%, rgba(76,42,178,.98) 68%);
+    box-shadow: 0 0 34px rgba(206, 140, 255, .82), 0 0 68px rgba(93, 231, 255, .28), inset 0 0 20px rgba(255,255,255,.5);
+  }
+
+  @keyframes portalPulse {
+    from { filter: brightness(1); }
+    to { filter: brightness(1.28); }
+  }
+  @keyframes fastPulse {
+    from { filter: brightness(1) saturate(1.05); }
+    to { filter: brightness(1.28) saturate(1.35); }
+  }
+  @keyframes portalSpin {
+    from { filter: hue-rotate(0deg) brightness(1); }
+    to { filter: hue-rotate(360deg) brightness(1.12); }
+  }
+  @keyframes tileShake {
+    0% { transform: translate(0, 7%) scale(.96) rotate(0); }
+    33% { transform: translate(1px, 8%) scale(.96) rotate(.8deg); }
+    66% { transform: translate(-1px, 6%) scale(.96) rotate(-.8deg); }
+    100% { transform: translate(0, 7%) scale(.96) rotate(0); }
+  }
+  @keyframes fallAway {
+    0% { transform: translateY(8%) scale(.95) rotate(0); opacity: 1; }
+    100% { transform: translateY(48%) scale(.55) rotate(9deg); opacity: .12; }
+  }
+  @keyframes playerJump {
+    0% { filter: drop-shadow(0 16px 12px rgba(0,0,0,.5)); scale: .92 1.08; }
+    50% { filter: drop-shadow(0 24px 16px rgba(0,0,0,.35)); scale: 1.1 .9; }
+    100% { filter: drop-shadow(0 16px 12px rgba(0,0,0,.5)); scale: 1; }
+  }
+  @keyframes playerLand {
+    0% { scale: 1.08 .88; }
+    100% { scale: 1; }
+  }
+  @keyframes playerDanger {
+    0%, 100% { filter: drop-shadow(0 16px 12px rgba(0,0,0,.5)); }
+    40% { filter: drop-shadow(0 0 18px rgba(255, 58, 43, .9)); }
+  }
+  @keyframes flyOut {
+    to { transform: translate(var(--fly-x), var(--fly-y)) rotate(38deg) scale(.45); opacity: 0; }
+  }
+  @keyframes auraPulse {
+    from { opacity: .58; scale: .92; }
+    to { opacity: .98; scale: 1.02; }
+  }
+  @keyframes dustOut {
+    to { transform: translate(var(--dx), var(--dy)) scale(.2); opacity: 0; }
+  }
+  @keyframes shardFall {
+    to { transform: translate(var(--dx), var(--dy)) rotate(140deg); opacity: 0; }
+  }
+  @keyframes screenShake {
+    0% { transform: translate(0,0); }
+    22% { transform: translate(2px,-1px); }
+    44% { transform: translate(-2px,1px); }
+    66% { transform: translate(1px,2px); }
+    100% { transform: translate(0,0); }
+  }
+  @keyframes starPop {
+    0% { transform: translateY(8px) scale(.25) rotate(-18deg); opacity: 0; }
+    70% { transform: translateY(-3px) scale(1.22) rotate(4deg); opacity: 1; }
+    100% { transform: translateY(0) scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes rewardPop {
+    0% { transform: translateY(12px) scale(.7); opacity: 0; }
+    55% { transform: translateY(-4px) scale(1.08); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes boardWinFlash {
+    0% { filter: brightness(1); }
+    45% { filter: brightness(1.42) saturate(1.28); }
+    100% { filter: brightness(1); }
+  }
+  @keyframes portalWin {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.18); }
+    100% { transform: scale(1.09); }
+  }
+  .board-inner.win-flash { animation: boardWinFlash .72s ease both; }
+  .tile.goal.win-burst { animation: portalWin .72s ease both, portalPulse 1s ease-in-out infinite alternate; }
+
+  @keyframes hintFlash {
+    0%, 100% { filter: brightness(1); }
+    45% { filter: brightness(1.75) saturate(1.45); }
+  }
+
+  @media (max-width: 520px), (pointer: coarse) {
+    .app {
+      width: 100vw;
+      min-height: 0;
+      gap: 7px;
+      padding-top: calc(16px + var(--safe-top, 0px) + var(--browser-top-gap, 0px));
+      padding-bottom: calc(10px + var(--safe-bottom, 0px));
+      padding-left: max(10px, env(safe-area-inset-left));
+      padding-right: max(10px, env(safe-area-inset-right));
+    }
+    .topbar { min-height: 48px; gap: 6px; }
+    .stat { border-radius: 11px; padding: 7px 8px; }
+    .title { min-width: 112px; padding: 6px 8px; }
+    .title strong { font-size: 17px; }
+    .value { font-size: 17px; }
+    .actions {
+      top: calc(66px + var(--safe-top, 0px) + var(--browser-top-gap, 0px));
+      left: 12px;
+      right: 12px;
+      gap: 5px;
+    }
+    .small-btn { min-height: 34px; padding: 7px 9px; font-size: 11px; }
+    .board-frame { width: min(100%, 430px); }
+    .hint { min-height: 62px; padding: 9px 10px; }
+    .hint strong { font-size: 12px; }
+    .hint p { font-size: 11px; line-height: 1.34; }
+    .pad { width: 126px; grid-template-columns: repeat(3, 39px); grid-template-rows: repeat(3, 39px); gap: 5px; }
+    .pad button { min-width: 39px; min-height: 39px; font-size: 18px; }
+    .overlay { padding: calc(16px + var(--safe-top, 0px) + var(--browser-top-gap, 0px)) 14px calc(16px + var(--safe-bottom, 0px)); }
+    .card {
+      width: min(100%, 420px);
+      max-height: calc(var(--app-height, 100dvh) - var(--safe-top, 0px) - var(--safe-bottom, 0px) - var(--browser-top-gap, 0px) - 28px);
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding: 18px;
+    }
+    .card h1 { font-size: 26px; }
+    .card p { font-size: 13px; margin-bottom: 12px; }
+    .rule-list { gap: 7px; margin: 12px 0 16px; }
+    .rule { padding: 9px 10px; font-size: 12px; }
+    .result-grid { gap: 7px; }
+    .result-item { padding: 8px 5px; }
+    .primary-btn { min-height: 44px; font-size: 15px; }
+  }
+
+  @media (max-height: 720px) {
+    .app { min-height: 0; gap: 6px; padding-top: calc(12px + var(--safe-top, 0px) + var(--browser-top-gap, 0px)); }
+    .title span, .level-dots { display: none; }
+    .bottom { grid-template-columns: 1fr; }
+    .hint { min-height: 50px; padding: 8px 10px; }
+    .pad { display: none; }
+    .actions { top: calc(60px + var(--safe-top, 0px) + var(--browser-top-gap, 0px)); }
+    .card { max-height: calc(var(--app-height, 100dvh) - var(--safe-top, 0px) - var(--safe-bottom, 0px) - var(--browser-top-gap, 0px) - 24px); overflow: auto; }
+  }
+  @media (max-width: 380px) {
+    .app { padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+    .value { font-size: 16px; }
+    .title { min-width: 104px; }
+    .pad { width: 124px; grid-template-columns: repeat(3, 38px); grid-template-rows: repeat(3, 38px); }
+    .pad button { min-width: 38px; min-height: 38px; }
+  }
+  @media (max-width: 520px), (pointer: coarse) {
+    .level-dots { display: none; }
+    .actions {
+      top: auto;
+      bottom: calc(76px + var(--safe-bottom, 0px));
+      justify-content: flex-end;
+      pointer-events: none;
+    }
+    .actions button {
+      display: none;
+      pointer-events: auto;
+    }
+    .actions #restartBtn,
+    .actions #selectBtn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      opacity: .86;
+      backdrop-filter: blur(10px);
+    }
+    .bottom {
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding-bottom: max(0px, calc(var(--safe-bottom, 0px) - 4px));
+    }
+    .pad { opacity: .78; transform: scale(.92); transform-origin: bottom right; }
+    .select-card .close-btn,
+    #shopCloseBtn {
+      top: 8px;
+      right: 8px;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+    }
+  }
+
+  @media (max-width: 360px), (max-height: 680px) {
+    .topbar { min-height: 44px; }
+    .title strong { font-size: 16px; }
+    .title span { display: none; }
+    .stat { padding: 6px 7px; }
+    .hint p { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card { padding: 15px; }
+    .result-grid { grid-template-columns: repeat(3, 1fr); }
+    .shop-grid { grid-template-columns: 1fr; }
+  }
+
+
+
+  /* 追加优化：目标变化、触屏反馈、暂停、音效、无尽评级 */
+  #menuCloseBtn, #resultCloseBtn { display: none !important; }
+  .quick-actions {
+    position: absolute;
+    z-index: 13;
+    top: calc(128px + var(--safe-top, 0px) + var(--browser-top-gap, 0px));
+    right: 18px;
+    display: flex;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .quick-actions button {
+    pointer-events: auto;
+    min-width: 48px;
+    min-height: 32px;
+    padding: 6px 10px;
+    opacity: .9;
+    backdrop-filter: blur(10px);
+  }
+  .swipe-indicator {
+    position: absolute;
+    z-index: 15;
+    left: 50%;
+    top: 50%;
+    width: 54px;
+    height: 54px;
+    margin-left: -27px;
+    margin-top: -27px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255, 232, 130, .45);
+    color: #ffe38a;
+    background: rgba(8, 13, 24, .58);
+    box-shadow: 0 0 26px rgba(255, 211, 107, .24), inset 0 1px 0 rgba(255,255,255,.16);
+    font-size: 28px;
+    font-weight: 900;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px) scale(.86);
+    transition: opacity .12s ease, transform .12s ease;
+  }
+  .swipe-indicator.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .objective-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 211, 107, .22);
+    background: rgba(255, 211, 107, .08);
+    color: rgba(255, 236, 170, .96);
+    font-size: 11px;
+    font-weight: 900;
+  }
+  .pause-card .secondary-row { grid-template-columns: 1fr 1fr; }
+  .endless-rank {
+    color: #ffe38a;
+    font-weight: 900;
+  }
+  @media (max-width: 520px), (pointer: coarse) {
+    .quick-actions {
+      top: auto;
+      right: 12px;
+      bottom: calc(120px + var(--safe-bottom, 0px));
+    }
+    .quick-actions button {
+      min-width: 44px;
+      min-height: 30px;
+      font-size: 11px;
+      opacity: .82;
+    }
+  }
+
+
+
+  /* 完整版补充：规则图标、关卡体检、存档工具 */
+  .extra-tool-card {
+    text-align: left;
+  }
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .guide-item, .debug-item {
+    border-radius: 12px;
+    border: 1px solid rgba(185, 237, 255, .14);
+    background: rgba(255,255,255,.055);
+    padding: 10px;
+    color: rgba(238, 248, 255, .84);
+    font-size: 12px;
+    line-height: 1.36;
+  }
+  .guide-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #fff;
+    font-size: 16px;
+  }
+  .debug-list {
+    display: grid;
+    gap: 7px;
+    margin: 12px 0;
+  }
+  .debug-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+  }
+  .debug-item span:first-child { color: rgba(226, 243, 255, .58); }
+  .debug-item span:last-child { text-align: right; font-weight: 900; }
+  .save-box {
+    width: 100%;
+    min-height: 170px;
+    resize: vertical;
+    border-radius: 12px;
+    border: 1px solid rgba(185, 237, 255, .18);
+    background: rgba(2, 5, 12, .72);
+    color: var(--text);
+    padding: 10px;
+    font: 12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+    outline: none;
+  }
+  .tool-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .danger-btn {
+    border-color: rgba(255, 92, 55, .38) !important;
+    color: #ffd8cf !important;
+  }
+  @media (max-width: 420px) {
+    .guide-grid { grid-template-columns: 1fr; }
+    .tool-row { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="stat"><span class="label">关卡</span><span class="value" id="levelText">1 / 20</span></div>
+    <div class="title"><strong>地板塌了</strong><span>别停，别回头</span></div>
+    <div class="stat"><span class="label">时间 / 步数</span><span class="value" id="scoreText">0.0s · 0</span></div>
+  </div>
+
+  <div class="level-dots" id="levelDots" aria-label="关卡选择"></div>
+  <div class="actions">
+    <button class="small-btn" id="prevBtn" type="button">上一关</button>
+    <button class="small-btn" id="restartBtn" type="button">重开</button>
+    <button class="small-btn" id="selectBtn" type="button">关卡选择</button>
+    <button class="small-btn" id="nextBtn" type="button">下一关</button>
+  </div>
+  <div class="quick-actions">
+    <button class="small-btn" id="pauseBtn" type="button">暂停</button>
+    <button class="small-btn" id="soundBtn" type="button">音效</button>
+  </div>
+
+  <main class="board-wrap">
+    <div class="board-frame">
+      <div class="board-inner" id="boardInner" aria-label="地板塌陷逃生棋盘">
+        <div class="grid" id="grid"></div>
+        <div class="collapse-line" id="collapseLine"></div>
+        <div class="player" id="player">
+          <div class="aura"></div>
+          <div class="runner up" id="runner"><span class="leg a"></span><span class="leg b"></span></div>
+        </div>
+        <div class="toast" id="toast">刚刚好</div>
+        <div class="swipe-indicator" id="swipeIndicator">↑</div>
+      </div>
+    </div>
+  </main>
+
+  <section class="bottom">
+    <div class="hint">
+      <strong id="hintTitle">目标：逃到发光出口</strong>
+      <p id="hintText">键盘 WASD / 方向键，手机滑动或点方向键。你离开的地板会下沉、裂开、抖动，然后掉进深渊。</p>
+    </div>
+    <div class="pad" aria-label="方向键">
+      <button class="up" data-dir="0,-1" type="button" aria-label="向上">↑</button>
+      <button class="left" data-dir="-1,0" type="button" aria-label="向左">←</button>
+      <button class="right" data-dir="1,0" type="button" aria-label="向右">→</button>
+      <button class="down" data-dir="0,1" type="button" aria-label="向下">↓</button>
+    </div>
+  </section>
+
+  <div class="overlay" id="overlay">
+    <div class="card">
+      <button class="close-btn" id="menuCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1 id="overlayTitle">地板塌了</h1>
+      <p id="overlayDesc">每走一步，身后的平台都会塌进深渊。看准路线，利用特殊地板，在出口亮起前别回头。</p>
+      <div class="rule-list" id="ruleList">
+        <div class="rule">普通地板：离开后先下沉，再裂开、抖动、坠落。</div>
+        <div class="rule">快裂格 !：塌得更快，踩上去要立刻接下一步。</div>
+        <div class="rule">冰面 ~、弹跳 ^、传送 A/B 会改变移动节奏。</div>
+        <div class="rule">方向键、键盘和滑动都支持，跳跃中可以提前输入下一步。</div>
+      </div>
+      <div class="result-grid" id="resultGrid" hidden>
+        <div class="result-item"><span>差距</span><strong id="distanceText">0 格</strong></div>
+        <div class="result-item"><span>用时</span><strong id="timeText">0.0s</strong></div>
+        <div class="result-item"><span>步数</span><strong id="stepsText">0</strong></div>
+        <div class="result-item"><span>最佳时间</span><strong id="bestTimeText">--</strong></div>
+        <div class="result-item"><span>最佳步数</span><strong id="bestStepsText">--</strong></div>
+      </div>
+      <div class="level-select" id="levelSelectPanel" hidden></div>
+      <button class="primary-btn" id="startBtn" type="button">开始逃生</button>
+      <button class="small-btn" id="hintBtn" type="button" hidden>提示</button>
+      <div class="secondary-row">
+        <button class="small-btn" id="menuSelectBtn" type="button">选关</button>
+        <button class="small-btn" id="dailyBtn" type="button">每日挑战</button>
+        <button class="small-btn" id="endlessBtn" type="button">无尽模式</button>
+        <button class="small-btn" id="shopBtn" type="button">商店</button>
+        <button class="small-btn" id="jumpLevelBtn" type="button" hidden>第 10 关</button>
+        <button class="small-btn" id="lastLevelBtn" type="button" hidden>第 60 关</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hide" id="resultOverlay">
+    <div class="card result-card compact-result">
+      <button class="close-btn" id="resultCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1 id="resultTitle">结果</h1>
+      <div class="result-stars" id="resultStars" aria-label="星级"></div>
+      <div class="reward-pop" id="rewardPop" hidden></div>
+      <p id="resultDesc"></p>
+      <div class="result-grid">
+        <div class="result-item"><span>差距</span><strong id="resultDistanceText">0 格</strong></div>
+        <div class="result-item"><span>用时</span><strong id="resultTimeText">0.0s</strong></div>
+        <div class="result-item"><span>步数</span><strong id="resultStepsText">0</strong></div>
+        <div class="result-item"><span>最佳时间</span><strong id="resultBestTimeText">--</strong></div>
+        <div class="result-item"><span>最佳步数</span><strong id="resultBestStepsText">--</strong></div>
+      </div>
+      <button class="small-btn" id="resultHintBtn" type="button" hidden>提示</button>
+      <div class="result-actions" id="resultActions"></div>
+    </div>
+  </div>
+
+  <div class="overlay hide" id="pauseOverlay">
+    <div class="card pause-card">
+      <h1>暂停</h1>
+      <p id="pauseDesc">游戏已暂停。</p>
+      <button class="primary-btn" id="resumeBtn" type="button">继续</button>
+      <div class="secondary-row">
+        <button class="small-btn" id="pauseRestartBtn" type="button">重新开始</button>
+        <button class="small-btn" id="pauseMenuBtn" type="button">返回菜单</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hide" id="levelSelectOverlay">
+    <div class="card select-card">
+      <button class="close-btn" id="levelSelectCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1>关卡选择</h1>
+      <p id="levelSelectDesc">前 20 关自由切换，第 21 关以后按通关进度解锁。</p>
+      <div class="level-tabs" id="levelTabs"></div>
+      <div class="level-select" id="levelSelectList"></div>
+    </div>
+  </div>
+
+  <div class="overlay hide" id="shopOverlay">
+    <div class="card select-card">
+      <button class="close-btn" id="shopCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1>商店</h1>
+      <p>金币只解锁外观，不影响能力。</p>
+      <div class="coin-pill" id="coinText">0 金币</div>
+      <div class="shop-list" id="shopList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const ROWS = 11;
+  const COLS = 7;
+  const FREE_LEVELS = 20;
+  const MAX_LEVEL = 60;
+  const CHAPTER_SIZE = 20;
+  const SAVE_KEY = 'floor-collapse-escape:v3';
+  const DIRS = {
+    up: { dx: 0, dy: -1, name: 'up' },
+    down: { dx: 0, dy: 1, name: 'down' },
+    left: { dx: -1, dy: 0, name: 'left' },
+    right: { dx: 1, dy: 0, name: 'right' }
+  };
+  const KEY_TO_DIR = {
+    arrowup: DIRS.up, w: DIRS.up,
+    arrowdown: DIRS.down, s: DIRS.down,
+    arrowleft: DIRS.left, a: DIRS.left,
+    arrowright: DIRS.right, d: DIRS.right
+  };
+  const TYPE_BY_CHAR = {
+    '#': 'void',
+    '.': 'normal',
+    'S': 'start',
+    'G': 'goal',
+    'F': 'fast',
+    'I': 'ice',
+    'P': 'bounce',
+    'X': 'trap',
+    'O': 'safe',
+    'A': 'teleA',
+    'B': 'teleB'
+  };
+  const MARKS = {
+    fast: '!!',
+    ice: '≋',
+    bounce: '⇈',
+    trap: '✕',
+    safe: '+',
+    teleA: 'A',
+    teleB: 'B',
+    goal: '◎',
+    key: '钥'
+  };
+  const SPECIAL_TIPS = {
+    bounce: '弹跳格：按进入方向多跳一格。',
+    ice: '冰面：会一直滑到尽头。',
+    teleA: '传送门：会传到同色出口。',
+    teleB: '传送门：会传到同色出口。',
+    fast: '快裂格：塌得更快。',
+    trap: '陷阱格：踩上去会直接失败。',
+    safe: '安全格：不会塌，可以短暂停顿。',
+    key: '钥匙：拿到后出口才会打开。'
+  };
+  const CHAPTERS = [
+    { title: '第 1 章：基础塌陷', desc: '1-20 关默认自由切换，教学与现有机制。' },
+    { title: '第 2 章：裂冰路线', desc: '21-40 关按进度解锁，路线规划、快裂和冰面组合。' },
+    { title: '第 3 章：跃迁深渊', desc: '41-60 关按进度解锁，弹跳、传送、陷阱与安全格综合。' }
+  ];
+  const SKINS = [
+    { id: 'default', name: '默认小人', cost: 0 },
+    { id: 'robot', name: '机器人', cost: 80 },
+    { id: 'dog', name: '小狗', cost: 120 },
+    { id: 'chicken', name: '鸡', cost: 120 },
+    { id: 'alien', name: '外星人', cost: 160 }
+  ];
+  const THEMES = [
+    { id: 'abyss', name: '深渊平台', cost: 0 },
+    { id: 'glacier', name: '冰川平台', cost: 120 },
+    { id: 'lava', name: '熔岩平台', cost: 140 },
+    { id: 'space', name: '太空平台', cost: 160 }
+  ];
+  const EXITS = [
+    { id: 'default', name: '蓝色出口', cost: 0 },
+    { id: 'aurora', name: '极光出口', cost: 90 },
+    { id: 'gold', name: '金币出口', cost: 110 },
+    { id: 'violet', name: '紫电出口', cost: 130 }
+  ];
+  const COIN_REWARD_BY_STAR = { 1: 10, 2: 18, 3: 30 };
+  const ENDLESS_STAGES = [
+    { at: 0, name: '基础塌陷', tip: '危险升级：基础塌陷' },
+    { at: 50, name: '快裂增加', tip: '危险升级：快裂地板增加' },
+    { at: 120, name: '冰面区域', tip: '危险升级：冰面开始生成' },
+    { at: 220, name: '跳板陷阱', tip: '危险升级：弹跳和陷阱加入' },
+    { at: 350, name: '跃迁深渊', tip: '危险升级：传送门和高速崩塌' }
+  ];
+  const OBJECTIVE_LABELS = {
+    steps: '限步通关',
+    key: '先拿钥匙',
+    avoidFastBonus: '无快裂奖励',
+    safeBonus: '安全格奖励'
+  };
+  const COLLAPSE = {
+    normal: 620,
+    start: 620,
+    fast: 330,
+    ice: 700,
+    bounce: 560,
+    teleA: 620,
+    teleB: 620,
+    trap: 450,
+    key: 620
+  };
+  const HOLD = {
+    normal: 1350,
+    start: 1350,
+    fast: 720,
+    ice: 1500,
+    bounce: 1250,
+    teleA: 1350,
+    teleB: 1350,
+    trap: 1000,
+    key: 1350
+  };
+  const LEVELS = [
+    {
+      title: '别回头',
+      hint: '沿着底边和右边冲到出口。身后会开始塌，回头就没有路。',
+      map: [
+        '######G',
+        '######.',
+        '######.',
+        '######.',
+        '######.',
+        '######.',
+        '######.',
+        '######.',
+        '######.',
+        '######.',
+        'S......'
+      ]
+    },
+    {
+      title: '第一次转弯',
+      hint: '路线会折返上升，但不能踩回刚离开的格子。先看清下一段再动。',
+      map: [
+        '######G',
+        '######.',
+        '###....',
+        '###.###',
+        '###....',
+        '######.',
+        '####...',
+        '####.##',
+        '##...##',
+        '##.####',
+        'S..####'
+      ]
+    },
+    {
+      title: '窄桥教学',
+      hint: '窄桥上每一步都很贵。出口前有一段短冲刺，别在桥中间犹豫。',
+      map: [
+        '#####.G',
+        '#####..',
+        '###...#',
+        '###.###',
+        '#...###',
+        '#.#####',
+        '#...###',
+        '###.###',
+        '###...#',
+        '#####.#',
+        'S.....#'
+      ]
+    },
+    {
+      title: '第一条死路',
+      hint: '上方有诱饵岔路。走错会被自己封死，先找能继续接到出口的线。',
+      map: [
+        '#####.G',
+        '#####..',
+        '##.....',
+        '##.####',
+        '##...##',
+        '####.##',
+        '#.....#',
+        '#.#####',
+        '#...###',
+        '###.###',
+        'S...###'
+      ]
+    },
+    {
+      title: '安全落脚点',
+      hint: '绿色 + 是安全格，可以短暂停顿观察。死路里也会有安全格，不代表那是正路。',
+      map: [
+        '####..G',
+        '####.##',
+        '##...##',
+        '##.####',
+        '##...O#',
+        '####.##',
+        '#.....#',
+        '#.#####',
+        '#...O##',
+        '###.###',
+        'S...###'
+      ]
+    },
+    {
+      title: '路线选择',
+      hint: '两条路都能接近出口，但短路更紧。安全格能救节奏，不能救错误路线。',
+      map: [
+        '###...G',
+        '###.###',
+        '#...###',
+        '#.#####',
+        '#...O##',
+        '###.###',
+        '###...#',
+        '#####.#',
+        '#.....#',
+        '#.#####',
+        'S...O##'
+      ]
+    },
+    {
+      title: '快裂出现',
+      hint: '红色 ! 会更快塌。踩过以后马上接下一步，预输入会很有用。',
+      map: [
+        '#####.G',
+        '#####F.',
+        '###...#',
+        '###F###',
+        '#...###',
+        '#.#####',
+        '#..F..#',
+        '###.#.#',
+        '###.#.#',
+        '###.#.#',
+        'S...#.#'
+      ]
+    },
+    {
+      title: '快裂桥',
+      hint: '连续快裂格要一口气通过。方向按钮按下会高亮，方便手机上确认输入。',
+      map: [
+        '####..G',
+        '####F##',
+        '##..F##',
+        '##F####',
+        '##...##',
+        '####F##',
+        '#.....#',
+        '#.#####',
+        '#F..###',
+        '###.###',
+        'S...###'
+      ]
+    },
+    {
+      title: '快裂假路',
+      hint: '不是所有快裂都是正路。有些红格是诱饵，冲进去会把自己封死。',
+      map: [
+        '###...G',
+        '###F###',
+        '#..F###',
+        '#.#####',
+        '#..F..#',
+        '###.#.#',
+        '###.#.#',
+        '#...#F#',
+        '#.###.#',
+        '#.....#',
+        'S.....#'
+      ]
+    },
+    {
+      title: '冰面入门',
+      hint: '冰面 ~ 会沿当前方向继续滑。只在直线段上进冰，别斜着撞进死角。',
+      map: [
+        '#####.G',
+        '####...',
+        '###...#',
+        '###I###',
+        '#..I###',
+        '#.#####',
+        '#..I..#',
+        '###.#.#',
+        '###.#.#',
+        '###.#.#',
+        'S...#.#'
+      ]
+    },
+    {
+      title: '冰上加速',
+      hint: '冰面能省步数，也会带你滑过头。观察冰面尽头有没有落脚格。',
+      map: [
+        '####..G',
+        '####I##',
+        '##..I##',
+        '##I####',
+        '##...##',
+        '####.##',
+        '#..I..#',
+        '#.#####',
+        '#...###',
+        '###I###',
+        'S..I###'
+      ]
+    },
+    {
+      title: '冰与死路',
+      hint: '冰面旁的岔路经常是陷阱。滑行前先确认终点，不要只看眼前一格。',
+      map: [
+        '###...G',
+        '###I###',
+        '#..I###',
+        '#.#####',
+        '#..I..#',
+        '###.#.#',
+        '###.#.#',
+        '#...#.#',
+        '#.###.#',
+        '#..I..#',
+        'S.....#'
+      ]
+    },
+    {
+      title: '弹跳入门',
+      hint: '黄色 ^ 会按当前方向多跳一格。用它越过节奏压力，但要保证落点存在。',
+      map: [
+        '#####.G',
+        '#####..',
+        '###...#',
+        '###P###',
+        '#...###',
+        '#.#####',
+        '#.P...#',
+        '###.#.#',
+        '###.#.#',
+        '###.#.#',
+        'S...#.#'
+      ]
+    },
+    {
+      title: '弹跳路线',
+      hint: '有些近路必须踩弹跳格。方向错了会飞出平台，失败原因会直接告诉你。',
+      map: [
+        '####..G',
+        '####P##',
+        '##...##',
+        '##P####',
+        '##...##',
+        '####P##',
+        '#.....#',
+        '#.#####',
+        '#...###',
+        '###P###',
+        'S...###'
+      ]
+    },
+    {
+      title: '弹跳假落点',
+      hint: '弹跳格旁边的缺口会骗人。先看跳后的第二格，再决定从哪个方向踩。',
+      map: [
+        '###...G',
+        '###P###',
+        '#...###',
+        '#.#####',
+        '#..P..#',
+        '###.#.#',
+        '###.#.#',
+        '#...#P#',
+        '#.###.#',
+        '#.....#',
+        'S.....#'
+      ]
+    },
+    {
+      title: '传送门',
+      hint: 'A/B 传送格会互相连接。用传送跨过断层，身后的塌陷会把旧路彻底切断。',
+      map: [
+        '###...G',
+        '###.###',
+        '#..B###',
+        '#.#####',
+        '#...###',
+        '###.###',
+        '###A..#',
+        '#####.#',
+        '#.....#',
+        '#.#####',
+        'S...###'
+      ]
+    },
+    {
+      title: '传送选择',
+      hint: '传送门很亮，但也可能把你送到压力点。进门前准备好下一步。',
+      map: [
+        '####..G',
+        '####F##',
+        '##..B##',
+        '##.####',
+        '##...##',
+        '####.##',
+        '#..A..#',
+        '#.#####',
+        '#...O##',
+        '###.###',
+        'S...###'
+      ]
+    },
+    {
+      title: '传送断层',
+      hint: '这关正路要借传送跨越断层，错误岔路会让路线被你自己封死。',
+      map: [
+        '###...G',
+        '###I###',
+        '#..B###',
+        '#.#####',
+        '#..F..#',
+        '###.#.#',
+        '###A#.#',
+        '#...#.#',
+        '#.###.#',
+        '#.....#',
+        'S.....#'
+      ]
+    },
+    {
+      title: '综合挑战一',
+      hint: '快裂、冰面、弹跳、传送混在一起。节奏是：冲刺、滑行、传送、再冲刺。',
+      map: [
+        '###...G',
+        '###P###',
+        '#..B###',
+        '#.#####',
+        '#..F..#',
+        '###I#.#',
+        '###A#.#',
+        '#...#P#',
+        '#.###.#',
+        '#..F..#',
+        'S.....#'
+      ]
+    },
+    {
+      title: '最终逃生',
+      hint: '每一种格子都会出现。把预输入用起来，脚下刚塌就跳走。',
+      map: [
+        '###..FG',
+        '###P###',
+        '#..B###',
+        '#I#####',
+        '#..F..#',
+        '###I#.#',
+        '###A#.#',
+        '#..O#P#',
+        '#.###.#',
+        '#..F..#',
+        'S.....#'
+      ]
+    }
+  ];
+  LEVELS.push(...buildExtraLevels());
+
+  applyTutorialLevels();
+
+  function applyTutorialLevels() {
+    const tutorial = [
+      {
+        title: '只管冲到出口',
+        hint: '第一关只教一件事：从起点走到发光出口。离开的地板会开始塌。',
+        map: ['######G','######.','######.','######.','######.','######.','######.','######.','######.','######.','S......']
+      },
+      {
+        title: '不能回头',
+        hint: '走过的格子会掉下去。不要回头，沿着主路一口气上去。',
+        map: ['######G','######.','####...','####.##','##...##','##.####','##...##','####.##','####.##','####.##','S....##']
+      },
+      {
+        title: '安全格',
+        hint: '绿色 + 是安全格，不会塌。可以用它短暂停顿，但别把安全格当成万能路。',
+        map: ['######G','######.','######.','######O','######.','######.','######.','######.','######.','######.','S......']
+      },
+      {
+        title: '快裂格',
+        hint: '红色 !! 塌得更快。踩上去以后马上接下一步，别停。',
+        map: ['######G','######.','######.','######F','######.','######.','######F','######.','######.','######.','S..F...']
+      },
+      {
+        title: '冰面滑行',
+        hint: '冰面 ≋ 会沿着进入方向继续滑。先看冰面尽头有没有路。',
+        map: ['######G','######.','######.','######.','######I','######.','######I','######.','######.','######.','S......']
+      },
+      {
+        title: '弹跳落点',
+        hint: '黄色 ⇈ 会按当前方向多跳一格。踩之前先看第二格落点。',
+        map: ['######G','######.','######.','######.','######.','######.','######.','######.','######.','######.','S..P...']
+      },
+      {
+        title: '传送门',
+        hint: 'A/B 会互相传送。进门前先准备好下一步。',
+        map: ['######G','######B','#######','#######','#######','#######','#######','#######','#######','#######','S..A###']
+      },
+      {
+        title: '陷阱别踩',
+        hint: '紫色 ✕ 是陷阱。它常出现在看似更近的诱饵路上。',
+        map: ['######G','######.','####...','####.X#','####.##','####.##','####.##','####.##','####.##','####.##','S.....#']
+      },
+      {
+        title: '钥匙开门',
+        hint: '这一关要先拿钥匙，出口才会开启。路线不要绕回已经塌掉的位置。',
+        map: ['######G','######.','####...','####.##','##...##','##.####','##...##','####.##','####.##','####.##','S....##']
+      },
+      {
+        title: '小综合',
+        hint: '快裂、冰面、弹跳和安全格会一起出现。先判断落点，再保持节奏。',
+        map: ['######G','######.','####..O','####I##','####F##','####.##','####.##','####.##','####.##','####.##','S.P...#']
+      }
+    ];
+    tutorial.forEach((level, index) => { LEVELS[index] = level; });
+  }
+
+
+  function buildExtraLevels() {
+    const routeTemplates = [
+      [[10,0],[10,5],[8,5],[8,2],[6,2],[6,6],[3,6],[3,3],[1,3],[1,6],[0,6]],
+      [[10,0],[9,0],[9,4],[7,4],[7,1],[5,1],[5,5],[2,5],[2,6],[0,6]],
+      [[10,0],[10,3],[8,3],[8,6],[5,6],[5,2],[3,2],[3,5],[0,5],[0,6]],
+      [[10,0],[9,0],[9,6],[6,6],[6,3],[4,3],[4,1],[2,1],[2,6],[0,6]],
+      [[10,0],[10,6],[8,6],[8,1],[6,1],[6,4],[4,4],[4,2],[2,2],[2,6],[0,6]]
+    ];
+    const levels = [];
+    for (let n = 21; n <= MAX_LEVEL; n++) {
+      const theme = getGeneratedTheme(n);
+      const template = routeTemplates[(n - 21) % routeTemplates.length];
+      levels.push(makeGeneratedLevel(n, template, theme));
+    }
+    return levels;
+  }
+
+  function getGeneratedTheme(levelNumber) {
+    if (levelNumber <= 30) {
+      return {
+        title: `裂缝路线 ${levelNumber - 20}`,
+        hint: '第二章前半：快裂和岔路会逼你提前规划，红色格子踩过就立刻接下一步。',
+        hintMove: '第一步建议向右，先走底部主通道，再看红色快裂桥。',
+        fast: 2 + (levelNumber % 3),
+        ice: levelNumber >= 26 ? 1 : 0,
+        bounce: 0,
+        tele: false,
+        trap: 3 + (levelNumber % 2),
+        safe: levelNumber % 2,
+        branches: 7
+      };
+    }
+    if (levelNumber <= 40) {
+      return {
+        title: `冰裂连线 ${levelNumber - 30}`,
+        hint: '第二章后半：冰面会把你送到下一段路线，先看滑行终点，再决定是否踩快裂。',
+        hintMove: '第一步建议向右；遇到冰面前，先确认冰面尽头是否接着主路。',
+        fast: 2 + (levelNumber % 2),
+        ice: 2 + (levelNumber % 3),
+        bounce: 0,
+        tele: levelNumber >= 38,
+        trap: 4,
+        safe: 1,
+        branches: 8
+      };
+    }
+    if (levelNumber <= 50) {
+      return {
+        title: `跳板跃迁 ${levelNumber - 40}`,
+        hint: '第三章前半：弹跳格和传送门会缩短路线，但踩之前必须看第二格落点。',
+        hintMove: '第一步建议向右，遇到跳板时沿主路方向踩，不要从侧面撞上去。',
+        fast: 2,
+        ice: levelNumber >= 47 ? 1 : 0,
+        bounce: 2 + (levelNumber % 2),
+        tele: levelNumber >= 44,
+        trap: 4 + (levelNumber % 2),
+        safe: 1,
+        branches: 8
+      };
+    }
+    return {
+      title: `综合深渊 ${levelNumber - 50}`,
+      hint: '最终章：快裂、冰面、弹跳、传送和陷阱都会混在一起，靠预输入保持节奏。',
+      hintMove: '第一步建议向右，先抢底部路线；传送后马上找最近的安全落点。',
+      fast: 3 + (levelNumber % 2),
+      ice: 2,
+      bounce: 2,
+      tele: true,
+      trap: 5,
+      safe: 1 + (levelNumber % 2),
+      branches: 9
+    };
+  }
+
+  function makeGeneratedLevel(levelNumber, points, theme) {
+    const route = traceRoute(points);
+    const routeKeys = new Set(route.map(([r, c]) => `${r},${c}`));
+    const map = Array.from({ length: ROWS }, () => Array.from({ length: COLS }, () => '#'));
+    route.forEach(([r, c]) => { map[r][c] = '.'; });
+    addBranches(map, route, routeKeys, theme.branches, levelNumber);
+    placeRouteSpecials(map, route, 'F', theme.fast, levelNumber, canPlaceSimpleRouteSpecial);
+    placeRouteSpecials(map, route, 'I', theme.ice, levelNumber + 13, canPlaceStraightRouteSpecial);
+    placeRouteSpecials(map, route, 'P', theme.bounce, levelNumber + 29, canPlaceStraightRouteSpecial);
+    placeRouteSpecials(map, route, 'O', theme.safe, levelNumber + 41, canPlaceSimpleRouteSpecial);
+    if (theme.tele) placeTeleports(map, route);
+    placeOffRouteSpecials(map, routeKeys, 'X', theme.trap, levelNumber + 71);
+    const [sr, sc] = route[0];
+    const [gr, gc] = route[route.length - 1];
+    map[sr][sc] = 'S';
+    map[gr][gc] = 'G';
+    return {
+      title: theme.title,
+      hint: theme.hint,
+      hintMove: theme.hintMove,
+      chapter: Math.ceil(levelNumber / CHAPTER_SIZE),
+      map: map.map(row => row.join(''))
+    };
+  }
+
+  function traceRoute(points) {
+    const route = [];
+    let [r, c] = points[0];
+    route.push([r, c]);
+    for (let i = 1; i < points.length; i++) {
+      const [tr, tc] = points[i];
+      while (r !== tr) {
+        r += Math.sign(tr - r);
+        route.push([r, c]);
+      }
+      while (c !== tc) {
+        c += Math.sign(tc - c);
+        route.push([r, c]);
+      }
+    }
+    return route.filter(([rr, cc], index, arr) => index === 0 || rr !== arr[index - 1][0] || cc !== arr[index - 1][1]);
+  }
+
+  function addBranches(map, route, routeKeys, count, seed) {
+    let placed = 0;
+    for (let i = 2; i < route.length - 2 && placed < count; i += 3) {
+      const [r, c] = route[(i * 7 + seed) % (route.length - 3) + 1];
+      const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+      for (let d = 0; d < dirs.length && placed < count; d++) {
+        const [dr, dc] = dirs[(d + seed + i) % dirs.length];
+        const nr = r + dr;
+        const nc = c + dc;
+        if (!inMap(nr, nc) || routeKeys.has(`${nr},${nc}`) || map[nr][nc] !== '#') continue;
+        map[nr][nc] = '.';
+        placed++;
+        const er = nr + dr;
+        const ec = nc + dc;
+        if (placed < count && inMap(er, ec) && !routeKeys.has(`${er},${ec}`) && map[er][ec] === '#') {
+          map[er][ec] = '.';
+          placed++;
+        }
+      }
+    }
+  }
+
+  function placeRouteSpecials(map, route, char, count, seed, predicate) {
+    let placed = 0;
+    for (let pass = 0; pass < 3 && placed < count; pass++) {
+      for (let i = 2; i < route.length - 3 && placed < count; i++) {
+        const index = ((i * 5 + seed + pass * 11) % (route.length - 5)) + 2;
+        const [r, c] = route[index];
+        if (map[r][c] !== '.' || !predicate(route, index)) continue;
+        map[r][c] = char;
+        placed++;
+      }
+    }
+  }
+
+  function canPlaceSimpleRouteSpecial(route, index) {
+    return index > 1 && index < route.length - 2;
+  }
+
+  function canPlaceStraightRouteSpecial(route, index) {
+    const prev = route[index - 1];
+    const cur = route[index];
+    const next = route[index + 1];
+    return prev && next && cur[0] - prev[0] === next[0] - cur[0] && cur[1] - prev[1] === next[1] - cur[1];
+  }
+
+  function placeTeleports(map, route) {
+    const aIndex = Math.max(4, Math.floor(route.length * .28));
+    const bIndex = Math.min(route.length - 5, Math.floor(route.length * .72));
+    const [ar, ac] = route[aIndex];
+    const [br, bc] = route[bIndex];
+    if (map[ar][ac] === '.' && map[br][bc] === '.') {
+      map[ar][ac] = 'A';
+      map[br][bc] = 'B';
+    }
+  }
+
+  function placeOffRouteSpecials(map, routeKeys, char, count, seed) {
+    let placed = 0;
+    for (let r = 1; r < ROWS - 1 && placed < count; r++) {
+      for (let c = 0; c < COLS && placed < count; c++) {
+        const score = (r * 17 + c * 23 + seed) % 11;
+        if (score > 2 || routeKeys.has(`${r},${c}`) || map[r][c] !== '.') continue;
+        map[r][c] = char;
+        placed++;
+      }
+    }
+  }
+
+  function inMap(r, c) {
+    return r >= 0 && c >= 0 && r < ROWS && c < COLS;
+  }
+
+  const app = document.getElementById('app');
+  const gridEl = document.getElementById('grid');
+  const boardInner = document.getElementById('boardInner');
+  const collapseLine = document.getElementById('collapseLine');
+  const playerEl = document.getElementById('player');
+  const runnerEl = document.getElementById('runner');
+  const levelText = document.getElementById('levelText');
+  const scoreText = document.getElementById('scoreText');
+  const hintTitle = document.getElementById('hintTitle');
+  const hintText = document.getElementById('hintText');
+  const levelDots = document.getElementById('levelDots');
+  const overlay = document.getElementById('overlay');
+  const overlayTitle = document.getElementById('overlayTitle');
+  const overlayDesc = document.getElementById('overlayDesc');
+  const ruleList = document.getElementById('ruleList');
+  const menuCloseBtn = document.getElementById('menuCloseBtn');
+  const resultOverlay = document.getElementById('resultOverlay');
+  const resultTitle = document.getElementById('resultTitle');
+  const resultStars = document.getElementById('resultStars');
+  const rewardPop = document.getElementById('rewardPop');
+  const resultDesc = document.getElementById('resultDesc');
+  const resultDistanceText = document.getElementById('resultDistanceText');
+  const resultTimeText = document.getElementById('resultTimeText');
+  const resultStepsText = document.getElementById('resultStepsText');
+  const resultBestTimeText = document.getElementById('resultBestTimeText');
+  const resultBestStepsText = document.getElementById('resultBestStepsText');
+  const resultHintBtn = document.getElementById('resultHintBtn');
+  const resultActions = document.getElementById('resultActions');
+  const resultCloseBtn = document.getElementById('resultCloseBtn');
+  const levelSelectOverlay = document.getElementById('levelSelectOverlay');
+  const levelSelectList = document.getElementById('levelSelectList');
+  const levelTabs = document.getElementById('levelTabs');
+  const levelSelectCloseBtn = document.getElementById('levelSelectCloseBtn');
+  const levelSelectDesc = document.getElementById('levelSelectDesc');
+  const resultGrid = document.getElementById('resultGrid');
+  const distanceText = document.getElementById('distanceText');
+  const timeText = document.getElementById('timeText');
+  const stepsText = document.getElementById('stepsText');
+  const bestTimeText = document.getElementById('bestTimeText');
+  const bestStepsText = document.getElementById('bestStepsText');
+  const levelSelectPanel = document.getElementById('levelSelectPanel');
+  const startBtn = document.getElementById('startBtn');
+  const hintBtn = document.getElementById('hintBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const selectBtn = document.getElementById('selectBtn');
+  const jumpLevelBtn = document.getElementById('jumpLevelBtn');
+  const lastLevelBtn = document.getElementById('lastLevelBtn');
+  const menuSelectBtn = document.getElementById('menuSelectBtn');
+  const dailyBtn = document.getElementById('dailyBtn');
+  const endlessBtn = document.getElementById('endlessBtn');
+  const shopBtn = document.getElementById('shopBtn');
+  const shopOverlay = document.getElementById('shopOverlay');
+  const shopCloseBtn = document.getElementById('shopCloseBtn');
+  const shopList = document.getElementById('shopList');
+  const coinText = document.getElementById('coinText');
+  const toast = document.getElementById('toast');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const soundBtn = document.getElementById('soundBtn');
+  const pauseOverlay = document.getElementById('pauseOverlay');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const pauseRestartBtn = document.getElementById('pauseRestartBtn');
+  const pauseMenuBtn = document.getElementById('pauseMenuBtn');
+  const pauseDesc = document.getElementById('pauseDesc');
+  const swipeIndicator = document.getElementById('swipeIndicator');
+
+  const state = {
+    status: 'menu',
+    returnStatus: 'menu',
+    mode: 'level',
+    level: 1,
+    save: loadSave(),
+    cells: [],
+    tileEls: [],
+    player: { r: ROWS - 1, c: 0 },
+    goal: { r: 0, c: COLS - 1 },
+    startTime: 0,
+    lastFrame: 0,
+    elapsed: 0,
+    steps: 0,
+    moving: false,
+    queuedDir: null,
+    lastDir: DIRS.up,
+    pointer: null,
+    lastPathKind: 'normal',
+    activeChapter: 1,
+    objective: null,
+    pausedAt: 0,
+    audioCtx: null,
+    endless: null,
+    daily: null,
+    rafId: 0
+  };
+
+  function defaultSave() {
+    return {
+      version: 3,
+      unlockedLevel: FREE_LEVELS,
+      completed: {},
+      stars: {},
+      bestTimes: {},
+      bestSteps: {},
+      coins: 0,
+      skinsUnlocked: { default: true },
+      currentSkin: 'default',
+      themesUnlocked: { abyss: true },
+      currentTheme: 'abyss',
+      exitsUnlocked: { default: true },
+      currentExit: 'default',
+      audioMuted: false,
+      dailyChallengeBest: {},
+      fails: {},
+      seenTips: {},
+      endlessBest: 0,
+      endlessBestScore: 0,
+      dailyRewarded: {},
+      lastPlayedAt: Date.now()
+    };
+  }
+
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) {
+        const legacy = Number(localStorage.getItem('floor-collapse-best') || 0);
+        const save = defaultSave();
+        if (legacy > FREE_LEVELS) save.unlockedLevel = Math.min(MAX_LEVEL, legacy);
+        return save;
+      }
+      const parsed = JSON.parse(raw);
+      return migrateSave(parsed);
+    } catch (error) {
+      console.warn('Save load failed:', error);
+      return defaultSave();
+    }
+  }
+
+  function migrateSave(save) {
+    const next = { ...defaultSave(), ...(save || {}) };
+    if (Number(save?.bestLevel) > 0) next.unlockedLevel = Math.max(next.unlockedLevel, Number(save.bestLevel));
+    next.unlockedLevel = Math.max(FREE_LEVELS, Math.min(MAX_LEVEL, Number(next.unlockedLevel) || FREE_LEVELS));
+    next.completed = next.completed && typeof next.completed === 'object' ? next.completed : {};
+    next.stars = next.stars && typeof next.stars === 'object' ? next.stars : {};
+    next.bestTimes = next.bestTimes && typeof next.bestTimes === 'object' ? next.bestTimes : {};
+    next.bestSteps = next.bestSteps && typeof next.bestSteps === 'object' ? next.bestSteps : {};
+    next.coins = Math.max(0, Number(next.coins) || 0);
+    next.skinsUnlocked = next.skinsUnlocked && typeof next.skinsUnlocked === 'object' ? next.skinsUnlocked : { default: true };
+    next.skinsUnlocked.default = true;
+    next.currentSkin = SKINS.some(item => item.id === next.currentSkin && next.skinsUnlocked[item.id]) ? next.currentSkin : 'default';
+    next.themesUnlocked = next.themesUnlocked && typeof next.themesUnlocked === 'object' ? next.themesUnlocked : { abyss: true };
+    next.themesUnlocked.abyss = true;
+    next.currentTheme = THEMES.some(item => item.id === next.currentTheme && next.themesUnlocked[item.id]) ? next.currentTheme : 'abyss';
+    next.exitsUnlocked = next.exitsUnlocked && typeof next.exitsUnlocked === 'object' ? next.exitsUnlocked : { default: true };
+    next.exitsUnlocked.default = true;
+    next.currentExit = EXITS.some(item => item.id === next.currentExit && next.exitsUnlocked[item.id]) ? next.currentExit : 'default';
+    next.audioMuted = Boolean(next.audioMuted);
+    next.dailyChallengeBest = next.dailyChallengeBest && typeof next.dailyChallengeBest === 'object' ? next.dailyChallengeBest : {};
+    next.fails = next.fails && typeof next.fails === 'object' ? next.fails : {};
+    next.seenTips = next.seenTips && typeof next.seenTips === 'object' ? next.seenTips : {};
+    next.endlessBest = Math.max(0, Number(next.endlessBest) || 0);
+    next.endlessBestScore = Math.max(0, Number(next.endlessBestScore) || 0);
+    next.dailyRewarded = next.dailyRewarded && typeof next.dailyRewarded === 'object' ? next.dailyRewarded : {};
+    next.version = 3;
+    return next;
+  }
+
+  function saveProgress() {
+    state.save.lastPlayedAt = Date.now();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state.save));
+  }
+
+  function isLevelUnlocked(levelNumber) {
+    if (levelNumber <= FREE_LEVELS) return true;
+    return levelNumber <= state.save.unlockedLevel;
+  }
+
+  function unlockNextLevel(levelNumber) {
+    if (levelNumber < MAX_LEVEL) {
+      state.save.unlockedLevel = Math.max(state.save.unlockedLevel, levelNumber + 1);
+    }
+    saveProgress();
+    refreshUI();
+  }
+
+  function completeLevel(levelNumber, grade) {
+    const wasCompleted = Boolean(state.save.completed[levelNumber]);
+    const oldStars = Number(state.save.stars[levelNumber]) || 0;
+    state.save.completed[levelNumber] = true;
+    state.save.stars[levelNumber] = Math.max(oldStars, grade);
+    unlockNextLevel(levelNumber);
+    const bestTime = Number(state.save.bestTimes[levelNumber]) || Infinity;
+    const bestSteps = Number(state.save.bestSteps[levelNumber]) || Infinity;
+    const improvedTime = state.elapsed < bestTime;
+    const improvedSteps = state.steps < bestSteps;
+    if (improvedTime) state.save.bestTimes[levelNumber] = Number(state.elapsed.toFixed(2));
+    if (improvedSteps) state.save.bestSteps[levelNumber] = state.steps;
+    const baseReward = COIN_REWARD_BY_STAR[grade] || COIN_REWARD_BY_STAR[1];
+    let reward = wasCompleted ? Math.max(3, Math.floor(baseReward * .22)) : baseReward;
+    if (grade > oldStars) reward += (grade - oldStars) * 8;
+    if (wasCompleted && (improvedTime || improvedSteps)) reward += 4;
+    const objectiveBonus = getObjectiveBonus();
+    reward += objectiveBonus.coins;
+    addCoins(reward);
+    saveProgress();
+    refreshUI();
+    return { coins: reward, firstClear: !wasCompleted, objectiveBonus: objectiveBonus.coins, improved: improvedTime || improvedSteps };
+  }
+
+  function addCoins(amount) {
+    state.save.coins = Math.max(0, Number(state.save.coins) || 0) + amount;
+  }
+
+  function recordFailure(levelNumber) {
+    state.save.fails[levelNumber] = (Number(state.save.fails[levelNumber]) || 0) + 1;
+    saveProgress();
+  }
+
+  function maybeShowSpecialTip(type) {
+    if (!SPECIAL_TIPS[type] || state.save.seenTips[type]) return;
+    state.save.seenTips[type] = true;
+    saveProgress();
+    showToast(SPECIAL_TIPS[type]);
+  }
+
+  function updateNavButtons() {
+    prevBtn.disabled = state.mode !== 'level' || state.level <= 1;
+    const nextLevel = state.level + 1;
+    nextBtn.disabled = state.mode !== 'level' || nextLevel > MAX_LEVEL || !isLevelUnlocked(nextLevel);
+    nextBtn.textContent = nextLevel > MAX_LEVEL ? '已到最后一关' : '下一关';
+  }
+
+  function refreshUI() {
+    updateHud();
+    updateNavButtons();
+    buildDots();
+    applyAppearance();
+    renderShop();
+    if (!levelSelectOverlay.classList.contains('hide')) buildLevelSelectPanel();
+  }
+
+  function applyAppearance() {
+    app.dataset.skin = state.save.currentSkin || 'default';
+    app.dataset.theme = state.save.currentTheme || 'abyss';
+    app.dataset.exit = state.save.currentExit || 'default';
+  }
+
+  function showShop() {
+    renderShop();
+    shopOverlay.classList.remove('hide');
+  }
+
+  function renderShop() {
+    if (!shopList || !coinText) return;
+    coinText.textContent = `${state.save.coins || 0} 金币`;
+    shopList.textContent = '';
+    shopList.appendChild(createShopSection('角色皮肤', SKINS, 'skin'));
+    shopList.appendChild(createShopSection('地板主题', THEMES, 'theme'));
+    shopList.appendChild(createShopSection('出口特效', EXITS, 'exit'));
+  }
+
+  function createShopSection(titleText, items, kind) {
+    const section = document.createElement('section');
+    section.className = 'shop-section';
+    const title = document.createElement('h2');
+    title.textContent = titleText;
+    const grid = document.createElement('div');
+    grid.className = 'shop-grid';
+    items.forEach(item => grid.appendChild(createShopItem(item, kind)));
+    section.append(title, grid);
+    return section;
+  }
+
+  function createShopItem(item, kind) {
+    const unlockedMap = kind === 'skin' ? state.save.skinsUnlocked : kind === 'theme' ? state.save.themesUnlocked : state.save.exitsUnlocked;
+    const currentId = kind === 'skin' ? state.save.currentSkin : kind === 'theme' ? state.save.currentTheme : state.save.currentExit;
+    const unlocked = Boolean(unlockedMap[item.id]);
+    const active = currentId === item.id;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `shop-item${active ? ' active' : ''}${unlocked ? '' : ' locked'}`;
+    const preview = document.createElement('span');
+    preview.className = `shop-preview ${kind}`;
+    preview.setAttribute('aria-hidden', 'true');
+    const name = document.createElement('strong');
+    name.textContent = item.name;
+    const meta = document.createElement('span');
+    meta.textContent = active ? '使用中' : unlocked ? '已解锁，点击使用' : `${item.cost} 金币`;
+    button.append(preview, name, meta);
+    button.addEventListener('click', () => buyOrEquip(item, kind));
+    return button;
+  }
+
+  function buyOrEquip(item, kind) {
+    const unlockedMap = kind === 'skin' ? state.save.skinsUnlocked : kind === 'theme' ? state.save.themesUnlocked : state.save.exitsUnlocked;
+    const currentKey = kind === 'skin' ? 'currentSkin' : kind === 'theme' ? 'currentTheme' : 'currentExit';
+    if (!unlockedMap[item.id]) {
+      if ((state.save.coins || 0) < item.cost) {
+        showToast('金币不足');
+        return;
+      }
+      state.save.coins -= item.cost;
+      unlockedMap[item.id] = true;
+      showToast('已解锁');
+    }
+    state.save[currentKey] = item.id;
+    saveProgress();
+    refreshUI();
+  }
+
+  function createCell(type, r, c) {
+    return {
+      type,
+      r,
+      c,
+      phase: type === 'void' ? 'gone' : 'idle',
+      stepped: false,
+      leavingAt: 0,
+      holdFallAt: 0,
+      fellOnce: false
+    };
+  }
+
+  function parseLevel(levelNumber) {
+    return parseLevelDef(LEVELS[levelNumber - 1]);
+  }
+
+  function parseLevelDef(def) {
+    const cells = [];
+    let start = null;
+    let goal = null;
+    for (let r = 0; r < ROWS; r++) {
+      const row = [];
+      for (let c = 0; c < COLS; c++) {
+        const char = def.map[r][c];
+        const type = TYPE_BY_CHAR[char] || 'normal';
+        if (type === 'start') start = { r, c };
+        if (type === 'goal') goal = { r, c };
+        row.push(createCell(type, r, c));
+      }
+      cells.push(row);
+    }
+    return { def, cells, start, goal };
+  }
+
+  function todayKey() {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${now.getFullYear()}${month}${day}`;
+  }
+
+  function makeDailyChallenge(dateKey = todayKey()) {
+    const seed = Number(dateKey) || 20260614;
+    const routeTemplates = [
+      [[10,0],[10,6],[8,6],[8,2],[6,2],[6,5],[4,5],[4,1],[2,1],[2,6],[0,6]],
+      [[10,0],[9,0],[9,5],[7,5],[7,1],[5,1],[5,6],[3,6],[3,3],[1,3],[1,6],[0,6]],
+      [[10,0],[10,4],[8,4],[8,1],[6,1],[6,6],[4,6],[4,2],[2,2],[2,5],[0,5],[0,6]]
+    ];
+    const theme = {
+      title: `每日挑战 ${dateKey}`,
+      hint: '每日挑战不影响主线解锁。今天的地图固定，重试会累计今日死亡次数。',
+      hintMove: '第一步建议向右，先抢底部路线。',
+      fast: 3 + (seed % 2),
+      ice: 1 + (seed % 3),
+      bounce: 1 + ((seed >> 2) % 2),
+      tele: seed % 5 === 0,
+      trap: 4,
+      safe: 1,
+      branches: 8
+    };
+    return makeGeneratedLevel(1000 + (seed % 997), routeTemplates[seed % routeTemplates.length], theme);
+  }
+
+  function startDailyChallenge() {
+    const dateKey = todayKey();
+    const def = makeDailyChallenge(dateKey);
+    const parsed = parseLevelDef(def);
+    state.mode = 'daily';
+    state.level = 0;
+    const deaths = state.daily?.dateKey === dateKey ? Number(state.daily.deaths) || 0 : 0;
+    state.daily = {
+      dateKey,
+      deaths
+    };
+    state.cells = parsed.cells;
+    state.player = parsed.start || { r: ROWS - 1, c: 0 };
+    state.goal = parsed.goal || { r: 0, c: COLS - 1 };
+    state.startTime = performance.now();
+    state.lastFrame = performance.now();
+    state.elapsed = 0;
+    state.steps = 0;
+    state.moving = false;
+    state.queuedDir = null;
+    state.lastDir = DIRS.up;
+    state.lastPathKind = 'normal';
+    state.endless = null;
+    state.objective = null;
+    state.status = 'playing';
+    overlay.classList.add('hide');
+    resultOverlay.classList.add('hide');
+    levelSelectOverlay.classList.add('hide');
+    shopOverlay.classList.add('hide');
+    shopOverlay.classList.add('hide');
+    resultOverlay.classList.add('hide');
+    levelSelectOverlay.classList.add('hide');
+    shopOverlay.classList.add('hide');
+    collapseLine.classList.remove('show');
+    playerEl.classList.remove('flyout', 'danger');
+    enterCell(state.player.r, state.player.c);
+    updateAllTiles();
+    updatePlayerPosition();
+    updateHud();
+    updateHints();
+    updateNavButtons();
+    showToast('每日挑战');
+  }
+
+  function initGridDom() {
+    gridEl.textContent = '';
+    state.tileEls = [];
+    for (let r = 0; r < ROWS; r++) {
+      const row = [];
+      for (let c = 0; c < COLS; c++) {
+        const tile = document.createElement('div');
+        tile.className = 'tile void';
+        tile.dataset.r = String(r);
+        tile.dataset.c = String(c);
+        const cracks = document.createElement('span');
+        cracks.className = 'cracks';
+        tile.appendChild(cracks);
+        gridEl.appendChild(tile);
+        row.push(tile);
+      }
+      state.tileEls.push(row);
+    }
+  }
+
+  function startGame(levelNumber = state.level) {
+    const nextLevel = Math.max(1, Math.min(MAX_LEVEL, levelNumber));
+    if (!isLevelUnlocked(nextLevel)) {
+      showToast('先通关当前关');
+      return;
+    }
+    const parsed = parseLevel(nextLevel);
+    state.mode = 'level';
+    state.level = nextLevel;
+    state.cells = parsed.cells;
+    state.player = parsed.start || { r: ROWS - 1, c: 0 };
+    state.goal = parsed.goal || { r: 0, c: COLS - 1 };
+    state.startTime = performance.now();
+    state.lastFrame = performance.now();
+    state.elapsed = 0;
+    state.steps = 0;
+    state.moving = false;
+    state.queuedDir = null;
+    state.lastDir = DIRS.up;
+    state.lastPathKind = 'normal';
+    state.endless = null;
+    state.objective = setupLevelObjective(nextLevel, parsed);
+    state.status = 'playing';
+    overlay.classList.add('hide');
+    resultOverlay.classList.add('hide');
+    levelSelectOverlay.classList.add('hide');
+    resultGrid.hidden = true;
+    levelSelectPanel.hidden = true;
+    ruleList.hidden = false;
+    hintBtn.hidden = true;
+    startBtn.hidden = false;
+    collapseLine.classList.remove('show');
+    collapseLine.style.bottom = '-20%';
+    playerEl.classList.remove('flyout', 'danger');
+    playerEl.style.opacity = '';
+    playerEl.style.setProperty('--fly-x', '0px');
+    playerEl.style.setProperty('--fly-y', '0px');
+    enterCell(state.player.r, state.player.c);
+    updateAllTiles();
+    updatePlayerPosition();
+    updateHud();
+    updateHints();
+    refreshUI();
+    showToast(`第 ${state.level} 关`);
+  }
+
+  function enterCell(r, c) {
+    const cell = getCell(r, c);
+    if (!cell || isVoid(cell)) return;
+    cell.stepped = true;
+    if (cell.type === 'key' && state.objective) {
+      state.objective.keyCollected = true;
+      cell.type = 'normal';
+      showToast('拿到钥匙');
+      playSound('coin');
+    }
+    if (cell.type === 'safe' && state.objective) state.objective.safeStepped = true;
+    if (cell.type === 'fast' && state.objective) state.objective.touchedFast = true;
+    cell.holdFallAt = Number.isFinite(getHoldDelay(cell)) ? performance.now() + getHoldDelay(cell) : 0;
+    maybeShowSpecialTip(cell.type);
+    updateTile(r, c);
+  }
+
+  function leaveCell(r, c) {
+    const cell = getCell(r, c);
+    if (!cell || isVoid(cell) || cell.type === 'goal' || cell.type === 'safe' || cell.phase === 'gone') return;
+    if (!cell.leavingAt) {
+      cell.leavingAt = performance.now();
+      cell.holdFallAt = 0;
+      cell.phase = 'sink';
+      updateTile(r, c);
+    }
+  }
+
+  function getCollapseDelay(cell) {
+    return COLLAPSE[cell.type] ?? COLLAPSE.normal;
+  }
+
+  function getHoldDelay(cell) {
+    if (cell.type === 'goal' || cell.type === 'safe') return Infinity;
+    return HOLD[cell.type] ?? HOLD.normal;
+  }
+
+  function updateAllTiles() {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) updateTile(r, c);
+    }
+  }
+
+  function updateTile(r, c) {
+    const cell = getCell(r, c);
+    const el = state.tileEls[r][c];
+    let className = `tile ${cell.type}`;
+    if (cell.phase && cell.phase !== 'idle') className += ` ${cell.phase}`;
+    if (cell.phase === 'gone') className += ' gone';
+    el.className = className;
+    if (MARKS[cell.type] && cell.phase !== 'gone') el.dataset.mark = MARKS[cell.type];
+    else el.removeAttribute('data-mark');
+  }
+
+  function updateCollapsePhases(now) {
+    if (state.mode === 'endless') updateEndless(now);
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = state.cells[r][c];
+        if (isVoid(cell) || cell.phase === 'gone') continue;
+
+        if (cell.holdFallAt && now >= cell.holdFallAt && state.player.r === r && state.player.c === c) {
+          cell.phase = 'gone';
+          updateTile(r, c);
+          burstTile(r, c);
+          shakeScreen();
+          gameOver('stay');
+          continue;
+        }
+
+        if (!cell.leavingAt) continue;
+        const age = now - cell.leavingAt;
+        const delay = getCollapseDelay(cell);
+        let nextPhase = 'sink';
+        if (age >= delay) nextPhase = 'gone';
+        else if (age >= delay * .62) nextPhase = 'shake';
+        else if (age >= delay * .24) nextPhase = 'crack';
+
+        if (nextPhase !== cell.phase) {
+          cell.phase = nextPhase;
+          updateTile(r, c);
+          if (nextPhase === 'gone' && !cell.fellOnce) {
+            cell.fellOnce = true;
+            burstTile(r, c);
+            shakeScreen();
+            if (state.player.r === r && state.player.c === c) gameOver('stay');
+          }
+        }
+      }
+    }
+  }
+
+  function requestMove(dir) {
+    if (state.status !== 'playing') return;
+    state.lastDir = dir;
+    runnerEl.className = `runner ${dir.name}`;
+    if (state.moving) {
+      state.queuedDir = dir;
+      showToast('已预输入');
+      return;
+    }
+    move(dir);
+  }
+
+  function move(dir) {
+    if (state.status !== 'playing' || state.moving) return;
+    state.moving = true;
+    state.lastDir = dir;
+    runnerEl.className = `runner ${dir.name}`;
+
+    const from = { ...state.player };
+    const path = resolveMove(from, dir);
+    if (path.blocked) {
+      bump();
+      playSound('bump');
+      state.moving = false;
+      runQueuedMoveSoon();
+      return;
+    }
+
+    const finalStep = path.steps[path.steps.length - 1];
+    if (finalStep && getCell(finalStep.r, finalStep.c)?.type === 'goal' && isGoalLockedByObjective()) {
+      bump();
+      showToast('先拿钥匙，出口才会打开');
+      playSound('bump');
+      state.moving = false;
+      runQueuedMoveSoon();
+      return;
+    }
+
+    leaveCell(from.r, from.c);
+    state.steps++;
+    const final = path.steps[path.steps.length - 1];
+    state.player = { r: final.r, c: final.c };
+    path.steps.forEach(step => enterCell(step.r, step.c));
+    path.steps.slice(0, -1).forEach(step => leaveCell(step.r, step.c));
+
+    createDust(from.r, from.c);
+    playSound(path.kind === 'teleport' ? 'teleport' : path.kind === 'ice' ? 'ice' : path.kind === 'bounce' ? 'bounce' : 'jump');
+    if (path.kind === 'teleport') showToast('传送脱险');
+    if (path.kind === 'ice') showToast('滑过去');
+    if (path.kind === 'bounce') showToast('弹过去');
+    state.lastPathKind = path.kind;
+
+    playerEl.classList.remove('jump', 'land');
+    void playerEl.offsetWidth;
+    playerEl.classList.add('jump');
+    updatePlayerPosition();
+    updateHud();
+
+    window.setTimeout(() => {
+      playerEl.classList.remove('jump');
+      playerEl.classList.add('land');
+      window.setTimeout(() => playerEl.classList.remove('land'), 130);
+      finishMove(path);
+    }, 135);
+  }
+
+  function resolveMove(from, dir) {
+    const steps = [];
+    let r = from.r + dir.dy;
+    let c = from.c + dir.dx;
+    let kind = 'normal';
+    let guard = 0;
+
+    if (isBlocked(r, c)) return { blocked: true, reason: 'wall', steps: [] };
+
+    while (guard++ < 18) {
+      const cell = getCell(r, c);
+      steps.push({ r, c, type: cell.type });
+
+      if (cell.type === 'trap') return { blocked: false, fail: 'trap', steps, kind };
+
+      if (cell.type === 'teleA' || cell.type === 'teleB') {
+        const pairType = cell.type === 'teleA' ? 'teleB' : 'teleA';
+        const pair = findType(pairType);
+        if (pair && !steps.some(step => step.r === pair.r && step.c === pair.c)) {
+          r = pair.r;
+          c = pair.c;
+          steps.push({ r, c, type: pairType });
+          kind = 'teleport';
+        }
+        break;
+      }
+
+      if (cell.type === 'bounce') {
+        const jr = r + dir.dy;
+        const jc = c + dir.dx;
+        if (isBlocked(jr, jc)) return { blocked: false, fail: 'bounceVoid', steps, kind: 'bounce' };
+        r = jr;
+        c = jc;
+        steps.push({ r, c, type: getCell(r, c).type });
+        if (getCell(r, c).type === 'trap') return { blocked: false, fail: 'trap', steps, kind: 'bounce' };
+        kind = 'bounce';
+        break;
+      }
+
+      if (cell.type === 'ice') {
+        const sr = r + dir.dy;
+        const sc = c + dir.dx;
+        kind = 'ice';
+        if (!isBlocked(sr, sc)) {
+          r = sr;
+          c = sc;
+          continue;
+        }
+      }
+      break;
+    }
+
+    return { blocked: false, steps, kind };
+  }
+
+  function finishMove(path) {
+    if (state.status !== 'playing') return;
+    state.moving = false;
+
+    if (path.fail) {
+      if (path.fail === 'trap') {
+        playerEl.classList.add('danger');
+        shakeScreen();
+        return window.setTimeout(() => gameOver('trap'), 120);
+      }
+      if (path.fail === 'bounceVoid') {
+        flyOut();
+        return window.setTimeout(() => gameOver('bounceVoid'), 220);
+      }
+    }
+
+    const current = getCell(state.player.r, state.player.c);
+    if (!current || current.phase === 'gone') return gameOver('stay');
+    if (state.mode === 'level' && isStepLimitFailed()) return gameOver('tooManySteps');
+    updateComboAndRewards();
+    if (current.type === 'goal') return win();
+    advanceEndlessIfNeeded();
+    if (state.mode === 'endless') return runQueuedMoveSoon();
+    if (isSelfBlocked()) return window.setTimeout(() => gameOver(state.lastPathKind === 'ice' ? 'iceWrong' : 'blocked'), 170);
+    runQueuedMoveSoon();
+  }
+
+  function runQueuedMoveSoon() {
+    if (!state.queuedDir || state.status !== 'playing' || state.moving) return;
+    const queued = state.queuedDir;
+    state.queuedDir = null;
+    window.setTimeout(() => requestMove(queued), 24);
+  }
+
+  function isSelfBlocked() {
+    return Object.values(DIRS).every(dir => isBlocked(state.player.r + dir.dy, state.player.c + dir.dx));
+  }
+
+  function isBlocked(r, c) {
+    const cell = getCell(r, c);
+    return !cell || isVoid(cell) || cell.phase === 'gone';
+  }
+
+  function isVoid(cell) {
+    return cell.type === 'void';
+  }
+
+  function getCell(r, c) {
+    if (r < 0 || c < 0 || r >= ROWS || c >= COLS) return null;
+    return state.cells[r][c];
+  }
+
+  function findType(type) {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = getCell(r, c);
+        if (cell.type === type && cell.phase !== 'gone') return { r, c };
+      }
+    }
+    return null;
+  }
+
+  function updatePlayerPosition() {
+    const rect = boardInner.getBoundingClientRect();
+    const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-gap')) || 4;
+    const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-pad')) || 7;
+    const cellW = (rect.width - pad * 2 - gap * (COLS - 1)) / COLS;
+    const cellH = (rect.height - pad * 2 - gap * (ROWS - 1)) / ROWS;
+    const x = pad + state.player.c * (cellW + gap);
+    const y = pad + state.player.r * (cellH + gap);
+    playerEl.style.width = `${cellW}px`;
+    playerEl.style.height = `${cellH}px`;
+    playerEl.style.transform = `translate(${x}px, ${y}px)`;
+    runnerEl.className = `runner ${state.lastDir.name}`;
+  }
+
+  function cellCenter(r, c) {
+    const rect = boardInner.getBoundingClientRect();
+    const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-gap')) || 4;
+    const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-pad')) || 7;
+    const cellW = (rect.width - pad * 2 - gap * (COLS - 1)) / COLS;
+    const cellH = (rect.height - pad * 2 - gap * (ROWS - 1)) / ROWS;
+    return {
+      x: pad + c * (cellW + gap) + cellW / 2,
+      y: pad + r * (cellH + gap) + cellH / 2,
+      w: cellW,
+      h: cellH
+    };
+  }
+
+  function createDust(r, c) {
+    const center = cellCenter(r, c);
+    for (let i = 0; i < 7; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'dust';
+      const size = 4 + Math.random() * 5;
+      dot.style.width = `${size}px`;
+      dot.style.height = `${size}px`;
+      dot.style.left = `${center.x + (Math.random() - .5) * center.w * .52}px`;
+      dot.style.top = `${center.y + center.h * .22 + Math.random() * center.h * .18}px`;
+      dot.style.setProperty('--dx', `${(Math.random() - .5) * 48}px`);
+      dot.style.setProperty('--dy', `${12 + Math.random() * 30}px`);
+      boardInner.appendChild(dot);
+      window.setTimeout(() => dot.remove(), 480);
+    }
+  }
+
+  function burstTile(r, c) {
+    playSound('crack');
+    const center = cellCenter(r, c);
+    for (let i = 0; i < 8; i++) {
+      const shard = document.createElement('span');
+      shard.className = 'shard';
+      shard.style.left = `${center.x + (Math.random() - .5) * center.w * .62}px`;
+      shard.style.top = `${center.y + (Math.random() - .5) * center.h * .36}px`;
+      shard.style.setProperty('--dx', `${(Math.random() - .5) * 44}px`);
+      shard.style.setProperty('--dy', `${24 + Math.random() * 58}px`);
+      boardInner.appendChild(shard);
+      window.setTimeout(() => shard.remove(), 520);
+    }
+  }
+
+  function bump() {
+    playerEl.animate([
+      { transform: `${playerEl.style.transform} scale(1)` },
+      { transform: `${playerEl.style.transform} scale(.9)` },
+      { transform: `${playerEl.style.transform} scale(1)` }
+    ], { duration: 120, easing: 'ease-out' });
+    showToast('走不通');
+  }
+
+  function shakeScreen() {
+    app.classList.remove('shake');
+    void app.offsetWidth;
+    app.classList.add('shake');
+    window.setTimeout(() => app.classList.remove('shake'), 190);
+  }
+
+  function flyOut() {
+    playSound('fall');
+    const dir = state.lastDir;
+    playerEl.style.setProperty('--fly-x', `${dir.dx * 110}px`);
+    playerEl.style.setProperty('--fly-y', `${dir.dy * 110 - 45}px`);
+    playerEl.classList.add('flyout');
+    shakeScreen();
+  }
+
+  function win() {
+    if (state.status !== 'playing') return;
+    if (state.mode === 'daily') return dailyWin();
+    state.status = 'won';
+    state.elapsed = (performance.now() - state.startTime) / 1000;
+    const fast = state.elapsed <= Math.max(7.5, 15 - state.level * .25);
+    const clean = state.steps <= 18 + Math.floor(state.level / 3);
+    const grade = 1 + Number(fast) + Number(clean);
+    const rewardInfo = completeLevel(state.level, grade);
+    refreshUI();
+    resetResultVisuals();
+    renderResultStars(grade);
+    showRewardPop(`+${rewardInfo.coins} 金币`);
+    playWinCelebration();
+    playSound('win');
+    resultTitle.textContent = '通关';
+    const extra = getObjectiveResultText();
+    const rewardNote = rewardInfo.firstClear ? '首次通关奖励' : rewardInfo.improved ? '刷新记录奖励' : '重复通关奖励';
+    resultDesc.textContent = `${rewardNote}${extra}`;
+    showResult(0);
+    resultHintBtn.hidden = true;
+    renderResultActions('win');
+    resultOverlay.classList.remove('hide');
+  }
+
+  function gameOver(reasonKey) {
+    if (state.status !== 'playing') return;
+    if (state.mode === 'endless') return endlessGameOver(reasonKey);
+    if (state.mode === 'daily') return dailyGameOver(reasonKey);
+    state.status = 'lost';
+    state.elapsed = (performance.now() - state.startTime) / 1000;
+    state.moving = false;
+    state.queuedDir = null;
+    playSound('fail');
+    recordFailure(state.level);
+    const reason = getFailureCopy(reasonKey);
+    refreshUI();
+    resetResultVisuals();
+    resultTitle.textContent = reason.title;
+    const distance = distanceToGoal();
+    resultDesc.textContent = `${reason.desc} · 差 ${distance} 格`;
+    showResult(distance);
+    resultHintBtn.hidden = true;
+    resultHintBtn.onclick = () => showHintForCurrentLevel();
+    renderResultActions('fail');
+    resultOverlay.classList.remove('hide');
+  }
+
+  function dailyWin() {
+    state.status = 'won';
+    state.elapsed = (performance.now() - state.startTime) / 1000;
+    const key = state.daily?.dateKey || todayKey();
+    const oldBest = state.save.dailyChallengeBest[key];
+    const deaths = state.daily?.deaths || 0;
+    const improved = !oldBest || state.elapsed < Number(oldBest.time || Infinity) || state.steps < Number(oldBest.steps || Infinity);
+    if (improved) {
+      state.save.dailyChallengeBest[key] = {
+        time: Number(state.elapsed.toFixed(2)),
+        steps: state.steps,
+        deaths,
+        completedAt: Date.now()
+      };
+    }
+    const firstDailyReward = !state.save.dailyRewarded[key];
+    const reward = firstDailyReward ? 40 : improved ? 12 : 6;
+    state.save.dailyRewarded[key] = true;
+    addCoins(reward);
+    saveProgress();
+    refreshUI();
+    resetResultVisuals();
+    renderResultStars(3);
+    showRewardPop(`+${reward} 金币`);
+    playWinCelebration();
+    playSound('win');
+    resultTitle.textContent = `每日挑战完成`;
+    resultDesc.textContent = firstDailyReward ? '今日首次完成奖励' : improved ? '刷新今日最佳' : '重复完成奖励';
+    showResult(0);
+    resultBestTimeText.textContent = `${state.save.dailyChallengeBest[key].time.toFixed(1)}s`;
+    resultBestStepsText.textContent = String(state.save.dailyChallengeBest[key].steps);
+    resultHintBtn.hidden = true;
+    renderResultActions('dailyWin');
+    resultOverlay.classList.remove('hide');
+  }
+
+  function dailyGameOver(reasonKey) {
+    state.status = 'lost';
+    state.elapsed = (performance.now() - state.startTime) / 1000;
+    state.moving = false;
+    state.queuedDir = null;
+    const key = state.daily?.dateKey || todayKey();
+    state.daily ||= { dateKey: key, deaths: 0 };
+    state.daily.deaths += 1;
+    const best = state.save.dailyChallengeBest[key];
+    const reason = getFailureCopy(reasonKey);
+    resultTitle.textContent = '每日挑战失败';
+    resultDesc.textContent = `${reason.desc} 今日死亡 ${state.daily.deaths} 次。每日挑战不影响主线解锁。`;
+    showResult(distanceToGoal());
+    resultBestTimeText.textContent = best ? `${Number(best.time).toFixed(1)}s` : '--';
+    resultBestStepsText.textContent = best ? String(best.steps) : '--';
+    resultHintBtn.hidden = true;
+    resultHintBtn.onclick = () => showHintForCurrentLevel();
+    renderResultActions('dailyFail');
+    resultOverlay.classList.remove('hide');
+  }
+
+  function getFailureCopy(reasonKey) {
+    const copy = {
+      stay: { title: '脚下塌空', desc: '停太久了' },
+      blocked: { title: '路线封死', desc: '前面没路了' },
+      trap: { title: '踩到陷阱', desc: '避开 ✕' },
+      bounceVoid: { title: '弹跳落空', desc: '先看第二格' },
+      iceWrong: { title: '冰面滑错', desc: '先看终点' },
+      tooManySteps: { title: '步数超限', desc: '换短路线' }
+    };
+    return copy[reasonKey] || { title: '掉下去了', desc: '马上重来' };
+  }
+
+  function renderResultActions(kind) {
+    resultActions.textContent = '';
+    if (kind === 'dailyWin' || kind === 'dailyFail') {
+      resultActions.appendChild(createResultButton('再试每日', startDailyChallenge, true));
+      resultActions.appendChild(createResultButton('选关', showLevelSelect));
+      resultActions.appendChild(createResultButton('商城', showShop));
+      resultActions.appendChild(createResultButton('无尽模式', startEndless));
+      return;
+    }
+    if (kind === 'win') {
+      const nextLevel = state.level + 1;
+      resultActions.appendChild(createResultButton(nextLevel > MAX_LEVEL ? '已到最后一关' : '下一关', () => {
+        if (nextLevel > MAX_LEVEL) return showToast('已到最后一关');
+        if (!isLevelUnlocked(nextLevel)) return showToast('先通关当前关');
+        startGame(nextLevel);
+      }, true, nextLevel > MAX_LEVEL || !isLevelUnlocked(nextLevel)));
+      resultActions.appendChild(createResultButton('选关', showLevelSelect));
+      resultActions.appendChild(createResultButton('商城', showShop));
+      resultActions.appendChild(createResultButton('无尽模式', startEndless));
+      return;
+    }
+    resultActions.appendChild(createResultButton('重新挑战', () => startGame(state.level), true));
+    resultActions.appendChild(createResultButton('选关', showLevelSelect));
+    resultActions.appendChild(createResultButton('商城', showShop));
+    resultActions.appendChild(createResultButton('无尽模式', startEndless));
+  }
+
+  function createResultButton(text, handler, primary = false, disabled = false) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = primary ? 'primary-btn' : 'small-btn';
+    button.textContent = text;
+    button.disabled = disabled;
+    button.addEventListener('click', () => {
+      if (disabled) return showToast(text === '已到最后一关' ? '已到最后一关' : '先通关当前关');
+      handler();
+    });
+    return button;
+  }
+
+  function closeMenuOverlay() {
+    overlay.classList.add('hide');
+  }
+
+  function closeResultOverlay() {
+    resultOverlay.classList.add('hide');
+  }
+
+  function closeLevelSelectOverlay() {
+    levelSelectOverlay.classList.add('hide');
+    if (state.status === 'select') state.status = state.returnStatus || 'menu';
+  }
+
+  function closeTopOverlay() {
+    for (const id of ['guideOverlay','statsOverlay','saveOverlay']) {
+      const el = document.getElementById(id);
+      if (el && !el.classList.contains('hide')) { el.classList.add('hide'); return; }
+    }
+    if (!shopOverlay.classList.contains('hide')) return closeShopOverlay();
+    if (!levelSelectOverlay.classList.contains('hide')) return closeLevelSelectOverlay();
+    if (!resultOverlay.classList.contains('hide')) return closeResultOverlay();
+    if (!overlay.classList.contains('hide')) return closeMenuOverlay();
+  }
+
+  function closeShopOverlay() {
+    shopOverlay.classList.add('hide');
+  }
+
+  function bindOverlayClose(overlayEl, closeFn) {
+    overlayEl.addEventListener('click', event => {
+      if (event.target === overlayEl) closeFn();
+    });
+  }
+
+  function showResult(distance) {
+    resultDistanceText.textContent = `${distance} 格`;
+    resultTimeText.textContent = `${state.elapsed.toFixed(1)}s`;
+    resultStepsText.textContent = String(state.steps);
+    const bestTime = Number(state.save.bestTimes[state.level]);
+    const bestSteps = Number(state.save.bestSteps[state.level]);
+    resultBestTimeText.textContent = bestTime ? `${bestTime.toFixed(1)}s` : '--';
+    resultBestStepsText.textContent = bestSteps ? String(bestSteps) : '--';
+  }
+
+
+  function resetResultVisuals() {
+    if (resultStars) resultStars.textContent = '';
+    if (rewardPop) {
+      rewardPop.hidden = true;
+      rewardPop.textContent = '';
+    }
+    resultOverlay.querySelector('.result-card')?.classList.add('compact-result');
+  }
+
+  function renderResultStars(grade = 0) {
+    if (!resultStars) return;
+    resultStars.textContent = '';
+    for (let i = 1; i <= 3; i++) {
+      const star = document.createElement('span');
+      star.className = `star${i <= grade ? ' on' : ''}`;
+      star.style.animationDelay = `${(i - 1) * 120}ms`;
+      star.textContent = i <= grade ? '★' : '☆';
+      resultStars.appendChild(star);
+    }
+  }
+
+  function showRewardPop(text) {
+    if (!rewardPop) return;
+    rewardPop.hidden = false;
+    rewardPop.textContent = text;
+    rewardPop.style.animation = 'none';
+    void rewardPop.offsetWidth;
+    rewardPop.style.animation = '';
+  }
+
+  function playWinCelebration() {
+    boardInner.classList.remove('win-flash');
+    void boardInner.offsetWidth;
+    boardInner.classList.add('win-flash');
+    const goalTile = state.tileEls?.[state.goal.r]?.[state.goal.c];
+    if (goalTile) {
+      goalTile.classList.remove('win-burst');
+      void goalTile.offsetWidth;
+      goalTile.classList.add('win-burst');
+      window.setTimeout(() => goalTile.classList.remove('win-burst'), 900);
+    }
+    window.setTimeout(() => boardInner.classList.remove('win-flash'), 900);
+  }
+
+  function setupLevelObjective(levelNumber, parsed) {
+    const objective = {
+      type: 'normal',
+      label: '逃到出口',
+      keyCollected: false,
+      safeStepped: false,
+      touchedFast: false,
+      limit: 0,
+      bonus: null
+    };
+    const rows = LEVELS[levelNumber - 1]?.map || [];
+    const path = findShortestStaticPathCells(rows) || [];
+    const shortest = Math.max(1, path.length - 1);
+
+    if (levelNumber === 9 && path.length > 5) {
+      objective.type = 'key';
+      objective.label = '先拿钥匙，再进出口';
+      const keyIndex = Math.max(2, Math.min(path.length - 3, Math.floor(path.length * .55)));
+      const keyPos = path[keyIndex];
+      const cell = parsed.cells?.[keyPos.r]?.[keyPos.c];
+      if (cell && cell.type !== 'start' && cell.type !== 'goal' && !isVoid(cell)) {
+        cell.type = 'key';
+        objective.key = { r: keyPos.r, c: keyPos.c };
+      }
+    } else if (levelNumber === 10) {
+      objective.type = 'safeBonus';
+      objective.label = '奖励目标：踩一次安全格 +10 金币';
+      objective.bonus = 'safe';
+    } else if (levelNumber >= 8 && levelNumber % 4 === 0) {
+      objective.type = 'steps';
+      objective.limit = Math.max(shortest + 5, Math.min(34, shortest + 9));
+      objective.label = `限步：${objective.limit} 步内到出口`;
+    } else if (levelNumber >= 10 && levelNumber % 5 === 0 && path.length > 5) {
+      objective.type = 'key';
+      objective.label = '先拿钥匙，再进出口';
+      const keyIndex = Math.max(2, Math.min(path.length - 3, Math.floor(path.length * .55)));
+      const keyPos = path[keyIndex];
+      const cell = parsed.cells?.[keyPos.r]?.[keyPos.c];
+      if (cell && cell.type !== 'start' && cell.type !== 'goal' && !isVoid(cell)) {
+        cell.type = 'key';
+        objective.key = { r: keyPos.r, c: keyPos.c };
+      } else {
+        objective.type = 'normal';
+        objective.label = '逃到出口';
+      }
+    } else if (levelNumber >= 12 && levelNumber % 6 === 0) {
+      objective.type = 'safeBonus';
+      objective.label = '奖励目标：踩一次安全格 +10 金币';
+      objective.bonus = 'safe';
+    } else if (levelNumber >= 14 && levelNumber % 7 === 0) {
+      objective.type = 'avoidFastBonus';
+      objective.label = '奖励目标：不踩快裂格 +10 金币';
+      objective.bonus = 'avoidFast';
+    }
+    return objective;
+  }
+
+  function isGoalLockedByObjective() {
+    return state.mode === 'level' && state.objective?.type === 'key' && !state.objective.keyCollected;
+  }
+
+  function isStepLimitFailed() {
+    return state.mode === 'level' && state.objective?.type === 'steps' && state.objective.limit > 0 && state.steps > state.objective.limit;
+  }
+
+  function getObjectiveBonus() {
+    const obj = state.objective;
+    if (!obj) return { coins: 0, star: false };
+    if (obj.type === 'safeBonus' && obj.safeStepped) return { coins: 10, star: false };
+    if (obj.type === 'avoidFastBonus' && !obj.touchedFast) return { coins: 10, star: false };
+    if (obj.type === 'steps' && obj.limit && state.steps <= obj.limit) return { coins: 8, star: false };
+    if (obj.type === 'key' && obj.keyCollected) return { coins: 8, star: false };
+    return { coins: 0, star: false };
+  }
+
+  function getObjectiveResultText() {
+    const obj = state.objective;
+    if (!obj || obj.type === 'normal') return '';
+    if (obj.type === 'steps') return ` · 限步 ${state.steps}/${obj.limit}`;
+    if (obj.type === 'key') return obj.keyCollected ? ' · 已拿钥匙' : ' · 未拿钥匙';
+    if (obj.type === 'safeBonus') return obj.safeStepped ? ' · 安全格奖励达成' : ' · 安全格奖励未达成';
+    if (obj.type === 'avoidFastBonus') return obj.touchedFast ? ' · 快裂奖励未达成' : ' · 无快裂奖励达成';
+    return '';
+  }
+
+  function renderObjectiveText() {
+    const old = document.getElementById('objectiveLine');
+    if (old) old.remove();
+    const obj = state.objective;
+    if (!obj || obj.type === 'normal') return;
+    const line = document.createElement('span');
+    line.id = 'objectiveLine';
+    line.className = 'objective-line';
+    line.textContent = obj.label;
+    hintText.parentElement?.appendChild(line);
+  }
+
+  function findShortestStaticPathCells(rows) {
+    if (!rows?.length) return null;
+    let start = null;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) if (rows[r][c] === 'S') start = { r, c };
+    }
+    if (!start) return null;
+    const queue = [start];
+    const seen = new Set([`${start.r},${start.c}`]);
+    const prev = new Map();
+    while (queue.length) {
+      const cur = queue.shift();
+      if (rows[cur.r][cur.c] === 'G') {
+        const path = [];
+        let pos = cur;
+        while (pos) {
+          path.push(pos);
+          const key = `${pos.r},${pos.c}`;
+          pos = prev.get(key) || null;
+        }
+        return path.reverse();
+      }
+      for (const dir of Object.values(DIRS)) {
+        const moveResult = resolveStaticMove(rows, cur, dir);
+        if (!moveResult || moveResult.fail || !moveResult.to) continue;
+        const key = `${moveResult.to.r},${moveResult.to.c}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        prev.set(key, cur);
+        queue.push(moveResult.to);
+      }
+    }
+    return null;
+  }
+
+  function updateComboAndRewards() {
+    if (state.mode !== 'endless' || !state.endless) return;
+    const now = performance.now();
+    const e = state.endless;
+    e.score ||= 0;
+    e.combo ||= 0;
+    e.maxCombo ||= 0;
+    e.nearMisses ||= 0;
+    e.coinsEarned ||= 0;
+    if (!e.lastMoveAt || now - e.lastMoveAt < 880) e.combo += 1;
+    else e.combo = 1;
+    e.lastMoveAt = now;
+    e.maxCombo = Math.max(e.maxCombo, e.combo);
+    e.score += 1 + Math.floor(e.combo / 4);
+    if (e.combo >= 3 && e.combo % 3 === 0) showToast(e.combo >= 9 ? `完美节奏 x${e.combo}` : `连逃 x${e.combo}`);
+
+    const dangerRow = ROWS - 1 - Math.floor(e.line);
+    const gap = dangerRow - state.player.r;
+    if (dangerRow >= 0 && gap >= 1 && gap <= 2) {
+      const bonus = gap === 1 ? 10 : 5;
+      e.score += bonus;
+      e.nearMisses += 1;
+      e.coinsEarned += gap === 1 ? 2 : 1;
+      showToast(gap === 1 ? `脚下刚塌 +${bonus}` : `贴边跳走 +${bonus}`);
+      playSound('coin');
+    }
+  }
+
+  function getEndlessStage(distance) {
+    let stage = ENDLESS_STAGES[0];
+    for (const item of ENDLESS_STAGES) if (distance >= item.at) stage = item;
+    return stage;
+  }
+
+  function updateEndlessStageNotice() {
+    if (!state.endless) return;
+    const stage = getEndlessStage(state.endless.distance || 0);
+    if (state.endless.stageName !== stage.name) {
+      state.endless.stageName = stage.name;
+      state.endless.score = (state.endless.score || 0) + 25;
+      showToast(`${stage.tip} +25`);
+      playSound('stage');
+    }
+  }
+
+  function getEndlessRank(distance) {
+    if (distance >= 600) return '地板传说';
+    if (distance >= 300) return '深渊高手';
+    if (distance >= 150) return '极限跑者';
+    if (distance >= 50) return '稳住了';
+    return '新手逃生者';
+  }
+
+  function showSwipeFeedback(dir) {
+    if (!swipeIndicator || !dir) return;
+    const arrows = { up: '↑', down: '↓', left: '←', right: '→' };
+    swipeIndicator.textContent = arrows[dir.name] || '↑';
+    swipeIndicator.classList.add('show');
+    clearTimeout(showSwipeFeedback.timer);
+    showSwipeFeedback.timer = window.setTimeout(() => swipeIndicator.classList.remove('show'), 180);
+  }
+
+  function toggleSound() {
+    state.save.audioMuted = !state.save.audioMuted;
+    saveProgress();
+    updateSoundButton();
+    showToast(state.save.audioMuted ? '音效关闭' : '音效开启');
+    if (!state.save.audioMuted) playSound('coin');
+  }
+
+  function updateSoundButton() {
+    if (soundBtn) soundBtn.textContent = state.save.audioMuted ? '静音' : '音效';
+  }
+
+  function playSound(kind = 'jump') {
+    if (state.save.audioMuted) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    try {
+      state.audioCtx ||= new AudioCtx();
+      const ctx = state.audioCtx;
+      if (ctx.state === 'suspended') ctx.resume?.();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      const table = {
+        jump: [420, .035, .028], bump: [150, .045, .035], crack: [90, .06, .04], fall: [70, .16, .05],
+        win: [680, .18, .055], coin: [900, .08, .045], teleport: [520, .11, .04], ice: [760, .09, .025],
+        bounce: [620, .09, .04], fail: [120, .16, .05], stage: [740, .12, .04]
+      };
+      const [freq, dur, vol] = table[kind] || table.jump;
+      osc.type = kind === 'fall' || kind === 'crack' ? 'sawtooth' : 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      if (kind === 'win' || kind === 'coin' || kind === 'stage') osc.frequency.exponentialRampToValueAtTime(freq * 1.55, now + dur);
+      else osc.frequency.exponentialRampToValueAtTime(Math.max(40, freq * .68), now + dur);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(vol, now + .01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + dur + .02);
+    } catch (error) {
+      console.warn('sound failed', error);
+    }
+  }
+
+  function pauseGame() {
+    if (state.status !== 'playing') return;
+    state.status = 'paused';
+    state.pausedAt = performance.now();
+    pauseDesc.textContent = state.mode === 'endless'
+      ? `距离 ${state.endless?.distance || 0}m · ${getEndlessStage(state.endless?.distance || 0).name}`
+      : `第 ${state.level} 关 · ${state.elapsed.toFixed(1)}s`;
+    pauseOverlay.classList.remove('hide');
+  }
+
+  function resumeGame() {
+    if (state.status !== 'paused') return;
+    const now = performance.now();
+    const delta = now - (state.pausedAt || now);
+    state.startTime += delta;
+    state.lastFrame = now;
+    if (state.endless?.nextFloorEventAt) state.endless.nextFloorEventAt += delta;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = state.cells?.[r]?.[c];
+        if (!cell) continue;
+        if (cell.leavingAt) cell.leavingAt += delta;
+        if (cell.holdFallAt && Number.isFinite(cell.holdFallAt)) cell.holdFallAt += delta;
+      }
+    }
+    state.status = 'playing';
+    state.pausedAt = 0;
+    pauseOverlay.classList.add('hide');
+    showToast('继续');
+  }
+
+
+  function ensureExtraUi() {
+    addMenuToolButton('guideBtn', '规则', showGuideOverlay);
+    addMenuToolButton('statsBtn', '体检', showStatsOverlay);
+    addMenuToolButton('saveBtn', '存档', showSaveOverlay);
+    const pauseRow = pauseOverlay?.querySelector('.secondary-row');
+    if (pauseRow && !document.getElementById('pauseGuideBtn')) {
+      const guide = createToolButton('pauseGuideBtn', '规则', showGuideOverlay);
+      pauseRow.appendChild(guide);
+    }
+    createGuideOverlay();
+    createStatsOverlay();
+    createSaveOverlay();
+  }
+
+  function createToolButton(id, text, handler) {
+    const btn = document.createElement('button');
+    btn.id = id;
+    btn.type = 'button';
+    btn.className = 'small-btn';
+    btn.textContent = text;
+    btn.addEventListener('click', handler);
+    return btn;
+  }
+
+  function addMenuToolButton(id, text, handler) {
+    if (document.getElementById(id)) return;
+    const row = overlay?.querySelector('.secondary-row');
+    if (!row) return;
+    row.appendChild(createToolButton(id, text, handler));
+  }
+
+  function createExtraOverlay(id, title, bodyHtml) {
+    if (document.getElementById(id)) return document.getElementById(id);
+    const el = document.createElement('div');
+    el.className = 'overlay hide';
+    el.id = id;
+    el.innerHTML = `<div class="card select-card extra-tool-card"><button class="close-btn" type="button" aria-label="关闭">×</button><h1>${title}</h1>${bodyHtml}</div>`;
+    app.appendChild(el);
+    const close = () => el.classList.add('hide');
+    el.querySelector('.close-btn')?.addEventListener('click', close);
+    el.addEventListener('click', event => { if (event.target === el) close(); });
+    return el;
+  }
+
+  function createGuideOverlay() {
+    createExtraOverlay('guideOverlay', '规则图标', `
+      <p>遇到新格子时只记一句话。</p>
+      <div class="guide-grid">
+        <div class="guide-item"><strong>普通</strong>离开后下沉、裂开、坠落。</div>
+        <div class="guide-item"><strong>!! 快裂</strong>塌得更快，落地马上走。</div>
+        <div class="guide-item"><strong>≋ 冰面</strong>沿进入方向滑到尽头。</div>
+        <div class="guide-item"><strong>⇈ 弹跳</strong>按当前方向多跳一格。</div>
+        <div class="guide-item"><strong>✕ 陷阱</strong>踩到直接失败。</div>
+        <div class="guide-item"><strong>+ 安全格</strong>不会塌，可以短暂停顿。</div>
+        <div class="guide-item"><strong>A/B 传送</strong>互相传送，进门前想好下一步。</div>
+        <div class="guide-item"><strong>钥</strong>拿到钥匙后出口才会开启。</div>
+      </div>`);
+  }
+
+  function createStatsOverlay() {
+    createExtraOverlay('statsOverlay', '关卡体检', '<p>用于测试关卡是否合理。</p><div class="debug-list" id="statsList"></div><button class="primary-btn" id="recheckBtn" type="button">重新检测</button>');
+    document.getElementById('recheckBtn')?.addEventListener('click', renderStatsPanel);
+  }
+
+  function createSaveOverlay() {
+    createExtraOverlay('saveOverlay', '存档工具', `
+      <p>本地 HTML 存档只在当前浏览器里。测试前可以导出备份。</p>
+      <textarea class="save-box" id="saveBox" spellcheck="false"></textarea>
+      <div class="tool-row">
+        <button class="small-btn" id="copySaveBtn" type="button">复制导出</button>
+        <button class="small-btn" id="importSaveBtn" type="button">导入存档</button>
+        <button class="small-btn danger-btn" id="resetSaveBtn" type="button">清档</button>
+      </div>`);
+    document.getElementById('copySaveBtn')?.addEventListener('click', copySaveText);
+    document.getElementById('importSaveBtn')?.addEventListener('click', importSaveText);
+    document.getElementById('resetSaveBtn')?.addEventListener('click', resetSaveData);
+  }
+
+  function showGuideOverlay() {
+    document.getElementById('guideOverlay')?.classList.remove('hide');
+  }
+
+  function showStatsOverlay() {
+    renderStatsPanel();
+    document.getElementById('statsOverlay')?.classList.remove('hide');
+  }
+
+  function showSaveOverlay() {
+    const box = document.getElementById('saveBox');
+    if (box) box.value = JSON.stringify({ game: 'floor-collapse-escape', version: 4, exportedAt: Date.now(), save: state.save }, null, 2);
+    document.getElementById('saveOverlay')?.classList.remove('hide');
+  }
+
+  function renderStatsPanel() {
+    const list = document.getElementById('statsList');
+    if (!list) return;
+    const levelDef = LEVELS[state.level - 1];
+    const validation = validateLevel(levelDef, state.level);
+    const rows = levelDef?.map || [];
+    const flat = rows.join('');
+    const counts = {
+      '!!': [...flat].filter(ch => ch === 'F').length,
+      '≋': [...flat].filter(ch => ch === 'I').length,
+      '⇈': [...flat].filter(ch => ch === 'P').length,
+      '✕': [...flat].filter(ch => ch === 'X').length,
+      '+': [...flat].filter(ch => ch === 'O').length,
+      'A/B': Math.min([...flat].filter(ch => ch === 'A').length, [...flat].filter(ch => ch === 'B').length)
+    };
+    const specialText = Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join('，') || '无';
+    const objective = setupPreviewObjective(state.level, levelDef);
+    const items = [
+      ['当前关', state.mode === 'level' ? `第 ${state.level} 关` : state.mode === 'endless' ? '无尽模式' : '每日挑战'],
+      ['检测结果', validation.pass ? `可通关，最短 ${validation.steps} 步` : validation.reasons.join('；')],
+      ['目标', objective],
+      ['特殊格', specialText],
+      ['失败次数', String(state.save.fails[state.level] || 0)],
+      ['历史星级', state.save.stars[state.level] ? '★'.repeat(state.save.stars[state.level]) : '未通关'],
+      ['金币', `${state.save.coins || 0}`],
+      ['无尽最佳', `${state.save.endlessBest || 0}m / ${state.save.endlessBestScore || 0}分`]
+    ];
+    list.innerHTML = items.map(([k, v]) => `<div class="debug-item"><span>${k}</span><span>${v}</span></div>`).join('');
+  }
+
+  function setupPreviewObjective(levelNumber, levelDef) {
+    if (levelNumber === 9 || (levelNumber >= 10 && levelNumber % 5 === 0)) return '先拿钥匙';
+    if (levelNumber === 10 || (levelNumber >= 12 && levelNumber % 6 === 0)) return '踩安全格奖励';
+    if (levelNumber >= 8 && levelNumber % 4 === 0) return '限步通关';
+    if (levelNumber >= 14 && levelNumber % 7 === 0) return '无快裂奖励';
+    return '逃到出口';
+  }
+
+  async function copySaveText() {
+    const box = document.getElementById('saveBox');
+    if (!box) return;
+    box.select();
+    try {
+      await navigator.clipboard?.writeText(box.value);
+      showToast('已复制存档');
+    } catch (error) {
+      document.execCommand?.('copy');
+      showToast('已选中存档');
+    }
+  }
+
+  function importSaveText() {
+    const box = document.getElementById('saveBox');
+    if (!box?.value.trim()) return showToast('先粘贴存档');
+    try {
+      const parsed = JSON.parse(box.value);
+      state.save = migrateSave(parsed.save || parsed);
+      saveProgress();
+      refreshUI();
+      updateSoundButton();
+      document.getElementById('saveOverlay')?.classList.add('hide');
+      showToast('存档已导入');
+    } catch (error) {
+      showToast('存档格式错误');
+    }
+  }
+
+  function resetSaveData() {
+    if (!window.confirm('确定清空本地进度、金币和商店外观？')) return;
+    state.save = defaultSave();
+    state.level = 1;
+    saveProgress();
+    refreshUI();
+    document.getElementById('saveOverlay')?.classList.add('hide');
+    showMenu();
+    showToast('已清档');
+  }
+
+  function getLevelHintMove(levelNumber) {
+    const def = LEVELS[levelNumber - 1];
+    return def?.hintMove || '第一步建议向右，先走主路再处理特殊格。';
+  }
+
+  function showHintForCurrentLevel() {
+    const text = state.mode === 'daily'
+      ? '第一步建议向右，先走底部主通道。'
+      : getLevelHintMove(state.level);
+    showToast(text);
+    const target = findHintCell();
+    if (target) highlightCell(target.r, target.c);
+  }
+
+  function findHintCell() {
+    const dirs = [DIRS.right, DIRS.up, DIRS.left, DIRS.down];
+    for (const dir of dirs) {
+      const nr = state.player.r + dir.dy;
+      const nc = state.player.c + dir.dx;
+      if (!isBlocked(nr, nc)) return { r: nr, c: nc };
+    }
+    return null;
+  }
+
+  function highlightCell(r, c) {
+    const el = state.tileEls?.[r]?.[c];
+    if (!el) return;
+    el.classList.add('hint-cell');
+    window.setTimeout(() => el.classList.remove('hint-cell'), 1000);
+  }
+
+  function startEndless() {
+    state.mode = 'endless';
+    state.level = 1;
+    state.endless = {
+      distance: 0,
+      line: -1.2,
+      speed: .34,
+      seed: Date.now() % 100000,
+      safeColumn: 3,
+      previousSafeColumn: 3,
+      rowsGenerated: 0,
+      nextFloorEventAt: performance.now() + 620,
+      shiftHold: 0,
+      forcedSide: 1,
+      lastPortalAt: -99,
+      stageName: '',
+      score: 0,
+      combo: 0,
+      maxCombo: 0,
+      nearMisses: 0,
+      coinsEarned: 0,
+      lastMoveAt: 0
+    };
+    state.cells = makeEndlessInitial();
+    repairEndlessConnectivity();
+    state.player = { r: ROWS - 1, c: 3 };
+    state.goal = { r: 0, c: 3 };
+    state.startTime = performance.now();
+    state.lastFrame = performance.now();
+    state.elapsed = 0;
+    state.steps = 0;
+    state.moving = false;
+    state.queuedDir = null;
+    state.lastDir = DIRS.up;
+    state.lastPathKind = 'normal';
+    state.objective = null;
+    state.status = 'playing';
+    overlay.classList.add('hide');
+    resultOverlay.classList.add('hide');
+    levelSelectOverlay.classList.add('hide');
+    shopOverlay.classList.add('hide');
+    resultGrid.hidden = true;
+    levelSelectPanel.hidden = true;
+    ruleList.hidden = false;
+    hintBtn.hidden = true;
+    startBtn.hidden = false;
+    collapseLine.classList.add('show');
+    playerEl.classList.remove('flyout', 'danger');
+    playerEl.style.opacity = '';
+    enterCell(state.player.r, state.player.c);
+    updateAllTiles();
+    updatePlayerPosition();
+    updateHud();
+    updateNavButtons();
+    hintTitle.textContent = '无尽模式：向上逃';
+    hintText.textContent = '无尽模式会越来越快，路线会强制左右变道，并加入快裂、冰面、弹跳、陷阱、安全格和传送门。每排仍至少保留 3 格连续主路。';
+    showToast('无尽模式');
+  }
+
+  function makeEndlessInitial() {
+    const rows = [];
+    state.endless.safeColumn = 3;
+    state.endless.previousSafeColumn = 3;
+    state.endless.rowsGenerated = 0;
+    state.endless.nextFloorEventAt = performance.now() + 620;
+    state.endless.shiftHold = 0;
+    state.endless.forcedSide = 1;
+    state.endless.lastPortalAt = -99;
+    state.endless.stageName = '';
+    state.endless.score = 0;
+    state.endless.combo = 0;
+    state.endless.maxCombo = 0;
+    state.endless.nearMisses = 0;
+    state.endless.coinsEarned = 0;
+    state.endless.lastMoveAt = 0;
+    for (let i = 0; i < ROWS; i++) {
+      const row = makeEndlessRow(i);
+      rows.unshift(row.cells);
+    }
+    rows[ROWS - 1][3] = createCell('start', ROWS - 1, 3);
+    return rows.map((row, r) => row.map((cell, c) => ({ ...cell, r, c })));
+  }
+
+  function endlessNoise(distance, salt = 0) {
+    const value = Math.sin((distance + 1) * 12.9898 + state.endless.seed * .017 + salt * 78.233) * 43758.5453;
+    return value - Math.floor(value);
+  }
+
+  function clampColumn(column) {
+    return Math.max(0, Math.min(COLS - 1, column));
+  }
+
+  function contiguousCols(center, width = 3) {
+    const actualWidth = Math.max(3, Math.min(COLS, width));
+    let start = Math.round(center) - Math.floor(actualWidth / 2);
+    start = Math.max(0, Math.min(COLS - actualWidth, start));
+    return Array.from({ length: actualWidth }, (_, index) => start + index);
+  }
+
+  function chooseEndlessTargetCenter(distance) {
+    // 蛇形目标：中路只作为过渡，后续会强制左/右变道，避免一直站中间或只按上就能过。
+    if (distance < 5) return 3;
+    const phaseLength = distance < 26 ? 3 : distance < 58 ? 2 : 1;
+    const pattern = [3, 2, 1, 1, 2, 3, 4, 5, 5, 4];
+    const index = Math.floor((distance - 5) / phaseLength) % pattern.length;
+    return pattern[index];
+  }
+
+  function buildConnectedEndlessLanes(previousSafe, nextSafe, distance, difficulty) {
+    const previousCore = contiguousCols(previousSafe, 3);
+    const nextCore = contiguousCols(nextSafe, 3);
+    const openCols = new Set([...previousCore, ...nextCore]);
+
+    // 只生成连续主路：变道时用上一排核心和下一排核心连接，避免孤岛/死胡同。
+    const sorted = [...openCols].sort((a, b) => a - b);
+    const filled = [];
+    for (let c = sorted[0]; c <= sorted[sorted.length - 1]; c++) filled.push(c);
+
+    // 前几格稍宽给玩家适应；之后收窄，难度来自强制变道和普通模式格子机制。
+    if (distance < 6) {
+      const left = filled[0] - 1;
+      const right = filled[filled.length - 1] + 1;
+      if (left >= 0) filled.unshift(left);
+      if (right < COLS) filled.push(right);
+    }
+
+    return [...new Set(filled)].sort((a, b) => a - b);
+  }
+
+  function isStableEndlessCell(cell) {
+    return Boolean(cell && !isVoid(cell) && cell.phase !== 'gone' && !cell.leavingAt && cell.type !== 'trap');
+  }
+
+  function getStableColumns(rowIndex) {
+    const columns = [];
+    for (let c = 0; c < COLS; c++) {
+      if (isStableEndlessCell(getCell(rowIndex, c))) columns.push(c);
+    }
+    return columns;
+  }
+
+  function hasRun(columns, minRun = 3) {
+    let run = 0;
+    let prev = -99;
+    for (const c of columns) {
+      run = c === prev + 1 ? run + 1 : 1;
+      if (run >= minRun) return true;
+      prev = c;
+    }
+    return false;
+  }
+
+  function repairEndlessRow(rowIndex, center = state.endless?.safeColumn || 3) {
+    const core = contiguousCols(center, 3);
+    core.forEach(c => {
+      const cell = getCell(rowIndex, c);
+      if (!cell || isVoid(cell) || cell.phase === 'gone' || cell.leavingAt || cell.type === 'trap') {
+        state.cells[rowIndex][c] = createCell('normal', rowIndex, c);
+      } else {
+        cell.phase = 'idle';
+        cell.leavingAt = 0;
+        if (cell.type === 'trap') cell.type = 'normal';
+      }
+    });
+  }
+
+  function repairEndlessConnectivity() {
+    if (state.mode !== 'endless' || !state.endless || !state.cells.length) return;
+    const center = Math.max(1, Math.min(COLS - 2, state.endless.safeColumn || 3));
+    for (let r = 0; r < ROWS; r++) {
+      const stable = getStableColumns(r);
+      if (stable.length < 3 || !hasRun(stable, 3)) repairEndlessRow(r, center);
+    }
+    // 上下相邻两排至少有 2 格重叠，避免出现看得到但接不上的断层。
+    for (let r = 1; r < ROWS; r++) {
+      const above = new Set(getStableColumns(r - 1));
+      const here = getStableColumns(r);
+      const overlap = here.filter(c => above.has(c)).length;
+      if (overlap < 2) {
+        repairEndlessRow(r - 1, center);
+        repairEndlessRow(r, center);
+      }
+    }
+  }
+
+  function hasStableRunAfter(rowIndex, removedColumn = -1, minRun = 3) {
+    let run = 0;
+    for (let c = 0; c < COLS; c++) {
+      const cell = getCell(rowIndex, c);
+      const stable = c !== removedColumn && cell && !isVoid(cell) && cell.phase !== 'gone' && !cell.leavingAt && cell.type !== 'trap';
+      if (stable) {
+        run++;
+        if (run >= minRun) return true;
+      } else {
+        run = 0;
+      }
+    }
+    return false;
+  }
+
+  function countStableEndlessLanes(rowIndex) {
+    let count = 0;
+    for (let c = 0; c < COLS; c++) {
+      const cell = getCell(rowIndex, c);
+      if (!cell || isVoid(cell) || cell.phase === 'gone' || cell.leavingAt || cell.type === 'trap') continue;
+      count++;
+    }
+    return count;
+  }
+
+  function applyEndlessMechanics(cells, openColumns, coreColumns, distance, difficulty) {
+    const open = [...openColumns];
+    const core = [...coreColumns];
+    const side = open.filter(c => !coreColumns.has(c));
+    const spice = endlessNoise(distance, 8);
+
+    // 快裂：中后期高频出现，逼玩家不能停。
+    if (distance > 4) {
+      const count = Math.min(3, 1 + Math.floor(difficulty * 1.9));
+      for (let i = 0; i < count; i++) {
+        if (endlessNoise(distance, 30 + i) < .34 + difficulty * .22) {
+          const c = core[Math.floor(endlessNoise(distance, 40 + i) * core.length)];
+          if (cells[c]?.type === 'normal') cells[c] = createCell('fast', 0, c);
+        }
+      }
+    }
+
+    // 冰面：会改变移动节奏，通常放在主路核心里。
+    if (distance > 12 && spice > .42 && spice < .72 + difficulty * .08) {
+      const c = core[Math.floor(endlessNoise(distance, 51) * core.length)];
+      if (cells[c]?.type === 'normal') cells[c] = createCell('ice', 0, c);
+    }
+
+    // 弹跳：后期出现，放在连续路线上；用错方向会失误，但不会让整条主路断掉。
+    if (distance > 26 && endlessNoise(distance, 61) < .16 + difficulty * .06) {
+      const c = core[Math.floor(endlessNoise(distance, 62) * core.length)];
+      if (cells[c]?.type === 'normal') cells[c] = createCell('bounce', 0, c);
+    }
+
+    // 陷阱只放在额外侧格；即使出现陷阱，仍保留至少 3 格连续主路。
+    if (distance > 18 && side.length && endlessNoise(distance, 71) < .30 + difficulty * .14) {
+      const c = side[Math.floor(endlessNoise(distance, 72) * side.length)];
+      if (cells[c]?.type === 'normal') cells[c] = createCell('trap', 0, c);
+    }
+
+    // 安全格前期偶尔给喘息，后期极少。
+    if (distance < 20 && endlessNoise(distance, 81) < .08) {
+      const c = core[Math.floor(endlessNoise(distance, 82) * core.length)];
+      if (cells[c]?.type === 'normal') cells[c] = createCell('safe', 0, c);
+    }
+  }
+
+  function makeEndlessRow(distance) {
+    const difficulty = Math.min(1.8, distance / 62);
+    const previousSafe = Math.max(1, Math.min(COLS - 2, state.endless.safeColumn || 3));
+    const target = chooseEndlessTargetCenter(distance + Math.floor((state.endless.seed || 0) % 3));
+    let shift = Math.sign(target - previousSafe);
+
+    // 后期每隔一两排就要接一次横向变化；如果目标相同，偶尔主动摆动一列。
+    if (shift === 0 && distance > 20 && endlessNoise(distance, 2) < Math.min(.62, .18 + difficulty * .22)) {
+      shift = previousSafe <= 1 ? 1 : previousSafe >= COLS - 2 ? -1 : (endlessNoise(distance, 3) < .5 ? -1 : 1);
+    }
+
+    let nextSafe = Math.max(1, Math.min(COLS - 2, previousSafe + shift));
+    const openColumns = buildConnectedEndlessLanes(previousSafe, nextSafe, distance, difficulty);
+    const coreColumns = new Set(contiguousCols(nextSafe, 3));
+    const cells = Array.from({ length: COLS }, (_, c) => createCell('void', 0, c));
+    openColumns.forEach(c => { cells[c] = createCell('normal', 0, c); });
+
+    applyEndlessMechanics(cells, openColumns, coreColumns, distance, difficulty);
+
+    state.endless.previousSafeColumn = previousSafe;
+    state.endless.safeColumn = nextSafe;
+    state.endless.rowsGenerated = Math.max(state.endless.rowsGenerated, distance);
+    return { cells, safeColumn: nextSafe };
+  }
+
+  function clearEndlessPortals() {
+    if (!state.cells?.length) return;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const cell = getCell(r, c);
+        if (cell && (cell.type === 'teleA' || cell.type === 'teleB')) {
+          cell.type = 'normal';
+          cell.phase = 'idle';
+          cell.leavingAt = 0;
+          updateTile(r, c);
+        }
+      }
+    }
+  }
+
+  function maybePlaceEndlessPortalPair() {
+    if (!state.endless || state.endless.distance < 42) return;
+    if (state.endless.distance - (state.endless.lastPortalAt || -99) < 18) return;
+    if (endlessNoise(state.endless.distance, 91) > .22) return;
+
+    clearEndlessPortals();
+    const nearRow = Math.max(1, state.player.r - 2);
+    const farRow = Math.max(0, state.player.r - 5);
+    const nearCols = getStableColumns(nearRow);
+    const farSet = new Set(getStableColumns(farRow));
+    const candidates = nearCols.filter(c => farSet.has(c));
+    if (!candidates.length) return;
+
+    const c = candidates[Math.floor(endlessNoise(state.endless.distance, 92) * candidates.length)];
+    const a = getCell(nearRow, c);
+    const b = getCell(farRow, c);
+    if (!a || !b || a.type === 'trap' || b.type === 'trap') return;
+    a.type = 'teleA';
+    b.type = 'teleB';
+    a.phase = b.phase = 'idle';
+    a.leavingAt = b.leavingAt = 0;
+    state.endless.lastPortalAt = state.endless.distance;
+    updateTile(nearRow, c);
+    updateTile(farRow, c);
+  }
+
+  function updateEndless(now) {
+    if (!state.endless || state.status !== 'playing') return;
+    const dt = Math.min((now - state.lastFrame) / 1000, .05);
+    state.lastFrame = now;
+
+    // 难度持续递增：崩塌线加速更明显，后期不横移会被追上。
+    state.endless.speed = Math.min(1.85, .32 + state.endless.distance * .018);
+    state.endless.line += state.endless.speed * dt;
+    collapseLine.style.bottom = `${Math.min(92, state.endless.line * 8)}%`;
+    updateEndlessStageNotice();
+
+    if (now >= state.endless.nextFloorEventAt) {
+      mutateEndlessFloor(now);
+      const interval = Math.max(220, 720 - state.endless.distance * 8);
+      state.endless.nextFloorEventAt = now + interval;
+    }
+
+    const dangerRow = ROWS - 1 - Math.floor(state.endless.line);
+    if (dangerRow >= 0 && state.player.r >= dangerRow) gameOver('stay');
+  }
+
+  function mutateEndlessFloor(now) {
+    if (!state.endless || state.status !== 'playing') return;
+    const difficulty = Math.min(1.8, state.endless.distance / 62);
+    const intensity = Math.min(6, 2 + Math.floor(state.endless.distance / 16));
+    let changed = 0;
+
+    for (let attempt = 0; attempt < 56 && changed < intensity; attempt++) {
+      const rowOffset = 1 + Math.floor(endlessNoise(state.endless.distance + attempt, 21) * 6);
+      const r = Math.max(0, state.player.r - rowOffset);
+      const stableColumns = getStableColumns(r);
+      if (stableColumns.length < 3 || !hasRun(stableColumns, 3)) {
+        repairEndlessRow(r, state.endless.safeColumn);
+        continue;
+      }
+
+      const c = stableColumns[Math.floor(endlessNoise(state.endless.distance + attempt, 22) * stableColumns.length)];
+      const cell = getCell(r, c);
+      if (!cell || (r === state.player.r && c === state.player.c)) continue;
+      if (cell.type === 'goal' || cell.type === 'safe' || cell.type === 'trap' || cell.type === 'teleA' || cell.type === 'teleB') continue;
+
+      const roll = endlessNoise(state.endless.distance + attempt, 23);
+      // 变动只切换普通模式格子，不删主路；后期快裂/冰面/弹跳占比更高。
+      if (roll < .50 + difficulty * .10) cell.type = 'fast';
+      else if (roll < .78) cell.type = 'ice';
+      else if (roll < .88 && state.endless.distance > 30) cell.type = 'bounce';
+      else cell.type = 'normal';
+      cell.phase = 'idle';
+      cell.leavingAt = 0;
+      cell.holdFallAt = 0;
+      updateTile(r, c);
+      changed++;
+    }
+
+    maybePlaceEndlessPortalPair();
+    repairEndlessConnectivity();
+    updateAllTiles();
+    if (changed) showToast('地板变动');
+  }
+
+  function advanceEndlessIfNeeded() {
+    if (state.mode !== 'endless' || !state.endless) return;
+    let rolled = 0;
+    while (state.player.r <= 3) {
+      const next = makeEndlessRow(state.endless.rowsGenerated + 1);
+      state.cells.pop();
+      state.cells.unshift(next.cells);
+      state.player.r += 1;
+      state.endless.distance += 1;
+      rolled++;
+    }
+    if (!rolled) return;
+    state.cells = state.cells.map((row, r) => row.map((cell, c) => ({ ...cell, r, c })));
+    repairEndlessConnectivity();
+    state.endless.line = Math.max(-1.2, state.endless.line - rolled * .48);
+    if (state.endless) {
+      const stageIndex = ENDLESS_STAGES.findIndex(item => item.name === getEndlessStage(state.endless.distance).name);
+      state.endless.score = (state.endless.score || 0) + rolled * (10 + Math.max(0, stageIndex) * 3);
+    }
+    updateAllTiles();
+    updatePlayerPosition();
+    if (state.endless.distance % 10 === 0) showToast(`距离 ${state.endless.distance}m · ${getEndlessStage(state.endless.distance).name}`);
+  }
+
+  function endlessGameOver(reasonKey) {
+    state.status = 'lost';
+    state.elapsed = (performance.now() - state.startTime) / 1000;
+    state.moving = false;
+    state.queuedDir = null;
+    const distance = state.endless?.distance || 0;
+    const score = calculateEndlessScore();
+    const rank = getEndlessRank(distance);
+    const oldBestDistance = state.save.endlessBest || 0;
+    const oldBestScore = state.save.endlessBestScore || 0;
+    if (distance > oldBestDistance) state.save.endlessBest = distance;
+    if (score > oldBestScore) state.save.endlessBestScore = score;
+    const coinReward = getEndlessCoinReward(distance, score, score > oldBestScore);
+    addCoins(coinReward);
+    saveProgress();
+    refreshUI();
+    resetResultVisuals();
+    showRewardPop(`+${coinReward} 金币`);
+    resultTitle.textContent = '无尽结束';
+    resultDesc.innerHTML = `<span class="endless-rank">${rank}</span> · 分数 ${score} · ${score > oldBestScore ? '新纪录' : `差 ${Math.max(0, oldBestScore - score)} 分破纪录`}`;
+    resultDistanceText.textContent = `${distance}m`;
+    resultTimeText.textContent = `${state.elapsed.toFixed(1)}s`;
+    resultStepsText.textContent = String(state.steps);
+    resultBestTimeText.textContent = `${state.save.endlessBestScore}`;
+    resultBestStepsText.textContent = `${state.save.endlessBest}m`;
+    resultHintBtn.hidden = true;
+    resultActions.textContent = '';
+    resultActions.appendChild(createResultButton('再来一局', startEndless, true));
+    resultActions.appendChild(createResultButton('选关', showLevelSelect));
+    resultActions.appendChild(createResultButton('商城', showShop));
+    resultActions.appendChild(createResultButton('返回关卡模式', () => {
+      closeResultOverlay();
+      showMenu();
+    }));
+    resultOverlay.classList.remove('hide');
+  }
+
+  function calculateEndlessScore() {
+    const e = state.endless || {};
+    const distance = Number(e.distance) || 0;
+    const base = distance * 10;
+    const combo = (Number(e.maxCombo) || 0) * 6;
+    const near = (Number(e.nearMisses) || 0) * 12;
+    const liveScore = Number(e.score) || 0;
+    const slowPenalty = Math.max(0, Math.floor((state.elapsed || 0) / 18) - Math.floor(distance / 20)) * 3;
+    return Math.max(0, Math.floor(base + combo + near + liveScore - slowPenalty));
+  }
+
+  function getEndlessCoinReward(distance, score, isRecord) {
+    const rankBase = distance >= 600 ? 70 : distance >= 300 ? 46 : distance >= 150 ? 30 : distance >= 50 ? 18 : 8;
+    const scoreBonus = Math.min(28, Math.floor(score / 180));
+    const recordBonus = isRecord ? 12 : 0;
+    return Math.max(5, rankBase + scoreBonus + recordBonus);
+  }
+
+  function distanceToGoal() {
+    const queue = [{ r: state.player.r, c: state.player.c, d: 0 }];
+    const seen = new Set([`${state.player.r},${state.player.c}`]);
+    while (queue.length) {
+      const current = queue.shift();
+      if (current.r === state.goal.r && current.c === state.goal.c) return current.d;
+      for (const dir of Object.values(DIRS)) {
+        const nr = current.r + dir.dy;
+        const nc = current.c + dir.dx;
+        const key = `${nr},${nc}`;
+        if (seen.has(key) || isBlocked(nr, nc)) continue;
+        seen.add(key);
+        queue.push({ r: nr, c: nc, d: current.d + 1 });
+      }
+    }
+    return Math.abs(state.player.r - state.goal.r) + Math.abs(state.player.c - state.goal.c);
+  }
+
+  function updateHud() {
+    if (state.status === 'playing') state.elapsed = (performance.now() - state.startTime) / 1000;
+    levelText.textContent = state.mode === 'endless' ? '无尽' : state.mode === 'daily' ? '每日' : `${state.level} / ${MAX_LEVEL}`;
+    scoreText.textContent = state.mode === 'endless'
+      ? `${state.endless?.distance || 0}m · ${state.endless?.score || 0}分 · ${state.elapsed.toFixed(1)}s`
+      : state.mode === 'daily'
+        ? `${state.elapsed.toFixed(1)}s · ${state.steps} · 死亡 ${state.daily?.deaths || 0}`
+        : `${state.elapsed.toFixed(1)}s · ${state.steps}`;
+  }
+
+  function updateHints() {
+    if (state.mode === 'endless') {
+      const stage = getEndlessStage(state.endless?.distance || 0);
+      hintTitle.textContent = `无尽模式：${stage.name}`;
+      hintText.textContent = '平台会左右变道，越跑越快。贴边逃生和连续移动会加分。';
+      renderObjectiveText();
+      return;
+    }
+    if (state.mode === 'daily') {
+      hintTitle.textContent = `每日挑战：${todayKey()}`;
+      hintText.textContent = '同一天所有玩家地图一致。每日成绩独立保存，不影响主线解锁。';
+      return;
+    }
+    const def = LEVELS[state.level - 1];
+    hintTitle.textContent = `第 ${state.level} 关：${def.title}`;
+    hintText.textContent = def.hint;
+    renderObjectiveText();
+  }
+
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 520);
+  }
+
+  function buildDots() {
+    levelDots.textContent = '';
+    for (let i = 1; i <= MAX_LEVEL; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `dot${state.save.completed[i] ? ' done' : ''}${i === state.level ? ' current' : ''}`;
+      dot.setAttribute('aria-label', `第 ${i} 关`);
+      dot.addEventListener('click', () => isLevelUnlocked(i) ? startGame(i) : showToast('先通关当前关'));
+      levelDots.appendChild(dot);
+    }
+  }
+
+  function showLevelSelect() {
+    state.returnStatus = state.status;
+    state.status = 'select';
+    resultOverlay.classList.add('hide');
+    overlay.classList.add('hide');
+    levelSelectDesc.textContent = `每章 20 关。前 ${FREE_LEVELS} 关自由切换；第 21 关以后按通关进度解锁。`;
+    buildLevelSelectPanel();
+    levelSelectOverlay.classList.remove('hide');
+  }
+
+  function buildLevelSelectPanel() {
+    levelSelectList.textContent = '';
+    CHAPTERS.forEach((chapter, index) => {
+      const chapterEl = document.createElement('section');
+      chapterEl.className = 'chapter';
+      const title = document.createElement('h2');
+      title.textContent = chapter.title;
+      const desc = document.createElement('p');
+      desc.textContent = chapter.desc;
+      const grid = document.createElement('div');
+      grid.className = 'level-grid';
+      const start = index * CHAPTER_SIZE + 1;
+      const end = Math.min(MAX_LEVEL, start + CHAPTER_SIZE - 1);
+      for (let levelNumber = start; levelNumber <= end; levelNumber++) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        const done = Boolean(state.save.completed[levelNumber]);
+        const current = levelNumber === state.level && state.mode === 'level';
+        const locked = !isLevelUnlocked(levelNumber);
+        button.className = `level-card${done ? ' done' : ''}${current ? ' current' : ''}${locked ? ' locked' : ''}`;
+        button.disabled = locked;
+        const num = document.createElement('strong');
+        num.textContent = String(levelNumber);
+        const meta = document.createElement('span');
+        if (locked) meta.textContent = '锁定';
+        else if (current) meta.textContent = '当前';
+        else if (done) meta.textContent = `已通关 ${'★'.repeat(Number(state.save.stars[levelNumber]) || 1)}`;
+        else meta.textContent = levelNumber <= FREE_LEVELS ? '自由' : '解锁';
+        button.append(num, meta);
+        button.addEventListener('click', () => {
+          if (locked) return;
+          levelSelectOverlay.classList.add('hide');
+          startGame(levelNumber);
+        });
+        grid.appendChild(button);
+      }
+      chapterEl.append(title, desc, grid);
+      levelSelectList.appendChild(chapterEl);
+    });
+  }
+
+  function tick(now) {
+    if (state.status === 'playing') {
+      updateCollapsePhases(now);
+      updateHud();
+    }
+    state.rafId = requestAnimationFrame(tick);
+  }
+
+  function bindInput() {
+    document.addEventListener('keydown', event => {
+      const key = event.key.toLowerCase();
+      if (key === 'escape') {
+        closeTopOverlay();
+        return;
+      }
+      if (KEY_TO_DIR[key]) {
+        event.preventDefault();
+        requestMove(KEY_TO_DIR[key]);
+      }
+      if (key === 'r') startGame(state.level);
+      if (key === 'p') pauseGame();
+    });
+
+    document.querySelectorAll('[data-dir]').forEach(btn => {
+      const [dx, dy] = btn.dataset.dir.split(',').map(Number);
+      const dir = Object.values(DIRS).find(item => item.dx === dx && item.dy === dy);
+      btn.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        btn.setPointerCapture?.(event.pointerId);
+        btn.classList.add('pressed');
+        requestMove(dir);
+      });
+      const release = () => btn.classList.remove('pressed');
+      btn.addEventListener('pointerup', release);
+      btn.addEventListener('pointercancel', release);
+      btn.addEventListener('pointerleave', release);
+    });
+
+    boardInner.addEventListener('pointerdown', event => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      boardInner.setPointerCapture?.(event.pointerId);
+      state.pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
+    });
+    boardInner.addEventListener('pointermove', event => handlePointerMove(event));
+    boardInner.addEventListener('pointerup', event => finishPointer(event));
+    boardInner.addEventListener('pointercancel', () => { state.pointer = null; });
+    window.addEventListener('blur', () => { state.pointer = null; });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) { state.pointer = null; if (state.status === 'playing') pauseGame(); }
+    });
+
+    menuCloseBtn.onclick = closeMenuOverlay;
+    resultCloseBtn.onclick = closeResultOverlay;
+    levelSelectCloseBtn.onclick = closeLevelSelectOverlay;
+    shopCloseBtn.onclick = closeShopOverlay;
+    pauseBtn.onclick = pauseGame;
+    soundBtn.onclick = toggleSound;
+    resumeBtn.onclick = resumeGame;
+    pauseRestartBtn.onclick = () => { pauseOverlay.classList.add('hide'); state.status = 'playing'; state.mode === 'endless' ? startEndless() : startGame(state.level); };
+    pauseMenuBtn.onclick = () => { pauseOverlay.classList.add('hide'); showMenu(); };
+    updateSoundButton();
+    bindOverlayClose(overlay, closeMenuOverlay);
+    bindOverlayClose(resultOverlay, closeResultOverlay);
+    bindOverlayClose(levelSelectOverlay, closeLevelSelectOverlay);
+    bindOverlayClose(shopOverlay, closeShopOverlay);
+
+    startBtn.onclick = () => startGame(state.level);
+    restartBtn.onclick = () => state.mode === 'endless' ? startEndless() : startGame(state.level);
+    selectBtn.onclick = showLevelSelect;
+    menuSelectBtn.onclick = showLevelSelect;
+    dailyBtn.onclick = startDailyChallenge;
+    shopBtn.onclick = showShop;
+    prevBtn.onclick = () => state.mode === 'level' ? startGame(state.level - 1) : showToast('无尽模式没有上一关');
+    nextBtn.onclick = () => {
+      if (state.mode !== 'level') return showToast('无尽模式没有下一关');
+      if (state.level >= MAX_LEVEL) return showToast('已到最后一关');
+      if (!isLevelUnlocked(state.level + 1)) return showToast('先通关当前关');
+      startGame(state.level + 1);
+    };
+    jumpLevelBtn.onclick = () => startGame(10);
+    lastLevelBtn.onclick = () => startGame(60);
+    endlessBtn.onclick = startEndless;
+    window.addEventListener('resize', updatePlayerPosition);
+  }
+
+  function handlePointerMove(event) {
+    const start = state.pointer;
+    if (!start || start.id !== event.pointerId || state.status !== 'playing') return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
+    if (Math.max(adx, ady) < 34) return;
+    const dir = adx > ady ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up);
+    showSwipeFeedback(dir);
+    requestMove(dir);
+    state.pointer.x = event.clientX;
+    state.pointer.y = event.clientY;
+  }
+
+  function finishPointer(event) {
+    const start = state.pointer;
+    if (!start || start.id !== event.pointerId) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    const adx = Math.abs(dx);
+    const ady = Math.abs(dy);
+    state.pointer = null;
+    if (Math.max(adx, ady) < 14) return;
+    const dir = adx > ady ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up);
+    showSwipeFeedback(dir);
+    requestMove(dir);
+  }
+
+  function showMenu() {
+    state.status = 'menu';
+    state.mode = 'level';
+    state.objective = null;
+    pauseOverlay.classList.add('hide');
+    const def = LEVELS[state.level - 1];
+    overlayTitle.textContent = '地板塌了';
+    overlayDesc.textContent = `当前共有 ${MAX_LEVEL} 关。前 ${FREE_LEVELS} 关自由切换，第 21 关以后按通关进度解锁；也可以进入基础无尽模式。`;
+    resultOverlay.classList.add('hide');
+    levelSelectOverlay.classList.add('hide');
+    resultGrid.hidden = true;
+    levelSelectPanel.hidden = true;
+    ruleList.hidden = false;
+    hintBtn.hidden = true;
+    startBtn.hidden = false;
+    startBtn.textContent = '开始逃生';
+    startBtn.onclick = () => startGame(state.level);
+    hintTitle.textContent = `第 ${state.level} 关：${def.title}`;
+    hintText.textContent = def.hint;
+    updateNavButtons();
+    overlay.classList.remove('hide');
+  }
+
+  function validateAllLevels() {
+    const results = LEVELS.map((levelDef, index) => validateLevel(levelDef, index + 1));
+    const failCount = results.filter(item => !item.pass).length;
+    const dailyResult = validateLevel(makeDailyChallenge(todayKey()), `每日挑战 ${todayKey()}`);
+    console.group('《地板塌了》关卡检测');
+    console.info(`当前共有 ${LEVELS.length} 关。前 ${FREE_LEVELS} 关自由切换：是。第 21 关以后按通关解锁：是。无尽模式基础版本：已实现。每日挑战：${dailyResult.pass ? 'PASS' : 'FAIL'}。`);
+    results.forEach(item => {
+      const status = item.pass ? 'PASS' : 'FAIL';
+      const detail = item.pass ? `最短路径 ${item.steps} 步` : item.reasons.join('；');
+      console[item.pass ? 'log' : 'error'](`第 ${item.level} 关 ${status}：${detail}`);
+    });
+    if (!dailyResult.pass) console.error(`每日挑战 FAIL：${dailyResult.reasons.join('；')}`);
+    else console.log(`每日挑战 PASS：最短路径 ${dailyResult.steps} 步`);
+    console.info(failCount ? `检测完成：${failCount} 关失败。` : '检测完成：全部主线关卡 PASS。');
+    console.groupEnd();
+    return { results, dailyResult };
+  }
+
+  function validateLevel(levelDef, levelNumber) {
+    const rows = levelDef.map || [];
+    const reasons = [];
+    if (rows.length !== ROWS) reasons.push(`地图必须是 ${ROWS} 行`);
+    if (rows.some(row => row.length !== COLS)) reasons.push(`每行必须是 ${COLS} 列`);
+    const flat = rows.join('');
+    const startCount = [...flat].filter(ch => ch === 'S').length;
+    const goalCount = [...flat].filter(ch => ch === 'G').length;
+    const teleACount = [...flat].filter(ch => ch === 'A').length;
+    const teleBCount = [...flat].filter(ch => ch === 'B').length;
+    if (startCount !== 1) reasons.push(`S 起点数量必须为 1，当前 ${startCount}`);
+    if (goalCount !== 1) reasons.push(`G 出口数量必须为 1，当前 ${goalCount}`);
+    if (teleACount !== teleBCount) reasons.push(`传送格 A/B 必须成对，当前 A=${teleACount}, B=${teleBCount}`);
+    if (teleACount > 1 || teleBCount > 1) reasons.push('当前解算器只支持每关一对 A/B 传送格');
+    if (reasons.length) return { level: levelNumber, pass: false, reasons, steps: null };
+
+    const shortest = findShortestStaticPath(rows);
+    if (!shortest) reasons.push('起点到出口不存在可达路线');
+    const specialIssues = validateSpecialTiles(rows);
+    reasons.push(...specialIssues);
+    return { level: levelNumber, pass: reasons.length === 0, reasons, steps: shortest };
+  }
+
+  function validateSpecialTiles(rows) {
+    const issues = [];
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const ch = rows[r][c];
+        if (ch !== 'P' && ch !== 'I') continue;
+        const hasSafeMove = Object.values(DIRS).some(dir => {
+          const result = resolveStaticMove(rows, { r: r - dir.dy, c: c - dir.dx }, dir);
+          return result && !result.fail && result.to && rows[result.to.r]?.[result.to.c] !== '#';
+        });
+        if (!hasSafeMove) {
+          issues.push(ch === 'P'
+            ? `弹跳格 (${r},${c}) 没有任何安全落点`
+            : `冰面 (${r},${c}) 没有任何安全滑行终点`);
+        }
+      }
+    }
+    return issues;
+  }
+
+  function findShortestStaticPath(rows) {
+    let start = null;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) if (rows[r][c] === 'S') start = { r, c };
+    }
+    const queue = [{ ...start, d: 0 }];
+    const seen = new Set([`${start.r},${start.c}`]);
+    while (queue.length) {
+      const cur = queue.shift();
+      if (rows[cur.r][cur.c] === 'G') return cur.d;
+      for (const dir of Object.values(DIRS)) {
+        const moveResult = resolveStaticMove(rows, cur, dir);
+        if (!moveResult || moveResult.fail || !moveResult.to) continue;
+        const key = `${moveResult.to.r},${moveResult.to.c}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        queue.push({ ...moveResult.to, d: cur.d + 1 });
+      }
+    }
+    return null;
+  }
+
+  function resolveStaticMove(rows, from, dir) {
+    if (!from || !inMap(from.r, from.c) || rows[from.r][from.c] === '#') return null;
+    let r = from.r + dir.dy;
+    let c = from.c + dir.dx;
+    let guard = 0;
+    if (!inMap(r, c) || rows[r][c] === '#') return null;
+    while (guard++ < 18) {
+      const ch = rows[r][c];
+      if (ch === 'X') return { fail: 'trap', to: { r, c } };
+      if (ch === 'A' || ch === 'B') {
+        const pair = findStaticChar(rows, ch === 'A' ? 'B' : 'A');
+        return pair ? { to: pair } : { fail: 'teleport' };
+      }
+      if (ch === 'P') {
+        const jr = r + dir.dy;
+        const jc = c + dir.dx;
+        if (!inMap(jr, jc) || rows[jr][jc] === '#') return { fail: 'bounceVoid', to: { r, c } };
+        if (rows[jr][jc] === 'X') return { fail: 'trap', to: { r: jr, c: jc } };
+        return { to: { r: jr, c: jc } };
+      }
+      if (ch === 'I') {
+        const sr = r + dir.dy;
+        const sc = c + dir.dx;
+        if (inMap(sr, sc) && rows[sr][sc] !== '#') {
+          r = sr;
+          c = sc;
+          continue;
+        }
+      }
+      return { to: { r, c } };
+    }
+    return { fail: 'loop' };
+  }
+
+  function findStaticChar(rows, char) {
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) if (rows[r][c] === char) return { r, c };
+    }
+    return null;
+  }
+
+  function installViewportFix() {
+    const root = document.documentElement;
+    const update = () => {
+      const viewport = window.visualViewport;
+      const height = Math.round(viewport?.height || window.innerHeight || document.documentElement.clientHeight || 0);
+      const offsetTop = Math.round(viewport?.offsetTop || 0);
+      if (height > 0) root.style.setProperty('--app-height', `${height}px`);
+      root.style.setProperty('--browser-top-gap', `${Math.min(72, Math.max(0, offsetTop))}px`);
+      window.setTimeout(updatePlayerPosition, 0);
+    };
+    update();
+    window.addEventListener('resize', update, { passive: true });
+    window.addEventListener('orientationchange', () => window.setTimeout(update, 180), { passive: true });
+    window.visualViewport?.addEventListener('resize', update, { passive: true });
+    window.visualViewport?.addEventListener('scroll', update, { passive: true });
+  }
+
+  function init() {
+    installViewportFix();
+    initGridDom();
+    ensureExtraUi();
+    bindInput();
+    validateAllLevels();
+    const parsed = parseLevel(state.level);
+    state.cells = parsed.cells;
+    state.player = parsed.start || state.player;
+    state.goal = parsed.goal || state.goal;
+    updateAllTiles();
+    updatePlayerPosition();
+    refreshUI();
+    updateSoundButton();
+    showMenu();
+    state.rafId = requestAnimationFrame(tick);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
