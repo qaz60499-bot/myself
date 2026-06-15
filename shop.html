@@ -1280,132 +1280,6 @@
     .tool-row { grid-template-columns: 1fr; }
   }
 
-
-
-  /* 手机端主操作回归方向键：方向键进入底部正常布局，不遮挡棋盘；滑动只做辅助 */
-  .player { will-change: transform, filter; }
-  .tile { backface-visibility: hidden; }
-
-  @media (max-width: 520px), (pointer: coarse) {
-    .bottom {
-      flex: 0 0 auto !important;
-      display: grid !important;
-      grid-template-columns: minmax(0, 1fr) auto !important;
-      gap: 8px !important;
-      align-items: end !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      min-height: 0 !important;
-      position: relative !important;
-      z-index: 6 !important;
-    }
-    .hint {
-      min-height: 48px !important;
-      max-height: 58px !important;
-      padding: 7px 9px !important;
-      border-radius: 12px !important;
-      overflow: hidden !important;
-    }
-    .hint strong {
-      font-size: 11px !important;
-      line-height: 1.15 !important;
-      margin-bottom: 2px !important;
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-    }
-    .hint p {
-      display: -webkit-box !important;
-      -webkit-line-clamp: 2 !important;
-      -webkit-box-orient: vertical !important;
-      white-space: normal !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      font-size: 10px !important;
-      line-height: 1.18 !important;
-    }
-    .pad {
-      display: grid !important;
-      position: relative !important;
-      width: 128px !important;
-      grid-template-columns: repeat(3, 40px) !important;
-      grid-template-rows: repeat(3, 40px) !important;
-      gap: 4px !important;
-      align-self: end !important;
-      justify-self: end !important;
-      opacity: .66 !important;
-      transform: translateZ(0) scale(.98) !important;
-      transform-origin: bottom right !important;
-      transition: opacity .12s ease, transform .12s ease !important;
-      z-index: 12 !important;
-      touch-action: none !important;
-      pointer-events: auto !important;
-    }
-    .pad.active,
-    .pad:active {
-      opacity: .96 !important;
-      transform: translateZ(0) scale(1.02) !important;
-    }
-    .pad button {
-      width: 40px !important;
-      height: 40px !important;
-      min-width: 40px !important;
-      min-height: 40px !important;
-      padding: 0 !important;
-      border-radius: 12px !important;
-      font-size: 19px !important;
-      line-height: 1 !important;
-      touch-action: none !important;
-    }
-    .board-frame {
-      padding: 8px !important;
-      border-radius: 20px !important;
-    }
-    .stat, .title, .hint, .card {
-      backdrop-filter: none !important;
-    }
-    .tile {
-      transition: transform .12s ease, opacity .12s ease, filter .12s ease, box-shadow .12s ease !important;
-    }
-  }
-
-  @media (max-width: 380px), (pointer: coarse) and (max-width: 380px) {
-    .bottom { gap: 6px !important; }
-    .pad {
-      width: 119px !important;
-      grid-template-columns: repeat(3, 37px) !important;
-      grid-template-rows: repeat(3, 37px) !important;
-      gap: 4px !important;
-    }
-    .pad button {
-      width: 37px !important;
-      height: 37px !important;
-      min-width: 37px !important;
-      min-height: 37px !important;
-      font-size: 18px !important;
-    }
-    .hint { min-height: 42px !important; max-height: 50px !important; }
-    .hint p { -webkit-line-clamp: 1 !important; }
-  }
-
-  @media (max-height: 700px) and (pointer: coarse) {
-    .pad {
-      width: 116px !important;
-      grid-template-columns: repeat(3, 36px) !important;
-      grid-template-rows: repeat(3, 36px) !important;
-      gap: 4px !important;
-    }
-    .pad button {
-      width: 36px !important;
-      height: 36px !important;
-      min-width: 36px !important;
-      min-height: 36px !important;
-      font-size: 17px !important;
-    }
-    .hint { min-height: 38px !important; max-height: 44px !important; padding: 6px 8px !important; }
-    .hint p { display: none !important; }
-  }
-
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: .001ms !important;
@@ -1414,304 +1288,6 @@
       scroll-behavior: auto !important;
     }
   }
-
-
-  /* 手机端防遮挡修复：控制按钮进入正常布局，棋盘按剩余高度自适应，不再互相覆盖 */
-  @media (max-width: 520px), (pointer: coarse) {
-    html, body {
-      height: var(--app-height, 100dvh);
-      overflow: hidden;
-    }
-    .app {
-      width: 100vw !important;
-      height: var(--app-height, 100dvh) !important;
-      min-height: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 5px !important;
-      padding-top: calc(8px + var(--safe-top, 0px) + var(--browser-top-gap, 0px)) !important;
-      padding-bottom: calc(8px + var(--safe-bottom, 0px)) !important;
-      padding-left: max(10px, env(safe-area-inset-left)) !important;
-      padding-right: max(10px, env(safe-area-inset-right)) !important;
-      overflow: hidden !important;
-    }
-    .topbar {
-      flex: 0 0 auto !important;
-      min-height: 42px !important;
-      gap: 6px !important;
-      position: relative !important;
-      z-index: 4 !important;
-    }
-    .stat {
-      border-radius: 11px !important;
-      padding: 6px 7px !important;
-    }
-    .label { font-size: 10px !important; }
-    .value { font-size: 15px !important; }
-    .title {
-      min-width: 108px !important;
-      border-radius: 12px !important;
-      padding: 6px 8px !important;
-    }
-    .title strong { font-size: 16px !important; }
-    .title span { display: none !important; }
-    .level-dots { display: none !important; }
-
-    .quick-actions,
-    .actions {
-      position: static !important;
-      inset: auto !important;
-      width: 100% !important;
-      flex: 0 0 auto !important;
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      gap: 6px !important;
-      pointer-events: auto !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      z-index: 5 !important;
-    }
-    .actions #prevBtn,
-    .actions #nextBtn {
-      display: none !important;
-    }
-    .actions #restartBtn,
-    .actions #selectBtn,
-    .quick-actions button {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      min-height: 30px !important;
-      min-width: 58px !important;
-      padding: 5px 9px !important;
-      font-size: 11px !important;
-      line-height: 1 !important;
-      border-radius: 999px !important;
-      opacity: .9 !important;
-      backdrop-filter: blur(10px) !important;
-    }
-
-    .board-wrap {
-      flex: 1 1 auto !important;
-      min-height: 0 !important;
-      width: 100% !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 0 !important;
-      overflow: hidden !important;
-    }
-    .board-frame {
-      height: 100% !important;
-      width: auto !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
-      aspect-ratio: 7 / 11 !important;
-      padding: 9px !important;
-      border-radius: 21px !important;
-      flex: 0 1 auto !important;
-    }
-    .board-inner { border-radius: 15px !important; }
-
-    .bottom {
-      flex: 0 0 auto !important;
-      display: grid !important;
-      grid-template-columns: 1fr !important;
-      gap: 0 !important;
-      align-items: stretch !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      min-height: 0 !important;
-      position: relative !important;
-      z-index: 4 !important;
-    }
-    .hint {
-      min-height: 34px !important;
-      max-height: 42px !important;
-      padding: 6px 9px !important;
-      border-radius: 12px !important;
-      overflow: hidden !important;
-    }
-    .hint strong {
-      font-size: 11px !important;
-      line-height: 1.1 !important;
-      margin-bottom: 1px !important;
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-    }
-    .hint p {
-      display: block !important;
-      font-size: 10px !important;
-      line-height: 1.15 !important;
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      -webkit-line-clamp: unset !important;
-    }
-
-    /* 手机默认隐藏方向键，避免压住棋盘和底部提示；滑动控制为主 */
-    .pad {
-      display: none !important;
-    }
-
-    .overlay {
-      padding-top: calc(12px + var(--safe-top, 0px) + var(--browser-top-gap, 0px)) !important;
-      padding-bottom: calc(12px + var(--safe-bottom, 0px)) !important;
-      padding-left: 12px !important;
-      padding-right: 12px !important;
-    }
-    .card {
-      max-height: calc(var(--app-height, 100dvh) - var(--safe-top, 0px) - var(--safe-bottom, 0px) - var(--browser-top-gap, 0px) - 24px) !important;
-      overflow: auto !important;
-      overscroll-behavior: contain !important;
-    }
-  }
-
-  @media (max-width: 520px) and (max-height: 740px), (pointer: coarse) and (max-height: 740px) {
-    .app { gap: 4px !important; }
-    .topbar { min-height: 38px !important; }
-    .stat { padding: 5px 6px !important; }
-    .title { min-width: 100px !important; padding: 5px 7px !important; }
-    .title strong { font-size: 15px !important; }
-    .value { font-size: 14px !important; }
-    .quick-actions,
-    .actions { gap: 4px !important; }
-    .actions #restartBtn,
-    .actions #selectBtn,
-    .quick-actions button {
-      min-height: 27px !important;
-      min-width: 50px !important;
-      padding: 4px 7px !important;
-      font-size: 10px !important;
-    }
-    .hint { min-height: 30px !important; max-height: 34px !important; padding: 5px 8px !important; }
-    .hint p { display: none !important; }
-    .board-frame { padding: 8px !important; border-radius: 19px !important; }
-  }
-
-
-
-  /* FINAL OVERRIDE：手机端方向键必须显示，覆盖旧版隐藏 .pad 的规则 */
-  @media (max-width: 520px), (pointer: coarse) {
-    .bottom {
-      flex: 0 0 auto !important;
-      display: grid !important;
-      grid-template-columns: minmax(0, 1fr) auto !important;
-      gap: 8px !important;
-      align-items: end !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      min-height: 0 !important;
-      position: relative !important;
-      z-index: 6 !important;
-    }
-    .hint {
-      min-height: 48px !important;
-      max-height: 58px !important;
-      padding: 7px 9px !important;
-      border-radius: 12px !important;
-      overflow: hidden !important;
-    }
-    .hint strong {
-      font-size: 11px !important;
-      line-height: 1.15 !important;
-      margin-bottom: 2px !important;
-      white-space: nowrap !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-    }
-    .hint p {
-      display: -webkit-box !important;
-      -webkit-line-clamp: 2 !important;
-      -webkit-box-orient: vertical !important;
-      white-space: normal !important;
-      overflow: hidden !important;
-      text-overflow: ellipsis !important;
-      font-size: 10px !important;
-      line-height: 1.18 !important;
-    }
-    .pad {
-      display: grid !important;
-      position: relative !important;
-      width: 128px !important;
-      grid-template-columns: repeat(3, 40px) !important;
-      grid-template-rows: repeat(3, 40px) !important;
-      gap: 4px !important;
-      align-self: end !important;
-      justify-self: end !important;
-      opacity: .66 !important;
-      transform: translateZ(0) scale(.98) !important;
-      transform-origin: bottom right !important;
-      transition: opacity .12s ease, transform .12s ease !important;
-      z-index: 12 !important;
-      touch-action: none !important;
-      pointer-events: auto !important;
-    }
-    .pad.active,
-    .pad:active {
-      opacity: .96 !important;
-      transform: translateZ(0) scale(1.02) !important;
-    }
-    .pad button {
-      width: 40px !important;
-      height: 40px !important;
-      min-width: 40px !important;
-      min-height: 40px !important;
-      padding: 0 !important;
-      border-radius: 12px !important;
-      font-size: 19px !important;
-      line-height: 1 !important;
-      touch-action: none !important;
-    }
-  }
-  @media (max-width: 380px), (pointer: coarse) and (max-width: 380px) {
-    .bottom { gap: 6px !important; }
-    .pad {
-      width: 119px !important;
-      grid-template-columns: repeat(3, 37px) !important;
-      grid-template-rows: repeat(3, 37px) !important;
-      gap: 4px !important;
-    }
-    .pad button {
-      width: 37px !important;
-      height: 37px !important;
-      min-width: 37px !important;
-      min-height: 37px !important;
-      font-size: 18px !important;
-    }
-    .hint { min-height: 42px !important; max-height: 50px !important; }
-    .hint p { -webkit-line-clamp: 1 !important; }
-  }
-  @media (max-height: 700px) and (pointer: coarse) {
-    .pad {
-      width: 116px !important;
-      grid-template-columns: repeat(3, 36px) !important;
-      grid-template-rows: repeat(3, 36px) !important;
-      gap: 4px !important;
-    }
-    .pad button {
-      width: 36px !important;
-      height: 36px !important;
-      min-width: 36px !important;
-      min-height: 36px !important;
-      font-size: 17px !important;
-    }
-    .hint { min-height: 38px !important; max-height: 44px !important; padding: 6px 8px !important; }
-    .hint p { display: none !important; }
-  }
-
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: .001ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: .001ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-
 </style>
 </head>
 <body>
@@ -1752,7 +1328,7 @@
   <section class="bottom">
     <div class="hint">
       <strong id="hintTitle">目标：逃到发光出口</strong>
-      <p id="hintText">键盘 WASD / 方向键，手机默认用右下方向键，滑动只作为辅助。你离开的地板会下沉、裂开、抖动，然后掉进深渊。</p>
+      <p id="hintText">键盘 WASD / 方向键，手机滑动或点方向键。你离开的地板会下沉、裂开、抖动，然后掉进深渊。</p>
     </div>
     <div class="pad" aria-label="方向键">
       <button class="up" data-dir="0,-1" type="button" aria-label="向上">↑</button>
@@ -1852,7 +1428,6 @@
 
   const ROWS = 11;
   const COLS = 7;
-  const PAD_REPEAT_MS = 118;
   const FREE_LEVELS = 20;
   const MAX_LEVEL = 60;
   const CHAPTER_SIZE = 20;
@@ -2622,7 +2197,6 @@
   const pauseMenuBtn = document.getElementById('pauseMenuBtn');
   const pauseDesc = document.getElementById('pauseDesc');
   const swipeIndicator = document.getElementById('swipeIndicator');
-  const padEl = document.querySelector('.pad');
 
   const state = {
     status: 'menu',
@@ -2649,11 +2223,7 @@
     audioCtx: null,
     endless: null,
     daily: null,
-    rafId: 0,
-    padRepeatTimer: 0,
-    activePadButton: null,
-    padActiveTimer: 0,
-    boardMetrics: null
+    rafId: 0
   };
 
   function defaultSave() {
@@ -2972,7 +2542,6 @@
     playerEl.classList.remove('flyout', 'danger');
     enterCell(state.player.r, state.player.c);
     updateAllTiles();
-    invalidateBoardMetrics();
     updatePlayerPosition();
     updateHud();
     updateHints();
@@ -3039,7 +2608,6 @@
     playerEl.style.setProperty('--fly-y', '0px');
     enterCell(state.player.r, state.player.c);
     updateAllTiles();
-    invalidateBoardMetrics();
     updatePlayerPosition();
     updateHud();
     updateHints();
@@ -3140,13 +2708,12 @@
   }
 
   function requestMove(dir) {
-    if (state.status !== 'playing' || !dir) return;
+    if (state.status !== 'playing') return;
     state.lastDir = dir;
     runnerEl.className = `runner ${dir.name}`;
-    activatePadFeedback();
     if (state.moving) {
       state.queuedDir = dir;
-      showSwipeFeedback(dir);
+      showToast('已预输入');
       return;
     }
     move(dir);
@@ -3323,37 +2890,26 @@
     return null;
   }
 
-  function invalidateBoardMetrics() {
-    state.boardMetrics = null;
-  }
-
-  function getBoardMetrics() {
-    if (!state.boardMetrics) {
-      const rect = boardInner.getBoundingClientRect();
-      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-gap')) || 4;
-      const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-pad')) || 7;
-      state.boardMetrics = {
-        gap,
-        pad,
-        cellW: (rect.width - pad * 2 - gap * (COLS - 1)) / COLS,
-        cellH: (rect.height - pad * 2 - gap * (ROWS - 1)) / ROWS
-      };
-    }
-    return state.boardMetrics;
-  }
-
   function updatePlayerPosition() {
-    const { gap, pad, cellW, cellH } = getBoardMetrics();
+    const rect = boardInner.getBoundingClientRect();
+    const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-gap')) || 4;
+    const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-pad')) || 7;
+    const cellW = (rect.width - pad * 2 - gap * (COLS - 1)) / COLS;
+    const cellH = (rect.height - pad * 2 - gap * (ROWS - 1)) / ROWS;
     const x = pad + state.player.c * (cellW + gap);
     const y = pad + state.player.r * (cellH + gap);
     playerEl.style.width = `${cellW}px`;
     playerEl.style.height = `${cellH}px`;
-    playerEl.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    playerEl.style.transform = `translate(${x}px, ${y}px)`;
     runnerEl.className = `runner ${state.lastDir.name}`;
   }
 
   function cellCenter(r, c) {
-    const { gap, pad, cellW, cellH } = getBoardMetrics();
+    const rect = boardInner.getBoundingClientRect();
+    const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-gap')) || 4;
+    const pad = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tile-pad')) || 7;
+    const cellW = (rect.width - pad * 2 - gap * (COLS - 1)) / COLS;
+    const cellH = (rect.height - pad * 2 - gap * (ROWS - 1)) / ROWS;
     return {
       x: pad + c * (cellW + gap) + cellW / 2,
       y: pad + r * (cellH + gap) + cellH / 2,
@@ -3364,8 +2920,7 @@
 
   function createDust(r, c) {
     const center = cellCenter(r, c);
-    const dustCount = isCoarseDevice() ? 3 : 7;
-    for (let i = 0; i < dustCount; i++) {
+    for (let i = 0; i < 7; i++) {
       const dot = document.createElement('span');
       dot.className = 'dust';
       const size = 4 + Math.random() * 5;
@@ -3383,8 +2938,7 @@
   function burstTile(r, c) {
     playSound('crack');
     const center = cellCenter(r, c);
-    const shardCount = isCoarseDevice() ? 4 : 8;
-    for (let i = 0; i < shardCount; i++) {
+    for (let i = 0; i < 8; i++) {
       const shard = document.createElement('span');
       shard.className = 'shard';
       shard.style.left = `${center.x + (Math.random() - .5) * center.w * .62}px`;
@@ -3607,8 +3161,12 @@
   }
 
   function bindOverlayClose(overlayEl, closeFn) {
+    // 弹窗背景点击只拦截，不关闭；玩家必须点击弹窗内按钮做选择。
     overlayEl.addEventListener('click', event => {
-      if (event.target === overlayEl) closeFn();
+      if (event.target === overlayEl) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
     });
   }
 
@@ -3977,7 +3535,12 @@
     app.appendChild(el);
     const close = () => el.classList.add('hide');
     el.querySelector('.close-btn')?.addEventListener('click', close);
-    el.addEventListener('click', event => { if (event.target === el) close(); });
+    el.addEventListener('click', event => {
+      if (event.target === el) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    });
     return el;
   }
 
@@ -4190,7 +3753,6 @@
     playerEl.style.opacity = '';
     enterCell(state.player.r, state.player.c);
     updateAllTiles();
-    invalidateBoardMetrics();
     updatePlayerPosition();
     updateHud();
     updateNavButtons();
@@ -4532,14 +4094,12 @@
     if (!rolled) return;
     state.cells = state.cells.map((row, r) => row.map((cell, c) => ({ ...cell, r, c })));
     repairEndlessConnectivity();
-    invalidateBoardMetrics();
     state.endless.line = Math.max(-1.2, state.endless.line - rolled * .48);
     if (state.endless) {
       const stageIndex = ENDLESS_STAGES.findIndex(item => item.name === getEndlessStage(state.endless.distance).name);
       state.endless.score = (state.endless.score || 0) + rolled * (10 + Math.max(0, stageIndex) * 3);
     }
     updateAllTiles();
-    invalidateBoardMetrics();
     updatePlayerPosition();
     if (state.endless.distance % 10 === 0) showToast(`距离 ${state.endless.distance}m · ${getEndlessStage(state.endless.distance).name}`);
   }
@@ -4745,17 +4305,19 @@
       btn.addEventListener('pointerdown', event => {
         event.preventDefault();
         btn.setPointerCapture?.(event.pointerId);
-        startPadInput(btn, dir);
+        btn.classList.add('pressed');
+        requestMove(dir);
       });
-      btn.addEventListener('pointerup', stopPadInput);
-      btn.addEventListener('pointercancel', stopPadInput);
-      btn.addEventListener('pointerleave', stopPadInput);
+      const release = () => btn.classList.remove('pressed');
+      btn.addEventListener('pointerup', release);
+      btn.addEventListener('pointercancel', release);
+      btn.addEventListener('pointerleave', release);
     });
 
     boardInner.addEventListener('pointerdown', event => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       boardInner.setPointerCapture?.(event.pointerId);
-      state.pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, baseX: event.clientX, baseY: event.clientY, time: performance.now(), previewDir: null, used: false, lastMoveAt: 0 };
+      state.pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
     });
     boardInner.addEventListener('pointermove', event => handlePointerMove(event));
     boardInner.addEventListener('pointerup', event => finishPointer(event));
@@ -4796,53 +4358,7 @@
     jumpLevelBtn.onclick = () => startGame(10);
     lastLevelBtn.onclick = () => startGame(60);
     endlessBtn.onclick = startEndless;
-    window.addEventListener('resize', () => { invalidateBoardMetrics(); updatePlayerPosition(); });
-  }
-
-  function isCoarseDevice() {
-    return Boolean(window.matchMedia?.('(pointer: coarse)').matches) || window.innerWidth <= 520;
-  }
-
-  function getSwipeThreshold() {
-    const width = boardInner?.clientWidth || window.innerWidth || 360;
-    return Math.max(24, Math.min(38, width * 0.085));
-  }
-
-  function dirFromDelta(dx, dy) {
-    const adx = Math.abs(dx);
-    const ady = Math.abs(dy);
-    return adx > ady ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up);
-  }
-
-  function activatePadFeedback() {
-    if (!padEl) return;
-    padEl.classList.add('active');
-    clearTimeout(state.padActiveTimer);
-    state.padActiveTimer = window.setTimeout(() => padEl.classList.remove('active'), 1500);
-  }
-
-  function startPadInput(btn, dir) {
-    if (!dir) return;
-    stopPadInput();
-    state.activePadButton = btn;
-    btn?.classList.add('pressed');
-    activatePadFeedback();
-    requestMove(dir);
-    if (state.mode === 'endless') {
-      state.padRepeatTimer = window.setInterval(() => {
-        if (state.status !== 'playing' || state.mode !== 'endless') return stopPadInput();
-        requestMove(dir);
-      }, PAD_REPEAT_MS);
-    }
-  }
-
-  function stopPadInput() {
-    if (state.activePadButton) state.activePadButton.classList.remove('pressed');
-    state.activePadButton = null;
-    if (state.padRepeatTimer) {
-      window.clearInterval(state.padRepeatTimer);
-      state.padRepeatTimer = 0;
-    }
+    window.addEventListener('resize', updatePlayerPosition);
   }
 
   function handlePointerMove(event) {
@@ -4852,35 +4368,24 @@
     const dy = event.clientY - start.y;
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
-    if (Math.max(adx, ady) < getSwipeThreshold()) return;
-    const dir = dirFromDelta(dx, dy);
-    start.previewDir = dir;
+    if (Math.max(adx, ady) < 34) return;
+    const dir = adx > ady ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up);
     showSwipeFeedback(dir);
-
-    // 滑动现在只是辅助：普通关卡松手才走；无尽模式允许拖动连续变向。
-    if (state.mode === 'endless') {
-      const now = performance.now();
-      if (now - (start.lastMoveAt || 0) < PAD_REPEAT_MS) return;
-      requestMove(dir);
-      start.used = true;
-      start.lastMoveAt = now;
-      start.x = event.clientX;
-      start.y = event.clientY;
-    }
+    requestMove(dir);
+    state.pointer.x = event.clientX;
+    state.pointer.y = event.clientY;
   }
 
   function finishPointer(event) {
     const start = state.pointer;
     if (!start || start.id !== event.pointerId) return;
-    const dx = event.clientX - (state.mode === 'endless' ? start.x : start.baseX);
-    const dy = event.clientY - (state.mode === 'endless' ? start.y : start.baseY);
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
-    const threshold = getSwipeThreshold();
     state.pointer = null;
-    if (Math.max(adx, ady) < threshold) return;
-    if (state.mode === 'endless' && start.used) return;
-    const dir = start.previewDir || dirFromDelta(dx, dy);
+    if (Math.max(adx, ady) < 14) return;
+    const dir = adx > ady ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up);
     showSwipeFeedback(dir);
     requestMove(dir);
   }
@@ -5040,7 +4545,6 @@
       const offsetTop = Math.round(viewport?.offsetTop || 0);
       if (height > 0) root.style.setProperty('--app-height', `${height}px`);
       root.style.setProperty('--browser-top-gap', `${Math.min(72, Math.max(0, offsetTop))}px`);
-      invalidateBoardMetrics();
       window.setTimeout(updatePlayerPosition, 0);
     };
     update();
@@ -5061,7 +4565,6 @@
     state.player = parsed.start || state.player;
     state.goal = parsed.goal || state.goal;
     updateAllTiles();
-    invalidateBoardMetrics();
     updatePlayerPosition();
     refreshUI();
     updateSoundButton();
