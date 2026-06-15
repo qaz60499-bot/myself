@@ -1280,6 +1280,166 @@
     .tool-row { grid-template-columns: 1fr; }
   }
 
+
+
+  /* 手机操作优化：滑动主控 + 小悬浮方向键 */
+  .control-panel {
+    margin: 10px 0 12px;
+    padding: 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(185, 237, 255, .14);
+    background: rgba(255,255,255,.045);
+    text-align: left;
+  }
+  .control-title {
+    margin-bottom: 8px;
+    color: rgba(226, 243, 255, .68);
+    font-size: 12px;
+    font-weight: 900;
+  }
+  .control-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .control-grid .small-btn.active {
+    border-color: rgba(255, 211, 107, .82);
+    color: #fff4bd;
+    box-shadow: 0 0 18px rgba(255, 211, 107, .24), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+
+  @media (max-width: 520px), (pointer: coarse) {
+    .app {
+      gap: 5px;
+      padding-top: calc(14px + var(--safe-top, 0px) + var(--browser-top-gap, 0px));
+      padding-bottom: calc(8px + var(--safe-bottom, 0px));
+    }
+    .board-wrap {
+      min-height: 0;
+      flex: 1 1 auto;
+    }
+    .bottom {
+      display: block;
+      padding-bottom: 0;
+    }
+    .hint.mobile-compact {
+      min-height: 40px;
+      padding: 7px 10px;
+      cursor: pointer;
+    }
+    .hint.mobile-compact strong {
+      font-size: 12px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .hint.mobile-compact p {
+      display: block;
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.25;
+      max-height: 1.25em;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .hint.mobile-compact.expanded p {
+      max-height: 4.9em;
+      white-space: normal;
+    }
+    .pad {
+      position: fixed;
+      z-index: 25;
+      right: max(10px, env(safe-area-inset-right));
+      bottom: calc(14px + var(--safe-bottom, 0px));
+      width: 96px;
+      display: grid;
+      grid-template-columns: repeat(3, 29px);
+      grid-template-rows: repeat(3, 29px);
+      gap: 3px;
+      padding: 5px;
+      border-radius: 18px;
+      border: 1px solid rgba(202, 242, 255, .14);
+      background: rgba(6, 12, 22, .32);
+      opacity: .44;
+      transform: none;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 28px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.08);
+      transition: opacity .14s ease, transform .14s ease, right .14s ease, left .14s ease;
+    }
+    .pad button {
+      min-width: 29px;
+      min-height: 29px;
+      border-radius: 9px;
+      font-size: 15px;
+      padding: 0;
+    }
+    .pad:active,
+    .app[data-control-mode="dpad"] .pad {
+      opacity: .82;
+    }
+    .app[data-control-mode="dpad"] .pad {
+      width: 108px;
+      grid-template-columns: repeat(3, 33px);
+      grid-template-rows: repeat(3, 33px);
+    }
+    .app[data-control-mode="dpad"] .pad button {
+      min-width: 33px;
+      min-height: 33px;
+      font-size: 17px;
+    }
+    .app[data-control-mode="hidden"] .pad {
+      display: none !important;
+    }
+    .app[data-dpad-hand="left"] .pad {
+      left: max(10px, env(safe-area-inset-left));
+      right: auto;
+    }
+    .quick-actions {
+      position: fixed;
+      z-index: 24;
+      top: auto;
+      left: max(10px, env(safe-area-inset-left));
+      right: auto;
+      bottom: calc(14px + var(--safe-bottom, 0px));
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .quick-actions button {
+      min-width: 44px;
+      min-height: 29px;
+      padding: 5px 8px;
+      font-size: 11px;
+      opacity: .72;
+    }
+    .app[data-dpad-hand="left"] .quick-actions {
+      left: auto;
+      right: max(10px, env(safe-area-inset-right));
+    }
+    .actions {
+      bottom: calc(56px + var(--safe-bottom, 0px));
+    }
+    .swipe-indicator {
+      width: 48px;
+      height: 48px;
+      margin-left: -24px;
+      margin-top: -24px;
+      font-size: 25px;
+    }
+  }
+  @media (max-width: 360px), (max-height: 640px) {
+    .app[data-control-mode="swipe"] .pad {
+      display: none;
+    }
+    .quick-actions button {
+      min-width: 40px;
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: .001ms !important;
@@ -1393,6 +1553,15 @@
     <div class="card pause-card">
       <h1>暂停</h1>
       <p id="pauseDesc">游戏已暂停。</p>
+      <div class="control-panel" id="controlPanel" aria-label="手机操作方式">
+        <div class="control-title">手机操作</div>
+        <div class="control-grid">
+          <button class="small-btn" id="controlSwipeBtn" type="button">滑动优先</button>
+          <button class="small-btn" id="controlDpadBtn" type="button">方向键优先</button>
+          <button class="small-btn" id="controlHideBtn" type="button">隐藏方向键</button>
+          <button class="small-btn" id="controlHandBtn" type="button">右手模式</button>
+        </div>
+      </div>
       <button class="primary-btn" id="resumeBtn" type="button">继续</button>
       <div class="secondary-row">
         <button class="small-btn" id="pauseRestartBtn" type="button">重新开始</button>
@@ -2197,6 +2366,11 @@
   const pauseMenuBtn = document.getElementById('pauseMenuBtn');
   const pauseDesc = document.getElementById('pauseDesc');
   const swipeIndicator = document.getElementById('swipeIndicator');
+  const hintBox = hintText.closest('.hint');
+  const controlSwipeBtn = document.getElementById('controlSwipeBtn');
+  const controlDpadBtn = document.getElementById('controlDpadBtn');
+  const controlHideBtn = document.getElementById('controlHideBtn');
+  const controlHandBtn = document.getElementById('controlHandBtn');
 
   const state = {
     status: 'menu',
@@ -2242,6 +2416,9 @@
       exitsUnlocked: { default: true },
       currentExit: 'default',
       audioMuted: false,
+      controlMode: 'swipe',
+      dpadHand: 'right',
+      hintExpanded: false,
       dailyChallengeBest: {},
       fails: {},
       seenTips: {},
@@ -2288,6 +2465,9 @@
     next.exitsUnlocked.default = true;
     next.currentExit = EXITS.some(item => item.id === next.currentExit && next.exitsUnlocked[item.id]) ? next.currentExit : 'default';
     next.audioMuted = Boolean(next.audioMuted);
+    next.controlMode = ['swipe', 'dpad', 'hidden'].includes(next.controlMode) ? next.controlMode : 'swipe';
+    next.dpadHand = next.dpadHand === 'left' ? 'left' : 'right';
+    next.hintExpanded = Boolean(next.hintExpanded);
     next.dailyChallengeBest = next.dailyChallengeBest && typeof next.dailyChallengeBest === 'object' ? next.dailyChallengeBest : {};
     next.fails = next.fails && typeof next.fails === 'object' ? next.fails : {};
     next.seenTips = next.seenTips && typeof next.seenTips === 'object' ? next.seenTips : {};
@@ -2368,6 +2548,7 @@
     updateNavButtons();
     buildDots();
     applyAppearance();
+    applyControlSettings();
     renderShop();
     if (!levelSelectOverlay.classList.contains('hide')) buildLevelSelectPanel();
   }
@@ -3427,6 +3608,45 @@
     if (soundBtn) soundBtn.textContent = state.save.audioMuted ? '静音' : '音效';
   }
 
+  function applyControlSettings() {
+    const mode = ['swipe', 'dpad', 'hidden'].includes(state.save.controlMode) ? state.save.controlMode : 'swipe';
+    const hand = state.save.dpadHand === 'left' ? 'left' : 'right';
+    state.save.controlMode = mode;
+    state.save.dpadHand = hand;
+    app.dataset.controlMode = mode;
+    app.dataset.dpadHand = hand;
+    hintBox?.classList.add('mobile-compact');
+    hintBox?.classList.toggle('expanded', Boolean(state.save.hintExpanded));
+    controlSwipeBtn?.classList.toggle('active', mode === 'swipe');
+    controlDpadBtn?.classList.toggle('active', mode === 'dpad');
+    controlHideBtn?.classList.toggle('active', mode === 'hidden');
+    if (controlHandBtn) {
+      controlHandBtn.textContent = hand === 'left' ? '左手模式' : '右手模式';
+      controlHandBtn.classList.toggle('active', hand === 'left');
+    }
+  }
+
+  function setControlMode(mode) {
+    state.save.controlMode = mode;
+    saveProgress();
+    applyControlSettings();
+    const copy = mode === 'hidden' ? '已隐藏方向键' : mode === 'dpad' ? '方向键优先' : '滑动优先';
+    showToast(copy);
+  }
+
+  function toggleDpadHand() {
+    state.save.dpadHand = state.save.dpadHand === 'left' ? 'right' : 'left';
+    saveProgress();
+    applyControlSettings();
+    showToast(state.save.dpadHand === 'left' ? '左手模式' : '右手模式');
+  }
+
+  function toggleHintExpand() {
+    state.save.hintExpanded = !state.save.hintExpanded;
+    saveProgress();
+    applyControlSettings();
+  }
+
   function playSound(kind = 'jump') {
     if (state.save.audioMuted) return;
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -4324,6 +4544,11 @@
     shopCloseBtn.onclick = closeShopOverlay;
     pauseBtn.onclick = pauseGame;
     soundBtn.onclick = toggleSound;
+    controlSwipeBtn && (controlSwipeBtn.onclick = () => setControlMode('swipe'));
+    controlDpadBtn && (controlDpadBtn.onclick = () => setControlMode('dpad'));
+    controlHideBtn && (controlHideBtn.onclick = () => setControlMode('hidden'));
+    controlHandBtn && (controlHandBtn.onclick = toggleDpadHand);
+    hintBox && hintBox.addEventListener('click', toggleHintExpand);
     resumeBtn.onclick = resumeGame;
     pauseRestartBtn.onclick = () => { pauseOverlay.classList.add('hide'); state.status = 'playing'; state.mode === 'endless' ? startEndless() : startGame(state.level); };
     pauseMenuBtn.onclick = () => { pauseOverlay.classList.add('hide'); showMenu(); };
@@ -4359,7 +4584,9 @@
     const dy = event.clientY - start.y;
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
-    if (Math.max(adx, ady) < 34) return;
+    const threshold = window.matchMedia?.('(pointer: coarse)').matches ? 26 : 34;
+    if (Math.max(adx, ady) < threshold) return;
+    event.preventDefault?.();
     const dir = adx > ady ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up);
     showSwipeFeedback(dir);
     requestMove(dir);
@@ -4375,7 +4602,8 @@
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
     state.pointer = null;
-    if (Math.max(adx, ady) < 14) return;
+    if (Math.max(adx, ady) < 16) return;
+    event.preventDefault?.();
     const dir = adx > ady ? (dx > 0 ? DIRS.right : DIRS.left) : (dy > 0 ? DIRS.down : DIRS.up);
     showSwipeFeedback(dir);
     requestMove(dir);
@@ -4559,6 +4787,7 @@
     updatePlayerPosition();
     refreshUI();
     updateSoundButton();
+    applyControlSettings();
     showMenu();
     state.rafId = requestAnimationFrame(tick);
   }
