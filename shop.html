@@ -826,6 +826,20 @@
     border-radius: 12px;
     min-height: 42px;
   }
+  .menu-pc-note {
+    min-height: 42px;
+    display: grid;
+    place-items: center;
+    align-self: stretch;
+    padding: 4px 8px;
+    color: rgba(226, 243, 255, .46);
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.25;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+  }
   .tile.route-preview {
     outline: 3px solid rgba(255, 232, 130, .98);
     outline-offset: -3px;
@@ -5483,6 +5497,7 @@
     addMenuToolButton('guideBtn', '规则', showGuideOverlay);
     addMenuToolButton('statsBtn', '检查', showStatsOverlay);
     addMenuToolButton('saveBtn', '存档', showSaveOverlay);
+    addMenuPcNote();
     const pauseRow = pauseOverlay?.querySelector('.secondary-row');
     if (pauseRow && !document.getElementById('pauseGuideBtn')) {
       const guide = createToolButton('pauseGuideBtn', '规则', showGuideOverlay);
@@ -5508,6 +5523,17 @@
     const row = overlay?.querySelector('.secondary-row');
     if (!row) return;
     row.appendChild(createToolButton(id, text, handler));
+  }
+
+  function addMenuPcNote() {
+    if (document.getElementById('menuPcNote')) return;
+    const row = overlay?.querySelector('.secondary-row');
+    if (!row) return;
+    const note = document.createElement('div');
+    note.id = 'menuPcNote';
+    note.className = 'menu-pc-note';
+    note.textContent = '建议电脑游玩，更丝滑';
+    row.appendChild(note);
   }
 
   function createExtraOverlay(id, title, bodyHtml) {
