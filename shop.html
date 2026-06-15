@@ -3678,8 +3678,12 @@
   }
 
   function bindOverlayClose(overlayEl, closeFn) {
+    // 弹窗背景只吸收点击，不关闭弹窗；玩家必须点击弹窗内的按钮。
     overlayEl.addEventListener('click', event => {
-      if (event.target === overlayEl) closeFn();
+      if (event.target === overlayEl) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
     });
   }
 
@@ -4048,7 +4052,12 @@
     app.appendChild(el);
     const close = () => el.classList.add('hide');
     el.querySelector('.close-btn')?.addEventListener('click', close);
-    el.addEventListener('click', event => { if (event.target === el) close(); });
+    el.addEventListener('click', event => {
+      if (event.target === el) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    });
     return el;
   }
 
