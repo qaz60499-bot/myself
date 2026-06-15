@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>地板塌了 - 逃生优化版</title>
+<title>Floor Rush - Escape Edition</title>
 <style>
   :root {
     --bg0: #050711;
@@ -583,7 +583,7 @@
   }
   .close-btn:active { transform: scale(.94); }
 
-  /* 主菜单、通关/失败弹窗：不显示关闭 ×；失败后不显示“提示”按钮 */
+  /* Main menu and result dialogs: hide the close button; hide Hint after failure */
   #menuCloseBtn,
   #resultCloseBtn,
   #resultHintBtn {
@@ -837,7 +837,7 @@
 
 
 
-  /* 结算简化 + 奖励动画 */
+  /* Simplified results + reward animation */
   .result-card {
     padding-top: 24px;
   }
@@ -1135,7 +1135,7 @@
 
 
 
-  /* 追加优化：目标变化、触屏反馈、暂停、音效、无尽评级 */
+  /* Extra polish: objectives, touch feedback, pause, sound, endless ranks */
   #menuCloseBtn, #resultCloseBtn { display: none !important; }
   .quick-actions {
     position: absolute;
@@ -1215,7 +1215,7 @@
 
 
 
-  /* 完整版补充：规则图标、关卡体检、存档工具 */
+  /* Full version add-ons: rule guide, level check, save tools */
   .extra-tool-card {
     text-align: left;
   }
@@ -1282,7 +1282,7 @@
 
 
 
-  /* 手机端主操作回归方向键：方向键进入底部正常布局，不遮挡棋盘；滑动只做辅助 */
+  /* Mobile main control returns to keypad: keypad sits in the bottom layout, does not cover the board; swipes are assistive */
   .player { will-change: transform, filter; }
   .tile { backface-visibility: hidden; }
 
@@ -1416,7 +1416,7 @@
   }
 
 
-  /* 手机端防遮挡修复：控制按钮进入正常布局，棋盘按剩余高度自适应，不再互相覆盖 */
+  /* Mobile overlap fix: controls use normal layout, board fits remaining height, no overlap */
   @media (max-width: 520px), (pointer: coarse) {
     html, body {
       height: var(--app-height, 100dvh);
@@ -1551,7 +1551,7 @@
       -webkit-line-clamp: unset !important;
     }
 
-    /* 手机默认隐藏方向键，避免压住棋盘和底部提示；滑动控制为主 */
+    /* Hide keypad on mobile by default to avoid covering the board and tips; swipe is primary */
     .pad {
       display: none !important;
     }
@@ -1593,7 +1593,7 @@
 
 
 
-  /* HOTFIX：恢复手机端自适应；方向键悬浮，不再占用底部布局高度 */
+  /* HOTFIX: restore mobile fit; floating keypad no longer uses bottom layout height */
   @media (max-width: 520px), (pointer: coarse) {
     html, body {
       height: var(--app-height, 100dvh) !important;
@@ -1783,38 +1783,219 @@
     .hint p { display: none !important; }
     .board-frame { padding: 7px !important; border-radius: 18px !important; }
   }
+
+
+  /* MOBILE COMFORT PATCH: mobile-only control comfort, desktop unchanged */
+  @media (max-width: 520px), (pointer: coarse) {
+    .app {
+      gap: 6px !important;
+      padding-top: calc(8px + var(--safe-top, 0px) + var(--browser-top-gap, 0px)) !important;
+      padding-bottom: calc(8px + var(--safe-bottom, 0px)) !important;
+    }
+    .topbar {
+      min-height: 40px !important;
+    }
+    .actions,
+    .quick-actions {
+      min-height: 28px !important;
+    }
+    .actions #restartBtn,
+    .actions #selectBtn,
+    .quick-actions button {
+      min-height: 28px !important;
+      min-width: 54px !important;
+      padding: 4px 8px !important;
+      font-size: 10px !important;
+      opacity: .88 !important;
+    }
+    .board-wrap {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+    }
+    .board-frame {
+      height: auto !important;
+      width: min(100%, 390px) !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      aspect-ratio: 7 / 11 !important;
+      padding: 8px !important;
+      border-radius: 20px !important;
+    }
+    .bottom {
+      flex: 0 0 auto !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      gap: 8px !important;
+      align-items: end !important;
+      position: relative !important;
+      z-index: 35 !important;
+      pointer-events: auto !important;
+    }
+    .hint {
+      min-height: 54px !important;
+      max-height: 60px !important;
+      padding: 7px 9px !important;
+      border-radius: 13px !important;
+      overflow: hidden !important;
+    }
+    .hint strong {
+      font-size: 11px !important;
+      line-height: 1.12 !important;
+      margin-bottom: 2px !important;
+    }
+    .hint p {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      white-space: normal !important;
+      font-size: 10px !important;
+      line-height: 1.22 !important;
+    }
+    .pad {
+      display: grid !important;
+      position: relative !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      width: 140px !important;
+      grid-template-columns: repeat(3, 44px) !important;
+      grid-template-rows: repeat(3, 44px) !important;
+      gap: 4px !important;
+      align-self: end !important;
+      justify-self: end !important;
+      opacity: .82 !important;
+      transform: translateZ(0) !important;
+      transform-origin: bottom right !important;
+      z-index: 40 !important;
+      pointer-events: auto !important;
+      touch-action: none !important;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.34));
+    }
+    .pad.active,
+    .pad:active,
+    .pad:focus-within {
+      opacity: .98 !important;
+      transform: translateZ(0) scale(1.02) !important;
+    }
+    .pad button {
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
+      padding: 0 !important;
+      border-radius: 14px !important;
+      font-size: 20px !important;
+      line-height: 1 !important;
+      background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,.075)) !important;
+      border-color: rgba(202, 242, 255, .25) !important;
+      touch-action: none !important;
+    }
+    .pad button.pressed,
+    .pad button:active {
+      transform: translateY(2px) scale(.94) !important;
+      filter: brightness(1.38) !important;
+    }
+    .swipe-indicator {
+      width: 62px !important;
+      height: 62px !important;
+      margin-left: -31px !important;
+      margin-top: -31px !important;
+      font-size: 31px !important;
+    }
+  }
+
+  @media (max-width: 390px), (pointer: coarse) {
+    .pad {
+      width: 128px !important;
+      grid-template-columns: repeat(3, 40px) !important;
+      grid-template-rows: repeat(3, 40px) !important;
+    }
+    .pad button {
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      min-height: 40px !important;
+      font-size: 19px !important;
+    }
+  }
+
+  @media (max-height: 720px) and (pointer: coarse) {
+    .app { gap: 4px !important; }
+    .topbar { min-height: 36px !important; }
+    .hint {
+      min-height: 40px !important;
+      max-height: 44px !important;
+      padding: 6px 8px !important;
+    }
+    .hint p { display: none !important; }
+    .pad {
+      width: 128px !important;
+      grid-template-columns: repeat(3, 40px) !important;
+      grid-template-rows: repeat(3, 40px) !important;
+      gap: 4px !important;
+    }
+    .pad button {
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      min-height: 40px !important;
+      font-size: 19px !important;
+    }
+    .board-frame {
+      padding: 7px !important;
+      border-radius: 18px !important;
+    }
+  }
+
+  @media (max-width: 350px), (pointer: coarse) {
+    .bottom { gap: 6px !important; }
+    .pad {
+      width: 116px !important;
+      grid-template-columns: repeat(3, 36px) !important;
+      grid-template-rows: repeat(3, 36px) !important;
+    }
+    .pad button {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      min-height: 36px !important;
+      font-size: 17px !important;
+    }
+  }
+
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <div class="topbar">
-    <div class="stat"><span class="label">关卡</span><span class="value" id="levelText">1 / 20</span></div>
-    <div class="title"><strong>地板塌了</strong><span>别停，别回头</span></div>
-    <div class="stat"><span class="label">时间 / 步数</span><span class="value" id="scoreText">0.0s · 0</span></div>
+    <div class="stat"><span class="label">Level</span><span class="value" id="levelText">1 / 20</span></div>
+    <div class="title"><strong>Floor Rush</strong><span>Run. Don't look back.</span></div>
+    <div class="stat"><span class="label">Time / Moves</span><span class="value" id="scoreText">0.0s · 0</span></div>
   </div>
 
-  <div class="level-dots" id="levelDots" aria-label="关卡选择"></div>
+  <div class="level-dots" id="levelDots" aria-label="Level Select"></div>
   <div class="actions">
-    <button class="small-btn" id="prevBtn" type="button">上一关</button>
-    <button class="small-btn" id="restartBtn" type="button">重开</button>
-    <button class="small-btn" id="selectBtn" type="button">关卡选择</button>
-    <button class="small-btn" id="nextBtn" type="button">下一关</button>
+    <button class="small-btn" id="prevBtn" type="button">Previous</button>
+    <button class="small-btn" id="restartBtn" type="button">Restart</button>
+    <button class="small-btn" id="selectBtn" type="button">Level Select</button>
+    <button class="small-btn" id="nextBtn" type="button">Next</button>
   </div>
   <div class="quick-actions">
-    <button class="small-btn" id="pauseBtn" type="button">暂停</button>
-    <button class="small-btn" id="soundBtn" type="button">音效</button>
+    <button class="small-btn" id="pauseBtn" type="button">Pause</button>
+    <button class="small-btn" id="soundBtn" type="button">Sound</button>
   </div>
 
   <main class="board-wrap">
     <div class="board-frame">
-      <div class="board-inner" id="boardInner" aria-label="地板塌陷逃生棋盘">
+      <div class="board-inner" id="boardInner" aria-label="collapsing floor escape board">
         <div class="grid" id="grid"></div>
         <div class="collapse-line" id="collapseLine"></div>
         <div class="player" id="player">
           <div class="aura"></div>
           <div class="runner up" id="runner"><span class="leg a"></span><span class="leg b"></span></div>
         </div>
-        <div class="toast" id="toast">刚刚好</div>
+        <div class="toast" id="toast">Close call</div>
         <div class="swipe-indicator" id="swipeIndicator">↑</div>
       </div>
     </div>
@@ -1822,85 +2003,85 @@
 
   <section class="bottom">
     <div class="hint">
-      <strong id="hintTitle">目标：逃到发光出口</strong>
-      <p id="hintText">键盘 WASD / 方向键，手机默认用右下方向键，滑动只作为辅助。你离开的地板会下沉、裂开、抖动，然后掉进深渊。</p>
+      <strong id="hintTitle">Goal: reach the glowing exit</strong>
+      <p id="hintText">Use WASD / arrow keys. On mobile, use the keypad; swipes are assistive. Every tile you leave will sink, crack, shake, then fall into the abyss.</p>
     </div>
-    <div class="pad" aria-label="方向键">
-      <button class="up" data-dir="0,-1" type="button" aria-label="向上">↑</button>
-      <button class="left" data-dir="-1,0" type="button" aria-label="向左">←</button>
-      <button class="right" data-dir="1,0" type="button" aria-label="向右">→</button>
-      <button class="down" data-dir="0,1" type="button" aria-label="向下">↓</button>
+    <div class="pad" aria-label="Keypad">
+      <button class="up" data-dir="0,-1" type="button" aria-label="Up">↑</button>
+      <button class="left" data-dir="-1,0" type="button" aria-label="Left">←</button>
+      <button class="right" data-dir="1,0" type="button" aria-label="Right">→</button>
+      <button class="down" data-dir="0,1" type="button" aria-label="Down">↓</button>
     </div>
   </section>
 
   <div class="overlay" id="overlay">
     <div class="card">
-      <button class="close-btn" id="menuCloseBtn" type="button" aria-label="关闭">×</button>
-      <h1 id="overlayTitle">地板塌了</h1>
-      <p id="overlayDesc">每走一步，身后的平台都会塌进深渊。看准路线，利用特殊地板，在出口亮起前别回头。</p>
+      <button class="close-btn" id="menuCloseBtn" type="button" aria-label="Close">×</button>
+      <h1 id="overlayTitle">Floor Rush</h1>
+      <p id="overlayDesc">Every step drops the floor behind you into the void. Read the route, use special tiles, and don't look back before the exit lights up.</p>
       <div class="rule-list" id="ruleList">
-        <div class="rule">普通地板：离开后先下沉，再裂开、抖动、坠落。</div>
-        <div class="rule">快裂格 !：塌得更快，踩上去要立刻接下一步。</div>
-        <div class="rule">冰面 ~、弹跳 ^、传送 A/B 会改变移动节奏。</div>
-        <div class="rule">方向键、键盘和滑动都支持，跳跃中可以提前输入下一步。</div>
+        <div class="rule">Normal tiles: after you leave, they sink, crack, shake, then fall.</div>
+        <div class="rule">Crack tiles !!: they fall faster. Step off immediately.</div>
+        <div class="rule">Ice, launch pads, and A/B portals change your movement rhythm.</div>
+        <div class="rule">Keypad, keyboard, and swipes are supported. You can buffer the next move while jumping.</div>
       </div>
       <div class="result-grid" id="resultGrid" hidden>
-        <div class="result-item"><span>差距</span><strong id="distanceText">0 格</strong></div>
-        <div class="result-item"><span>用时</span><strong id="timeText">0.0s</strong></div>
-        <div class="result-item"><span>步数</span><strong id="stepsText">0</strong></div>
-        <div class="result-item"><span>最佳时间</span><strong id="bestTimeText">--</strong></div>
-        <div class="result-item"><span>最佳步数</span><strong id="bestStepsText">--</strong></div>
+        <div class="result-item"><span>Distance</span><strong id="distanceText">0 tiles</strong></div>
+        <div class="result-item"><span>Time</span><strong id="timeText">0.0s</strong></div>
+        <div class="result-item"><span>Moves</span><strong id="stepsText">0</strong></div>
+        <div class="result-item"><span>Best Time</span><strong id="bestTimeText">--</strong></div>
+        <div class="result-item"><span>Best Moves</span><strong id="bestStepsText">--</strong></div>
       </div>
       <div class="level-select" id="levelSelectPanel" hidden></div>
-      <button class="primary-btn" id="startBtn" type="button">开始逃生</button>
-      <button class="small-btn" id="hintBtn" type="button" hidden>提示</button>
+      <button class="primary-btn" id="startBtn" type="button">Start Run</button>
+      <button class="small-btn" id="hintBtn" type="button" hidden>Hint</button>
       <div class="secondary-row">
-        <button class="small-btn" id="menuSelectBtn" type="button">选关</button>
-        <button class="small-btn" id="dailyBtn" type="button">每日挑战</button>
-        <button class="small-btn" id="endlessBtn" type="button">无尽模式</button>
-        <button class="small-btn" id="shopBtn" type="button">商店</button>
-        <button class="small-btn" id="jumpLevelBtn" type="button" hidden>第 10 关</button>
-        <button class="small-btn" id="lastLevelBtn" type="button" hidden>第 60 关</button>
+        <button class="small-btn" id="menuSelectBtn" type="button">Levels</button>
+        <button class="small-btn" id="dailyBtn" type="button">Daily Run</button>
+        <button class="small-btn" id="endlessBtn" type="button">Endless</button>
+        <button class="small-btn" id="shopBtn" type="button">Shop</button>
+        <button class="small-btn" id="jumpLevelBtn" type="button" hidden>Level 10</button>
+        <button class="small-btn" id="lastLevelBtn" type="button" hidden>Level 60</button>
       </div>
     </div>
   </div>
 
   <div class="overlay hide" id="resultOverlay">
     <div class="card result-card compact-result">
-      <button class="close-btn" id="resultCloseBtn" type="button" aria-label="关闭">×</button>
-      <h1 id="resultTitle">结果</h1>
-      <div class="result-stars" id="resultStars" aria-label="星级"></div>
+      <button class="close-btn" id="resultCloseBtn" type="button" aria-label="Close">×</button>
+      <h1 id="resultTitle">Result</h1>
+      <div class="result-stars" id="resultStars" aria-label="Star Rating"></div>
       <div class="reward-pop" id="rewardPop" hidden></div>
       <p id="resultDesc"></p>
       <div class="result-grid">
-        <div class="result-item"><span>差距</span><strong id="resultDistanceText">0 格</strong></div>
-        <div class="result-item"><span>用时</span><strong id="resultTimeText">0.0s</strong></div>
-        <div class="result-item"><span>步数</span><strong id="resultStepsText">0</strong></div>
-        <div class="result-item"><span>最佳时间</span><strong id="resultBestTimeText">--</strong></div>
-        <div class="result-item"><span>最佳步数</span><strong id="resultBestStepsText">--</strong></div>
+        <div class="result-item"><span>Distance</span><strong id="resultDistanceText">0 tiles</strong></div>
+        <div class="result-item"><span>Time</span><strong id="resultTimeText">0.0s</strong></div>
+        <div class="result-item"><span>Moves</span><strong id="resultStepsText">0</strong></div>
+        <div class="result-item"><span>Best Time</span><strong id="resultBestTimeText">--</strong></div>
+        <div class="result-item"><span>Best Moves</span><strong id="resultBestStepsText">--</strong></div>
       </div>
-      <button class="small-btn" id="resultHintBtn" type="button" hidden>提示</button>
+      <button class="small-btn" id="resultHintBtn" type="button" hidden>Hint</button>
       <div class="result-actions" id="resultActions"></div>
     </div>
   </div>
 
   <div class="overlay hide" id="pauseOverlay">
     <div class="card pause-card">
-      <h1>暂停</h1>
-      <p id="pauseDesc">游戏已暂停。</p>
-      <button class="primary-btn" id="resumeBtn" type="button">继续</button>
+      <h1>Pause</h1>
+      <p id="pauseDesc">Game paused.</p>
+      <button class="primary-btn" id="resumeBtn" type="button">Resume</button>
       <div class="secondary-row">
-        <button class="small-btn" id="pauseRestartBtn" type="button">重新开始</button>
-        <button class="small-btn" id="pauseMenuBtn" type="button">返回菜单</button>
+        <button class="small-btn" id="pauseRestartBtn" type="button">Restart</button>
+        <button class="small-btn" id="pauseMenuBtn" type="button">Main Menu</button>
       </div>
     </div>
   </div>
 
   <div class="overlay hide" id="levelSelectOverlay">
     <div class="card select-card">
-      <button class="close-btn" id="levelSelectCloseBtn" type="button" aria-label="关闭">×</button>
-      <h1>关卡选择</h1>
-      <p id="levelSelectDesc">前 20 关自由切换，第 21 关以后按通关进度解锁。</p>
+      <button class="close-btn" id="levelSelectCloseBtn" type="button" aria-label="Close">×</button>
+      <h1>Level Select</h1>
+      <p id="levelSelectDesc">The first 20 levels are open. Level 21+ unlock as you clear the campaign.</p>
       <div class="level-tabs" id="levelTabs"></div>
       <div class="level-select" id="levelSelectList"></div>
     </div>
@@ -1908,10 +2089,10 @@
 
   <div class="overlay hide" id="shopOverlay">
     <div class="card select-card">
-      <button class="close-btn" id="shopCloseBtn" type="button" aria-label="关闭">×</button>
-      <h1>商店</h1>
-      <p>金币只解锁外观，不影响能力。</p>
-      <div class="coin-pill" id="coinText">0 金币</div>
+      <button class="close-btn" id="shopCloseBtn" type="button" aria-label="Close">×</button>
+      <h1>Shop</h1>
+      <p>Coins unlock cosmetics only. No pay-to-win upgrades.</p>
+      <div class="coin-pill" id="coinText">0 Coins</div>
       <div class="shop-list" id="shopList"></div>
     </div>
   </div>
@@ -1962,55 +2143,55 @@
     teleA: 'A',
     teleB: 'B',
     goal: '◎',
-    key: '钥'
+    key: 'KEY'
   };
   const SPECIAL_TIPS = {
-    bounce: '弹跳格：按进入方向多跳一格。',
-    ice: '冰面：会一直滑到尽头。',
-    teleA: '传送门：会传到同色出口。',
-    teleB: '传送门：会传到同色出口。',
-    fast: '快裂格：塌得更快。',
-    trap: '陷阱格：踩上去会直接失败。',
-    safe: '安全格：不会塌，可以短暂停顿。',
-    key: '钥匙：拿到后出口才会打开。'
+    bounce: 'Launch pad: jumps one extra tile in your entry direction.',
+    ice: 'Ice: you keep sliding until the end.',
+    teleA: 'Portal: sends you to the matching gate.',
+    teleB: 'Portal: sends you to the matching gate.',
+    fast: 'Crack tile: falls faster.',
+    trap: 'Trap: step on it and the run ends.',
+    safe: 'Safe tile: does not fall, giving you a brief breather.',
+    key: 'Key: collect it before the exit opens.'
   };
   const CHAPTERS = [
-    { title: '第 1 章：基础塌陷', desc: '1-20 关默认自由切换，教学与现有机制。' },
-    { title: '第 2 章：裂冰路线', desc: '21-40 关按进度解锁，路线规划、快裂和冰面组合。' },
-    { title: '第 3 章：跃迁深渊', desc: '41-60 关按进度解锁，弹跳、传送、陷阱与安全格综合。' }
+    { title: 'Chapter 1: First Cracks', desc: 'Levels 1-20 are open by default, covering onboarding and core mechanics.' },
+    { title: 'Chapter 2: Frostbreak Routes', desc: 'Levels 21-40 unlock by progress, focusing on route planning, crack tiles, and ice.' },
+    { title: 'Chapter 3: Void Shift', desc: 'Levels 41-60 unlock by progress, mixing launch pads, portals, traps, and safe tiles.' }
   ];
   const SKINS = [
-    { id: 'default', name: '默认小人', cost: 0 },
-    { id: 'robot', name: '机器人', cost: 80 },
-    { id: 'dog', name: '小狗', cost: 120 },
-    { id: 'chicken', name: '鸡', cost: 120 },
-    { id: 'alien', name: '外星人', cost: 160 }
+    { id: 'default', name: 'Runner', cost: 0 },
+    { id: 'robot', name: 'Robot', cost: 80 },
+    { id: 'dog', name: 'Dog', cost: 120 },
+    { id: 'chicken', name: 'Chicken', cost: 120 },
+    { id: 'alien', name: 'Alien', cost: 160 }
   ];
   const THEMES = [
-    { id: 'abyss', name: '深渊平台', cost: 0 },
-    { id: 'glacier', name: '冰川平台', cost: 120 },
-    { id: 'lava', name: '熔岩平台', cost: 140 },
-    { id: 'space', name: '太空平台', cost: 160 }
+    { id: 'abyss', name: 'Abyss Tiles', cost: 0 },
+    { id: 'glacier', name: 'Glacier Tiles', cost: 120 },
+    { id: 'lava', name: 'Lava Tiles', cost: 140 },
+    { id: 'space', name: 'Space Tiles', cost: 160 }
   ];
   const EXITS = [
-    { id: 'default', name: '蓝色出口', cost: 0 },
-    { id: 'aurora', name: '极光出口', cost: 90 },
-    { id: 'gold', name: '金币出口', cost: 110 },
-    { id: 'violet', name: '紫电出口', cost: 130 }
+    { id: 'default', name: 'Blue Exit', cost: 0 },
+    { id: 'aurora', name: 'Aurora Exit', cost: 90 },
+    { id: 'gold', name: 'Gold Exit', cost: 110 },
+    { id: 'violet', name: 'Violet Exit', cost: 130 }
   ];
   const COIN_REWARD_BY_STAR = { 1: 10, 2: 18, 3: 30 };
   const ENDLESS_STAGES = [
-    { at: 0, name: '基础塌陷', tip: '危险升级：基础塌陷' },
-    { at: 50, name: '快裂增加', tip: '危险升级：快裂地板增加' },
-    { at: 120, name: '冰面区域', tip: '危险升级：冰面开始生成' },
-    { at: 220, name: '跳板陷阱', tip: '危险升级：弹跳和陷阱加入' },
-    { at: 350, name: '跃迁深渊', tip: '危险升级：传送门和高速崩塌' }
+    { at: 0, name: 'First Cracks', tip: 'Danger up: First Cracks' },
+    { at: 50, name: 'More Crack Tiles', tip: 'Danger up: more crack tiles' },
+    { at: 120, name: 'Ice Zone', tip: 'Danger up: ice tiles appear' },
+    { at: 220, name: 'Launch & Trap Mix', tip: 'Danger up: launch pads and traps added' },
+    { at: 350, name: 'Void Shift', tip: 'Danger up: portals and faster collapse' }
   ];
   const OBJECTIVE_LABELS = {
-    steps: '限步通关',
-    key: '先拿钥匙',
-    avoidFastBonus: '无快裂奖励',
-    safeBonus: '安全格奖励'
+    steps: 'Move Limit',
+    key: 'Grab the Key',
+    avoidFastBonus: 'No-Crack Bonus',
+    safeBonus: 'Safe Tile Bonus'
   };
   const COLLAPSE = {
     normal: 620,
@@ -2036,8 +2217,8 @@
   };
   const LEVELS = [
     {
-      title: '别回头',
-      hint: '沿着底边和右边冲到出口。身后会开始塌，回头就没有路。',
+      title: "Don't Look Back",
+      hint: 'Dash along the bottom, then up the right side to the exit. The floor behind you will start falling, so turning back is not an option.',
       map: [
         '######G',
         '######.',
@@ -2053,8 +2234,8 @@
       ]
     },
     {
-      title: '第一次转弯',
-      hint: '路线会折返上升，但不能踩回刚离开的格子。先看清下一段再动。',
+      title: 'First Turn',
+      hint: 'The path turns back upward, but you cannot step on the tile you just left. Read the next stretch before moving.',
       map: [
         '######G',
         '######.',
@@ -2070,8 +2251,8 @@
       ]
     },
     {
-      title: '窄桥教学',
-      hint: '窄桥上每一步都很贵。出口前有一段短冲刺，别在桥中间犹豫。',
+      title: 'Narrow Bridge',
+      hint: 'Every move on a narrow bridge matters. There is a short sprint before the exit, so do not hesitate in the middle.',
       map: [
         '#####.G',
         '#####..',
@@ -2087,8 +2268,8 @@
       ]
     },
     {
-      title: '第一条死路',
-      hint: '上方有诱饵岔路。走错会被自己封死，先找能继续接到出口的线。',
+      title: 'First Dead End',
+      hint: 'A tempting fork is waiting above. The wrong turn seals you in, so choose the route that still connects to the exit.',
       map: [
         '#####.G',
         '#####..',
@@ -2104,8 +2285,8 @@
       ]
     },
     {
-      title: '安全落脚点',
-      hint: '绿色 + 是安全格，可以短暂停顿观察。死路里也会有安全格，不代表那是正路。',
+      title: 'Safe Landing',
+      hint: 'Green + tiles are safe and let you pause briefly. Some dead ends have safe tiles too; safety does not always mean the right path.',
       map: [
         '####..G',
         '####.##',
@@ -2121,8 +2302,8 @@
       ]
     },
     {
-      title: '路线选择',
-      hint: '两条路都能接近出口，但短路更紧。安全格能救节奏，不能救错误路线。',
+      title: 'Route Choice',
+      hint: 'Both routes get close to the exit, but the shortcut is tighter. Safe tiles save rhythm, not bad decisions.',
       map: [
         '###...G',
         '###.###',
@@ -2138,8 +2319,8 @@
       ]
     },
     {
-      title: '快裂出现',
-      hint: '红色 ! 会更快塌。踩过以后马上接下一步，预输入会很有用。',
+      title: 'Crack Tiles',
+      hint: 'Red !! tiles fall faster. Move again immediately after stepping on one; buffered inputs help.',
       map: [
         '#####.G',
         '#####F.',
@@ -2155,8 +2336,8 @@
       ]
     },
     {
-      title: '快裂桥',
-      hint: '连续快裂格要一口气通过。方向按钮按下会高亮，方便手机上确认输入。',
+      title: 'Crack Bridge',
+      hint: 'A chain of crack tiles must be crossed in one burst. Direction buttons highlight on press, which helps confirm mobile input.',
       map: [
         '####..G',
         '####F##',
@@ -2172,8 +2353,8 @@
       ]
     },
     {
-      title: '快裂假路',
-      hint: '不是所有快裂都是正路。有些红格是诱饵，冲进去会把自己封死。',
+      title: 'Fake Crack Route',
+      hint: 'Not every crack tile is on the right path. Some red tiles are bait and will trap you.',
       map: [
         '###...G',
         '###F###',
@@ -2189,8 +2370,8 @@
       ]
     },
     {
-      title: '冰面入门',
-      hint: '冰面 ~ 会沿当前方向继续滑。只在直线段上进冰，别斜着撞进死角。',
+      title: 'Ice Basics',
+      hint: 'Ice keeps sliding in your current direction. Enter it on straight lines; do not slide into a corner.',
       map: [
         '#####.G',
         '####...',
@@ -2206,8 +2387,8 @@
       ]
     },
     {
-      title: '冰上加速',
-      hint: '冰面能省步数，也会带你滑过头。观察冰面尽头有没有落脚格。',
+      title: 'Ice Speed',
+      hint: 'Ice can save moves, but it can also carry you too far. Check the landing tile at the end.',
       map: [
         '####..G',
         '####I##',
@@ -2223,8 +2404,8 @@
       ]
     },
     {
-      title: '冰与死路',
-      hint: '冰面旁的岔路经常是陷阱。滑行前先确认终点，不要只看眼前一格。',
+      title: 'Ice Dead Ends',
+      hint: 'Forks beside ice are often traps. Confirm the end of the slide, not just the next tile.',
       map: [
         '###...G',
         '###I###',
@@ -2240,8 +2421,8 @@
       ]
     },
     {
-      title: '弹跳入门',
-      hint: '黄色 ^ 会按当前方向多跳一格。用它越过节奏压力，但要保证落点存在。',
+      title: 'Launch Pad Basics',
+      hint: 'Yellow launch pads jump one extra tile in your current direction. Use them to skip pressure, but make sure the landing exists.',
       map: [
         '#####.G',
         '#####..',
@@ -2257,8 +2438,8 @@
       ]
     },
     {
-      title: '弹跳路线',
-      hint: '有些近路必须踩弹跳格。方向错了会飞出平台，失败原因会直接告诉你。',
+      title: 'Launch Route',
+      hint: 'Some shortcuts require launch pads. Choose the wrong direction and you fly off the platform.',
       map: [
         '####..G',
         '####P##',
@@ -2274,8 +2455,8 @@
       ]
     },
     {
-      title: '弹跳假落点',
-      hint: '弹跳格旁边的缺口会骗人。先看跳后的第二格，再决定从哪个方向踩。',
+      title: 'Fake Landing',
+      hint: 'Gaps near launch pads are bait. Check the second tile after the jump before choosing your entry direction.',
       map: [
         '###...G',
         '###P###',
@@ -2291,8 +2472,8 @@
       ]
     },
     {
-      title: '传送门',
-      hint: 'A/B 传送格会互相连接。用传送跨过断层，身后的塌陷会把旧路彻底切断。',
+      title: 'Portals',
+      hint: 'A/B portals connect to each other. Use them to cross breaks while the collapse cuts off your old route.',
       map: [
         '###...G',
         '###.###',
@@ -2308,8 +2489,8 @@
       ]
     },
     {
-      title: '传送选择',
-      hint: '传送门很亮，但也可能把你送到压力点。进门前准备好下一步。',
+      title: 'Portal Choice',
+      hint: 'Portals are bright, but they can drop you into pressure. Be ready for the next move before entering.',
       map: [
         '####..G',
         '####F##',
@@ -2325,8 +2506,8 @@
       ]
     },
     {
-      title: '传送断层',
-      hint: '这关正路要借传送跨越断层，错误岔路会让路线被你自己封死。',
+      title: 'Portal Gap',
+      hint: 'The correct route uses a portal to cross a gap. The wrong fork lets your own path seal you in.',
       map: [
         '###...G',
         '###I###',
@@ -2342,8 +2523,8 @@
       ]
     },
     {
-      title: '综合挑战一',
-      hint: '快裂、冰面、弹跳、传送混在一起。节奏是：冲刺、滑行、传送、再冲刺。',
+      title: 'Mixed Challenge I',
+      hint: 'Crack tiles, ice, launch pads, and portals are mixed together. The rhythm is sprint, slide, warp, sprint again.',
       map: [
         '###...G',
         '###P###',
@@ -2359,8 +2540,8 @@
       ]
     },
     {
-      title: '最终逃生',
-      hint: '每一种格子都会出现。把预输入用起来，脚下刚塌就跳走。',
+      title: 'Final Escape',
+      hint: 'Every tile type appears. Use buffered inputs and leap away the moment the floor gives out.',
       map: [
         '###..FG',
         '###P###',
@@ -2383,53 +2564,53 @@
   function applyTutorialLevels() {
     const tutorial = [
       {
-        title: '只管冲到出口',
-        hint: '第一关只教一件事：从起点走到发光出口。离开的地板会开始塌。',
+        title: 'Just Reach the Exit',
+        hint: 'Level one teaches one thing: move from the start to the glowing exit. Tiles begin falling after you leave them.',
         map: ['######G','######.','######.','######.','######.','######.','######.','######.','######.','######.','S......']
       },
       {
-        title: '不能回头',
-        hint: '走过的格子会掉下去。不要回头，沿着主路一口气上去。',
+        title: 'No Turning Back',
+        hint: 'Tiles you step off will fall. Do not turn back; follow the main route upward in one push.',
         map: ['######G','######.','####...','####.##','##...##','##.####','##...##','####.##','####.##','####.##','S....##']
       },
       {
-        title: '安全格',
-        hint: '绿色 + 是安全格，不会塌。可以用它短暂停顿，但别把安全格当成万能路。',
+        title: 'Safe Tiles',
+        hint: 'Green + tiles do not fall. Use them for a quick pause, but do not treat them as a guaranteed correct route.',
         map: ['######G','######.','######.','######O','######.','######.','######.','######.','######.','######.','S......']
       },
       {
-        title: '快裂格',
-        hint: '红色 !! 塌得更快。踩上去以后马上接下一步，别停。',
+        title: 'Crack Tiles',
+        hint: 'Red !! tiles fall faster. Move again right after landing; do not stop.',
         map: ['######G','######.','######.','######F','######.','######.','######F','######.','######.','######.','S..F...']
       },
       {
-        title: '冰面滑行',
-        hint: '冰面 ≋ 会沿着进入方向继续滑。先看冰面尽头有没有路。',
+        title: 'Ice Slide',
+        hint: 'Ice ≋ keeps sliding in your entry direction. Check whether the end of the slide has a route.',
         map: ['######G','######.','######.','######.','######I','######.','######I','######.','######.','######.','S......']
       },
       {
-        title: '弹跳落点',
-        hint: '黄色 ⇈ 会按当前方向多跳一格。踩之前先看第二格落点。',
+        title: 'Launch Landing',
+        hint: 'Yellow ⇈ pads jump one extra tile in your current direction. Check the second-tile landing before stepping in.',
         map: ['######G','######.','######.','######.','######.','######.','######.','######.','######.','######.','S..P...']
       },
       {
-        title: '传送门',
-        hint: 'A/B 会互相传送。进门前先准备好下一步。',
+        title: 'Portals',
+        hint: 'A/B portals send you to each other. Prepare the next move before entering.',
         map: ['######G','######B','#######','#######','#######','#######','#######','#######','#######','#######','S..A###']
       },
       {
-        title: '陷阱别踩',
-        hint: '紫色 ✕ 是陷阱。它常出现在看似更近的诱饵路上。',
+        title: 'Avoid Traps',
+        hint: 'Purple ✕ tiles are traps. They often sit on bait routes that look shorter.',
         map: ['######G','######.','####...','####.X#','####.##','####.##','####.##','####.##','####.##','####.##','S.....#']
       },
       {
-        title: '钥匙开门',
-        hint: '这一关要先拿钥匙，出口才会开启。路线不要绕回已经塌掉的位置。',
+        title: 'Key Gate',
+        hint: 'This level requires the key before the exit opens. Do not route back through tiles that have already fallen.',
         map: ['######G','######.','####...','####.##','##...##','##.####','##...##','####.##','####.##','####.##','S....##']
       },
       {
-        title: '小综合',
-        hint: '快裂、冰面、弹跳和安全格会一起出现。先判断落点，再保持节奏。',
+        title: 'Mini Mix',
+        hint: 'Crack tiles, ice, launch pads, and safe tiles appear together. Read the landing, then keep the rhythm.',
         map: ['######G','######.','####..O','####I##','####F##','####.##','####.##','####.##','####.##','####.##','S.P...#']
       }
     ];
@@ -2457,9 +2638,9 @@
   function getGeneratedTheme(levelNumber) {
     if (levelNumber <= 30) {
       return {
-        title: `裂缝路线 ${levelNumber - 20}`,
-        hint: '第二章前半：快裂和岔路会逼你提前规划，红色格子踩过就立刻接下一步。',
-        hintMove: '第一步建议向右，先走底部主通道，再看红色快裂桥。',
+        title: `Crack Route ${levelNumber - 20}`,
+        hint: 'Chapter 2A: crack tiles and forks force planning. Step off red tiles immediately.',
+        hintMove: 'Suggested first move: right. Take the lower main lane, then read the red crack bridge.',
         fast: 2 + (levelNumber % 3),
         ice: levelNumber >= 26 ? 1 : 0,
         bounce: 0,
@@ -2471,9 +2652,9 @@
     }
     if (levelNumber <= 40) {
       return {
-        title: `冰裂连线 ${levelNumber - 30}`,
-        hint: '第二章后半：冰面会把你送到下一段路线，先看滑行终点，再决定是否踩快裂。',
-        hintMove: '第一步建议向右；遇到冰面前，先确认冰面尽头是否接着主路。',
+        title: `Frostbreak Line ${levelNumber - 30}`,
+        hint: 'Chapter 2B: ice carries you into the next route segment. Check the slide endpoint before using crack tiles.',
+        hintMove: 'Suggested first move: right. Before using ice, confirm that its endpoint connects to the main route.',
         fast: 2 + (levelNumber % 2),
         ice: 2 + (levelNumber % 3),
         bounce: 0,
@@ -2485,9 +2666,9 @@
     }
     if (levelNumber <= 50) {
       return {
-        title: `跳板跃迁 ${levelNumber - 40}`,
-        hint: '第三章前半：弹跳格和传送门会缩短路线，但踩之前必须看第二格落点。',
-        hintMove: '第一步建议向右，遇到跳板时沿主路方向踩，不要从侧面撞上去。',
+        title: `Launch Shift ${levelNumber - 40}`,
+        hint: 'Chapter 3A: launch pads and portals shorten the route, but you must check the second-tile landing first.',
+        hintMove: 'Suggested first move: right. Enter launch pads from the main-route direction, not from the side.',
         fast: 2,
         ice: levelNumber >= 47 ? 1 : 0,
         bounce: 2 + (levelNumber % 2),
@@ -2498,9 +2679,9 @@
       };
     }
     return {
-      title: `综合深渊 ${levelNumber - 50}`,
-      hint: '最终章：快裂、冰面、弹跳、传送和陷阱都会混在一起，靠预输入保持节奏。',
-      hintMove: '第一步建议向右，先抢底部路线；传送后马上找最近的安全落点。',
+      title: `Abyss Mix ${levelNumber - 50}`,
+      hint: 'Final chapter: crack tiles, ice, launch pads, portals, and traps all mix together. Buffer inputs to keep tempo.',
+      hintMove: 'Suggested first move: right. Claim the lower route first; after a portal, find the nearest safe landing fast.',
       fast: 3 + (levelNumber % 2),
       ice: 2,
       bounce: 2,
@@ -2861,7 +3042,7 @@
     prevBtn.disabled = state.mode !== 'level' || state.level <= 1;
     const nextLevel = state.level + 1;
     nextBtn.disabled = state.mode !== 'level' || nextLevel > MAX_LEVEL || !isLevelUnlocked(nextLevel);
-    nextBtn.textContent = nextLevel > MAX_LEVEL ? '已到最后一关' : '下一关';
+    nextBtn.textContent = nextLevel > MAX_LEVEL ? 'Final Level' : 'Next';
   }
 
   function refreshUI() {
@@ -2886,11 +3067,11 @@
 
   function renderShop() {
     if (!shopList || !coinText) return;
-    coinText.textContent = `${state.save.coins || 0} 金币`;
+    coinText.textContent = `${state.save.coins || 0} Coins`;
     shopList.textContent = '';
-    shopList.appendChild(createShopSection('角色皮肤', SKINS, 'skin'));
-    shopList.appendChild(createShopSection('地板主题', THEMES, 'theme'));
-    shopList.appendChild(createShopSection('出口特效', EXITS, 'exit'));
+    shopList.appendChild(createShopSection('Characters', SKINS, 'skin'));
+    shopList.appendChild(createShopSection('Tile Themes', THEMES, 'theme'));
+    shopList.appendChild(createShopSection('Exit Effects', EXITS, 'exit'));
   }
 
   function createShopSection(titleText, items, kind) {
@@ -2919,7 +3100,7 @@
     const name = document.createElement('strong');
     name.textContent = item.name;
     const meta = document.createElement('span');
-    meta.textContent = active ? '使用中' : unlocked ? '已解锁，点击使用' : `${item.cost} 金币`;
+    meta.textContent = active ? 'Equipped' : unlocked ? 'Unlocked. Tap to equip' : `${item.cost} Coins`;
     button.append(preview, name, meta);
     button.addEventListener('click', () => buyOrEquip(item, kind));
     return button;
@@ -2930,12 +3111,12 @@
     const currentKey = kind === 'skin' ? 'currentSkin' : kind === 'theme' ? 'currentTheme' : 'currentExit';
     if (!unlockedMap[item.id]) {
       if ((state.save.coins || 0) < item.cost) {
-        showToast('金币不足');
+        showToast('Not enough coins');
         return;
       }
       state.save.coins -= item.cost;
       unlockedMap[item.id] = true;
-      showToast('已解锁');
+      showToast('Unlocked');
     }
     state.save[currentKey] = item.id;
     saveProgress();
@@ -2992,9 +3173,9 @@
       [[10,0],[10,4],[8,4],[8,1],[6,1],[6,6],[4,6],[4,2],[2,2],[2,5],[0,5],[0,6]]
     ];
     const theme = {
-      title: `每日挑战 ${dateKey}`,
-      hint: '每日挑战不影响主线解锁。今天的地图固定，重试会累计今日死亡次数。',
-      hintMove: '第一步建议向右，先抢底部路线。',
+      title: `Daily Run ${dateKey}`,
+      hint: "Daily Run does not affect campaign unlocks. Today's map is fixed, and retries count today's deaths.",
+      hintMove: 'Suggested first move: right. Take the lower route first.',
       fast: 3 + (seed % 2),
       ice: 1 + (seed % 3),
       bounce: 1 + ((seed >> 2) % 2),
@@ -3048,7 +3229,7 @@
     updateHud();
     updateHints();
     updateNavButtons();
-    showToast('每日挑战');
+    showToast('Daily Run');
   }
 
   function initGridDom() {
@@ -3074,7 +3255,7 @@
   function startGame(levelNumber = state.level) {
     const nextLevel = Math.max(1, Math.min(MAX_LEVEL, levelNumber));
     if (!isLevelUnlocked(nextLevel)) {
-      showToast('先通关当前关');
+      showToast('Clear the current level first');
       return;
     }
     const parsed = parseLevel(nextLevel);
@@ -3115,7 +3296,7 @@
     updateHud();
     updateHints();
     refreshUI();
-    showToast(`第 ${state.level} 关`);
+    showToast(`Level ${state.level}`);
   }
 
   function enterCell(r, c) {
@@ -3125,7 +3306,7 @@
     if (cell.type === 'key' && state.objective) {
       state.objective.keyCollected = true;
       cell.type = 'normal';
-      showToast('拿到钥匙');
+      showToast('Key collected');
       playSound('coin');
     }
     if (cell.type === 'safe' && state.objective) state.objective.safeStepped = true;
@@ -3242,7 +3423,7 @@
     const finalStep = path.steps[path.steps.length - 1];
     if (finalStep && getCell(finalStep.r, finalStep.c)?.type === 'goal' && isGoalLockedByObjective()) {
       bump();
-      showToast('先拿钥匙，出口才会打开');
+      showToast('Grab the key before the exit opens');
       playSound('bump');
       state.moving = false;
       runQueuedMoveSoon();
@@ -3258,9 +3439,9 @@
 
     createDust(from.r, from.c);
     playSound(path.kind === 'teleport' ? 'teleport' : path.kind === 'ice' ? 'ice' : path.kind === 'bounce' ? 'bounce' : 'jump');
-    if (path.kind === 'teleport') showToast('传送脱险');
-    if (path.kind === 'ice') showToast('滑过去');
-    if (path.kind === 'bounce') showToast('弹过去');
+    if (path.kind === 'teleport') showToast('Warped out');
+    if (path.kind === 'ice') showToast('Slide through');
+    if (path.kind === 'bounce') showToast('Launched');
     state.lastPathKind = path.kind;
 
     playerEl.classList.remove('jump', 'land');
@@ -3473,7 +3654,7 @@
       { transform: `${playerEl.style.transform} scale(.9)` },
       { transform: `${playerEl.style.transform} scale(1)` }
     ], { duration: 120, easing: 'ease-out' });
-    showToast('走不通');
+    showToast('Blocked');
   }
 
   function shakeScreen() {
@@ -3504,12 +3685,12 @@
     refreshUI();
     resetResultVisuals();
     renderResultStars(grade);
-    showRewardPop(`+${rewardInfo.coins} 金币`);
+    showRewardPop(`+${rewardInfo.coins} Coins`);
     playWinCelebration();
     playSound('win');
-    resultTitle.textContent = '通关';
+    resultTitle.textContent = 'Cleared';
     const extra = getObjectiveResultText();
-    const rewardNote = rewardInfo.firstClear ? '首次通关奖励' : rewardInfo.improved ? '刷新记录奖励' : '重复通关奖励';
+    const rewardNote = rewardInfo.firstClear ? 'First-clear reward' : rewardInfo.improved ? 'New record reward' : 'Replay reward';
     resultDesc.textContent = `${rewardNote}${extra}`;
     showResult(0);
     resultHintBtn.hidden = true;
@@ -3532,7 +3713,7 @@
     resetResultVisuals();
     resultTitle.textContent = reason.title;
     const distance = distanceToGoal();
-    resultDesc.textContent = `${reason.desc} · 差 ${distance} 格`;
+    resultDesc.textContent = `${reason.desc} · ${distance} tiles away`;
     showResult(distance);
     resultHintBtn.hidden = true;
     resultHintBtn.onclick = () => showHintForCurrentLevel();
@@ -3563,11 +3744,11 @@
     refreshUI();
     resetResultVisuals();
     renderResultStars(3);
-    showRewardPop(`+${reward} 金币`);
+    showRewardPop(`+${reward} Coins`);
     playWinCelebration();
     playSound('win');
-    resultTitle.textContent = `每日挑战完成`;
-    resultDesc.textContent = firstDailyReward ? '今日首次完成奖励' : improved ? '刷新今日最佳' : '重复完成奖励';
+    resultTitle.textContent = `Daily Run Cleared`;
+    resultDesc.textContent = firstDailyReward ? 'First Daily clear reward' : improved ? 'New Daily best' : 'Replay reward';
     showResult(0);
     resultBestTimeText.textContent = `${state.save.dailyChallengeBest[key].time.toFixed(1)}s`;
     resultBestStepsText.textContent = String(state.save.dailyChallengeBest[key].steps);
@@ -3586,8 +3767,8 @@
     state.daily.deaths += 1;
     const best = state.save.dailyChallengeBest[key];
     const reason = getFailureCopy(reasonKey);
-    resultTitle.textContent = '每日挑战失败';
-    resultDesc.textContent = `${reason.desc} 今日死亡 ${state.daily.deaths} 次。每日挑战不影响主线解锁。`;
+    resultTitle.textContent = 'Daily Run Failed';
+    resultDesc.textContent = `${reason.desc} Deaths today ${state.daily.deaths} times.Daily Run does not affect campaign unlocks.`;
     showResult(distanceToGoal());
     resultBestTimeText.textContent = best ? `${Number(best.time).toFixed(1)}s` : '--';
     resultBestStepsText.textContent = best ? String(best.steps) : '--';
@@ -3599,41 +3780,41 @@
 
   function getFailureCopy(reasonKey) {
     const copy = {
-      stay: { title: '脚下塌空', desc: '停太久了' },
-      blocked: { title: '路线封死', desc: '前面没路了' },
-      trap: { title: '踩到陷阱', desc: '避开 ✕' },
-      bounceVoid: { title: '弹跳落空', desc: '先看第二格' },
-      iceWrong: { title: '冰面滑错', desc: '先看终点' },
-      tooManySteps: { title: '步数超限', desc: '换短路线' }
+      stay: { title: 'Floor Gave Way', desc: 'You waited too long' },
+      blocked: { title: 'Route Sealed', desc: 'No route ahead' },
+      trap: { title: 'Hit a Trap', desc: 'Avoid ✕' },
+      bounceVoid: { title: 'Bad Launch', desc: 'Check the second tile' },
+      iceWrong: { title: 'Bad Slide', desc: 'Check the endpoint' },
+      tooManySteps: { title: 'Move Limit Failed', desc: 'Find a shorter route' }
     };
-    return copy[reasonKey] || { title: '掉下去了', desc: '马上重来' };
+    return copy[reasonKey] || { title: 'You Fell', desc: 'Run it back' };
   }
 
   function renderResultActions(kind) {
     resultActions.textContent = '';
     if (kind === 'dailyWin' || kind === 'dailyFail') {
-      resultActions.appendChild(createResultButton('再试每日', startDailyChallenge, true));
-      resultActions.appendChild(createResultButton('选关', showLevelSelect));
-      resultActions.appendChild(createResultButton('商城', showShop));
-      resultActions.appendChild(createResultButton('无尽模式', startEndless));
+      resultActions.appendChild(createResultButton('Retry Daily', startDailyChallenge, true));
+      resultActions.appendChild(createResultButton('Levels', showLevelSelect));
+      resultActions.appendChild(createResultButton('Shop', showShop));
+      resultActions.appendChild(createResultButton('Endless', startEndless));
       return;
     }
     if (kind === 'win') {
       const nextLevel = state.level + 1;
-      resultActions.appendChild(createResultButton(nextLevel > MAX_LEVEL ? '已到最后一关' : '下一关', () => {
-        if (nextLevel > MAX_LEVEL) return showToast('已到最后一关');
-        if (!isLevelUnlocked(nextLevel)) return showToast('先通关当前关');
+      resultActions.appendChild(createResultButton(nextLevel > MAX_LEVEL ? 'Final Level' : 'Next', () => {
+        if (nextLevel > MAX_LEVEL) return showToast('Final Level');
+        if (!isLevelUnlocked(nextLevel)) return showToast('Clear the current level first');
         startGame(nextLevel);
       }, true, nextLevel > MAX_LEVEL || !isLevelUnlocked(nextLevel)));
-      resultActions.appendChild(createResultButton('选关', showLevelSelect));
-      resultActions.appendChild(createResultButton('商城', showShop));
-      resultActions.appendChild(createResultButton('无尽模式', startEndless));
+      resultActions.appendChild(createResultButton('Levels', showLevelSelect));
+      resultActions.appendChild(createResultButton('Shop', showShop));
+      resultActions.appendChild(createResultButton('Endless', startEndless));
       return;
     }
-    resultActions.appendChild(createResultButton('重新挑战', () => startGame(state.level), true));
-    resultActions.appendChild(createResultButton('选关', showLevelSelect));
-    resultActions.appendChild(createResultButton('商城', showShop));
-    resultActions.appendChild(createResultButton('无尽模式', startEndless));
+    resultActions.appendChild(createResultButton('Retry', () => startGame(state.level), true));
+    resultActions.appendChild(createResultButton('Levels', showLevelSelect));
+    resultActions.appendChild(createResultButton('Shop', showShop));
+    resultActions.appendChild(createResultButton('Endless', startEndless));
   }
 
   function createResultButton(text, handler, primary = false, disabled = false) {
@@ -3643,7 +3824,7 @@
     button.textContent = text;
     button.disabled = disabled;
     button.addEventListener('click', () => {
-      if (disabled) return showToast(text === '已到最后一关' ? '已到最后一关' : '先通关当前关');
+      if (disabled) return showToast(text === 'Final Level' ? 'Final Level' : 'Clear the current level first');
       handler();
     });
     return button;
@@ -3678,7 +3859,7 @@
   }
 
   function bindOverlayClose(overlayEl, closeFn) {
-    // 弹窗背景只吸收点击，不关闭弹窗；玩家必须点击弹窗内的按钮。
+    // Dialog backdrop absorbs taps only; players must use buttons inside the dialog.
     overlayEl.addEventListener('click', event => {
       if (event.target === overlayEl) {
         event.preventDefault();
@@ -3688,7 +3869,7 @@
   }
 
   function showResult(distance) {
-    resultDistanceText.textContent = `${distance} 格`;
+    resultDistanceText.textContent = `${distance} tiles`;
     resultTimeText.textContent = `${state.elapsed.toFixed(1)}s`;
     resultStepsText.textContent = String(state.steps);
     const bestTime = Number(state.save.bestTimes[state.level]);
@@ -3745,7 +3926,7 @@
   function setupLevelObjective(levelNumber, parsed) {
     const objective = {
       type: 'normal',
-      label: '逃到出口',
+      label: 'Reach the exit',
       keyCollected: false,
       safeStepped: false,
       touchedFast: false,
@@ -3758,7 +3939,7 @@
 
     if (levelNumber === 9 && path.length > 5) {
       objective.type = 'key';
-      objective.label = '先拿钥匙，再进出口';
+      objective.label = 'Grab the key, then enter the exit';
       const keyIndex = Math.max(2, Math.min(path.length - 3, Math.floor(path.length * .55)));
       const keyPos = path[keyIndex];
       const cell = parsed.cells?.[keyPos.r]?.[keyPos.c];
@@ -3768,15 +3949,15 @@
       }
     } else if (levelNumber === 10) {
       objective.type = 'safeBonus';
-      objective.label = '奖励目标：踩一次安全格 +10 金币';
+      objective.label = 'Bonus goal: step on a safe tile +10 Coins';
       objective.bonus = 'safe';
     } else if (levelNumber >= 8 && levelNumber % 4 === 0) {
       objective.type = 'steps';
       objective.limit = Math.max(shortest + 5, Math.min(34, shortest + 9));
-      objective.label = `限步：${objective.limit} 步内到出口`;
+      objective.label = `Move limit: reach the exit in ${objective.limit} moves`;
     } else if (levelNumber >= 10 && levelNumber % 5 === 0 && path.length > 5) {
       objective.type = 'key';
-      objective.label = '先拿钥匙，再进出口';
+      objective.label = 'Grab the key, then enter the exit';
       const keyIndex = Math.max(2, Math.min(path.length - 3, Math.floor(path.length * .55)));
       const keyPos = path[keyIndex];
       const cell = parsed.cells?.[keyPos.r]?.[keyPos.c];
@@ -3785,15 +3966,15 @@
         objective.key = { r: keyPos.r, c: keyPos.c };
       } else {
         objective.type = 'normal';
-        objective.label = '逃到出口';
+        objective.label = 'Reach the exit';
       }
     } else if (levelNumber >= 12 && levelNumber % 6 === 0) {
       objective.type = 'safeBonus';
-      objective.label = '奖励目标：踩一次安全格 +10 金币';
+      objective.label = 'Bonus goal: step on a safe tile +10 Coins';
       objective.bonus = 'safe';
     } else if (levelNumber >= 14 && levelNumber % 7 === 0) {
       objective.type = 'avoidFastBonus';
-      objective.label = '奖励目标：不踩快裂格 +10 金币';
+      objective.label = 'Bonus goal: avoid crack tiles +10 Coins';
       objective.bonus = 'avoidFast';
     }
     return objective;
@@ -3820,10 +4001,10 @@
   function getObjectiveResultText() {
     const obj = state.objective;
     if (!obj || obj.type === 'normal') return '';
-    if (obj.type === 'steps') return ` · 限步 ${state.steps}/${obj.limit}`;
-    if (obj.type === 'key') return obj.keyCollected ? ' · 已拿钥匙' : ' · 未拿钥匙';
-    if (obj.type === 'safeBonus') return obj.safeStepped ? ' · 安全格奖励达成' : ' · 安全格奖励未达成';
-    if (obj.type === 'avoidFastBonus') return obj.touchedFast ? ' · 快裂奖励未达成' : ' · 无快裂奖励达成';
+    if (obj.type === 'steps') return ` · Move limit ${state.steps}/${obj.limit}`;
+    if (obj.type === 'key') return obj.keyCollected ? ' · Key collected' : ' · No key';
+    if (obj.type === 'safeBonus') return obj.safeStepped ? ' · Safe tile bonus completed' : ' · Safe tile bonus missed';
+    if (obj.type === 'avoidFastBonus') return obj.touchedFast ? ' · No-crack bonus missed' : ' · No-crack bonus completed';
     return '';
   }
 
@@ -3888,7 +4069,7 @@
     e.lastMoveAt = now;
     e.maxCombo = Math.max(e.maxCombo, e.combo);
     e.score += 1 + Math.floor(e.combo / 4);
-    if (e.combo >= 3 && e.combo % 3 === 0) showToast(e.combo >= 9 ? `完美节奏 x${e.combo}` : `连逃 x${e.combo}`);
+    if (e.combo >= 3 && e.combo % 3 === 0) showToast(e.combo >= 9 ? `Perfect Tempo x${e.combo}` : `Combo Escape x${e.combo}`);
 
     const dangerRow = ROWS - 1 - Math.floor(e.line);
     const gap = dangerRow - state.player.r;
@@ -3897,7 +4078,7 @@
       e.score += bonus;
       e.nearMisses += 1;
       e.coinsEarned += gap === 1 ? 2 : 1;
-      showToast(gap === 1 ? `脚下刚塌 +${bonus}` : `贴边跳走 +${bonus}`);
+      showToast(gap === 1 ? `Last-second leap +${bonus}` : `Edge escape +${bonus}`);
       playSound('coin');
     }
   }
@@ -3920,11 +4101,11 @@
   }
 
   function getEndlessRank(distance) {
-    if (distance >= 600) return '地板传说';
-    if (distance >= 300) return '深渊高手';
-    if (distance >= 150) return '极限跑者';
-    if (distance >= 50) return '稳住了';
-    return '新手逃生者';
+    if (distance >= 600) return 'Floor Legend';
+    if (distance >= 300) return 'Abyss Ace';
+    if (distance >= 150) return 'Edge Runner';
+    if (distance >= 50) return 'Still Standing';
+    return 'Rookie Runner';
   }
 
   function showSwipeFeedback(dir) {
@@ -3940,12 +4121,12 @@
     state.save.audioMuted = !state.save.audioMuted;
     saveProgress();
     updateSoundButton();
-    showToast(state.save.audioMuted ? '音效关闭' : '音效开启');
+    showToast(state.save.audioMuted ? 'Sound Off' : 'Sound On');
     if (!state.save.audioMuted) playSound('coin');
   }
 
   function updateSoundButton() {
-    if (soundBtn) soundBtn.textContent = state.save.audioMuted ? '静音' : '音效';
+    if (soundBtn) soundBtn.textContent = state.save.audioMuted ? 'Muted' : 'Sound';
   }
 
   function playSound(kind = 'jump') {
@@ -3985,8 +4166,8 @@
     state.status = 'paused';
     state.pausedAt = performance.now();
     pauseDesc.textContent = state.mode === 'endless'
-      ? `距离 ${state.endless?.distance || 0}m · ${getEndlessStage(state.endless?.distance || 0).name}`
-      : `第 ${state.level} 关 · ${state.elapsed.toFixed(1)}s`;
+      ? `Distance ${state.endless?.distance || 0}m · ${getEndlessStage(state.endless?.distance || 0).name}`
+      : `Level ${state.level} · ${state.elapsed.toFixed(1)}s`;
     pauseOverlay.classList.remove('hide');
   }
 
@@ -4008,17 +4189,17 @@
     state.status = 'playing';
     state.pausedAt = 0;
     pauseOverlay.classList.add('hide');
-    showToast('继续');
+    showToast('Resume');
   }
 
 
   function ensureExtraUi() {
-    addMenuToolButton('guideBtn', '规则', showGuideOverlay);
-    addMenuToolButton('statsBtn', '体检', showStatsOverlay);
-    addMenuToolButton('saveBtn', '存档', showSaveOverlay);
+    addMenuToolButton('guideBtn', 'Rules', showGuideOverlay);
+    addMenuToolButton('statsBtn', 'Check', showStatsOverlay);
+    addMenuToolButton('saveBtn', 'Save', showSaveOverlay);
     const pauseRow = pauseOverlay?.querySelector('.secondary-row');
     if (pauseRow && !document.getElementById('pauseGuideBtn')) {
-      const guide = createToolButton('pauseGuideBtn', '规则', showGuideOverlay);
+      const guide = createToolButton('pauseGuideBtn', 'Rules', showGuideOverlay);
       pauseRow.appendChild(guide);
     }
     createGuideOverlay();
@@ -4048,7 +4229,7 @@
     const el = document.createElement('div');
     el.className = 'overlay hide';
     el.id = id;
-    el.innerHTML = `<div class="card select-card extra-tool-card"><button class="close-btn" type="button" aria-label="关闭">×</button><h1>${title}</h1>${bodyHtml}</div>`;
+    el.innerHTML = `<div class="card select-card extra-tool-card"><button class="close-btn" type="button" aria-label="Close">×</button><h1>${title}</h1>${bodyHtml}</div>`;
     app.appendChild(el);
     const close = () => el.classList.add('hide');
     el.querySelector('.close-btn')?.addEventListener('click', close);
@@ -4062,33 +4243,33 @@
   }
 
   function createGuideOverlay() {
-    createExtraOverlay('guideOverlay', '规则图标', `
-      <p>遇到新格子时只记一句话。</p>
+    createExtraOverlay('guideOverlay', 'Tile Guide', `
+      <p>Remember one simple rule for each tile.</p>
       <div class="guide-grid">
-        <div class="guide-item"><strong>普通</strong>离开后下沉、裂开、坠落。</div>
-        <div class="guide-item"><strong>!! 快裂</strong>塌得更快，落地马上走。</div>
-        <div class="guide-item"><strong>≋ 冰面</strong>沿进入方向滑到尽头。</div>
-        <div class="guide-item"><strong>⇈ 弹跳</strong>按当前方向多跳一格。</div>
-        <div class="guide-item"><strong>✕ 陷阱</strong>踩到直接失败。</div>
-        <div class="guide-item"><strong>+ 安全格</strong>不会塌，可以短暂停顿。</div>
-        <div class="guide-item"><strong>A/B 传送</strong>互相传送，进门前想好下一步。</div>
-        <div class="guide-item"><strong>钥</strong>拿到钥匙后出口才会开启。</div>
+        <div class="guide-item"><strong>Normal</strong>Sinks, cracks, then falls after you leave.</div>
+        <div class="guide-item"><strong>!! Crack</strong>Falls faster. Move right after landing.</div>
+        <div class="guide-item"><strong>≋ Ice</strong>Slides to the end in your entry direction.</div>
+        <div class="guide-item"><strong>⇈ Launch</strong>Jumps one extra tile in your current direction.</div>
+        <div class="guide-item"><strong>✕ Trap</strong>Step on it and the run ends.</div>
+        <div class="guide-item"><strong>+ Safe Tiles</strong>Does not fall, giving you a brief pause.</div>
+        <div class="guide-item"><strong>A/B Portal</strong>Warps between A and B. Plan your next move before entering.</div>
+        <div class="guide-item"><strong>KEY</strong>The exit opens only after you collect the key.</div>
       </div>`);
   }
 
   function createStatsOverlay() {
-    createExtraOverlay('statsOverlay', '关卡体检', '<p>用于测试关卡是否合理。</p><div class="debug-list" id="statsList"></div><button class="primary-btn" id="recheckBtn" type="button">重新检测</button>');
+    createExtraOverlay('statsOverlay', 'Level Check', '<p>Use this to check whether levels are valid.</p><div class="debug-list" id="statsList"></div><button class="primary-btn" id="recheckBtn" type="button">Recheck</button>');
     document.getElementById('recheckBtn')?.addEventListener('click', renderStatsPanel);
   }
 
   function createSaveOverlay() {
-    createExtraOverlay('saveOverlay', '存档工具', `
-      <p>本地 HTML 存档只在当前浏览器里。测试前可以导出备份。</p>
+    createExtraOverlay('saveOverlay', 'Save Tools', `
+      <p>This local HTML save only lives in the current browser. Export a backup before testing.</p>
       <textarea class="save-box" id="saveBox" spellcheck="false"></textarea>
       <div class="tool-row">
-        <button class="small-btn" id="copySaveBtn" type="button">复制导出</button>
-        <button class="small-btn" id="importSaveBtn" type="button">导入存档</button>
-        <button class="small-btn danger-btn" id="resetSaveBtn" type="button">清档</button>
+        <button class="small-btn" id="copySaveBtn" type="button">Copy Export</button>
+        <button class="small-btn" id="importSaveBtn" type="button">Import Save</button>
+        <button class="small-btn danger-btn" id="resetSaveBtn" type="button">Reset Save</button>
       </div>`);
     document.getElementById('copySaveBtn')?.addEventListener('click', copySaveText);
     document.getElementById('importSaveBtn')?.addEventListener('click', importSaveText);
@@ -4125,27 +4306,27 @@
       '+': [...flat].filter(ch => ch === 'O').length,
       'A/B': Math.min([...flat].filter(ch => ch === 'A').length, [...flat].filter(ch => ch === 'B').length)
     };
-    const specialText = Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join('，') || '无';
+    const specialText = Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(', ') || 'None';
     const objective = setupPreviewObjective(state.level, levelDef);
     const items = [
-      ['当前关', state.mode === 'level' ? `第 ${state.level} 关` : state.mode === 'endless' ? '无尽模式' : '每日挑战'],
-      ['检测结果', validation.pass ? `可通关，最短 ${validation.steps} 步` : validation.reasons.join('；')],
-      ['目标', objective],
-      ['特殊格', specialText],
-      ['失败次数', String(state.save.fails[state.level] || 0)],
-      ['历史星级', state.save.stars[state.level] ? '★'.repeat(state.save.stars[state.level]) : '未通关'],
-      ['金币', `${state.save.coins || 0}`],
-      ['无尽最佳', `${state.save.endlessBest || 0}m / ${state.save.endlessBestScore || 0}分`]
+      ['Current Level', state.mode === 'level' ? `Level ${state.level}` : state.mode === 'endless' ? 'Endless' : 'Daily Run'],
+      ['Check Result', validation.pass ? `Playable, shortest ${validation.steps} moves` : validation.reasons.join('; ')],
+      ['Goal', objective],
+      ['Special Tiles', specialText],
+      ['Fails', String(state.save.fails[state.level] || 0)],
+      ['Best Stars', state.save.stars[state.level] ? '★'.repeat(state.save.stars[state.level]) : 'Not cleared'],
+      ['Coins', `${state.save.coins || 0}`],
+      ['Endless Best', `${state.save.endlessBest || 0}m / ${state.save.endlessBestScore || 0} pts`]
     ];
     list.innerHTML = items.map(([k, v]) => `<div class="debug-item"><span>${k}</span><span>${v}</span></div>`).join('');
   }
 
   function setupPreviewObjective(levelNumber, levelDef) {
-    if (levelNumber === 9 || (levelNumber >= 10 && levelNumber % 5 === 0)) return '先拿钥匙';
-    if (levelNumber === 10 || (levelNumber >= 12 && levelNumber % 6 === 0)) return '踩安全格奖励';
-    if (levelNumber >= 8 && levelNumber % 4 === 0) return '限步通关';
-    if (levelNumber >= 14 && levelNumber % 7 === 0) return '无快裂奖励';
-    return '逃到出口';
+    if (levelNumber === 9 || (levelNumber >= 10 && levelNumber % 5 === 0)) return 'Grab the Key';
+    if (levelNumber === 10 || (levelNumber >= 12 && levelNumber % 6 === 0)) return 'Safe tile bonus';
+    if (levelNumber >= 8 && levelNumber % 4 === 0) return 'Move Limit';
+    if (levelNumber >= 14 && levelNumber % 7 === 0) return 'No-Crack Bonus';
+    return 'Reach the exit';
   }
 
   async function copySaveText() {
@@ -4154,16 +4335,16 @@
     box.select();
     try {
       await navigator.clipboard?.writeText(box.value);
-      showToast('已复制存档');
+      showToast('Save copied');
     } catch (error) {
       document.execCommand?.('copy');
-      showToast('已选中存档');
+      showToast('Save selected');
     }
   }
 
   function importSaveText() {
     const box = document.getElementById('saveBox');
-    if (!box?.value.trim()) return showToast('先粘贴存档');
+    if (!box?.value.trim()) return showToast('Paste a save first');
     try {
       const parsed = JSON.parse(box.value);
       state.save = migrateSave(parsed.save || parsed);
@@ -4171,31 +4352,31 @@
       refreshUI();
       updateSoundButton();
       document.getElementById('saveOverlay')?.classList.add('hide');
-      showToast('存档已导入');
+      showToast('Save imported');
     } catch (error) {
-      showToast('存档格式错误');
+      showToast('Invalid save format');
     }
   }
 
   function resetSaveData() {
-    if (!window.confirm('确定清空本地进度、金币和商店外观？')) return;
+    if (!window.confirm('Reset local progress, coins, and cosmetics?')) return;
     state.save = defaultSave();
     state.level = 1;
     saveProgress();
     refreshUI();
     document.getElementById('saveOverlay')?.classList.add('hide');
     showMenu();
-    showToast('已清档');
+    showToast('Save reset');
   }
 
   function getLevelHintMove(levelNumber) {
     const def = LEVELS[levelNumber - 1];
-    return def?.hintMove || '第一步建议向右，先走主路再处理特殊格。';
+    return def?.hintMove || 'Suggested first move: right. Follow the main route before handling special tiles.';
   }
 
   function showHintForCurrentLevel() {
     const text = state.mode === 'daily'
-      ? '第一步建议向右，先走底部主通道。'
+      ? 'Suggested first move: right. Take the lower main lane first.'
       : getLevelHintMove(state.level);
     showToast(text);
     const target = findHintCell();
@@ -4274,9 +4455,9 @@
     updatePlayerPosition();
     updateHud();
     updateNavButtons();
-    hintTitle.textContent = '无尽模式：向上逃';
-    hintText.textContent = '无尽模式会越来越快，路线会强制左右变道，并加入快裂、冰面、弹跳、陷阱、安全格和传送门。每排仍至少保留 3 格连续主路。';
-    showToast('无尽模式');
+    hintTitle.textContent = 'Endless: climb up';
+    hintText.textContent = 'Endless gets faster over time. Routes force left/right lane changes and add crack tiles, ice, launch pads, traps, safe tiles, and portals. Each row still keeps at least three connected main tiles.';
+    showToast('Endless');
   }
 
   function makeEndlessInitial() {
@@ -4320,7 +4501,7 @@
   }
 
   function chooseEndlessTargetCenter(distance) {
-    // 蛇形目标：中路只作为过渡，后续会强制左/右变道，避免一直站中间或只按上就能过。
+    // Snake target: middle lane is only a transition; later rows force left/right lane changes so holding Up is not enough.
     if (distance < 5) return 3;
     const phaseLength = distance < 26 ? 3 : distance < 58 ? 2 : 1;
     const pattern = [3, 2, 1, 1, 2, 3, 4, 5, 5, 4];
@@ -4333,12 +4514,12 @@
     const nextCore = contiguousCols(nextSafe, 3);
     const openCols = new Set([...previousCore, ...nextCore]);
 
-    // 只生成连续主路：变道时用上一排核心和下一排核心连接，避免孤岛/死胡同。
+    // Generate only connected main lanes: lane changes bridge previous and next cores to avoid islands or dead ends.
     const sorted = [...openCols].sort((a, b) => a - b);
     const filled = [];
     for (let c = sorted[0]; c <= sorted[sorted.length - 1]; c++) filled.push(c);
 
-    // 前几格稍宽给玩家适应；之后收窄，难度来自强制变道和普通模式格子机制。
+    // Early rows are wider for onboarding; later rows tighten, with difficulty from forced lane changes and tile mechanics.
     if (distance < 6) {
       const left = filled[0] - 1;
       const right = filled[filled.length - 1] + 1;
@@ -4393,7 +4574,7 @@
       const stable = getStableColumns(r);
       if (stable.length < 3 || !hasRun(stable, 3)) repairEndlessRow(r, center);
     }
-    // 上下相邻两排至少有 2 格重叠，避免出现看得到但接不上的断层。
+    // Adjacent rows keep at least two overlapping cells to avoid visible but unreachable breaks.
     for (let r = 1; r < ROWS; r++) {
       const above = new Set(getStableColumns(r - 1));
       const here = getStableColumns(r);
@@ -4436,7 +4617,7 @@
     const side = open.filter(c => !coreColumns.has(c));
     const spice = endlessNoise(distance, 8);
 
-    // 快裂：中后期高频出现，逼玩家不能停。
+    // Fragile tiles appear often in mid/late endless runs to keep players moving.
     if (distance > 4) {
       const count = Math.min(3, 1 + Math.floor(difficulty * 1.9));
       for (let i = 0; i < count; i++) {
@@ -4447,25 +4628,25 @@
       }
     }
 
-    // 冰面：会改变移动节奏，通常放在主路核心里。
+    // Ice changes movement rhythm and is usually placed in the main lane core.
     if (distance > 12 && spice > .42 && spice < .72 + difficulty * .08) {
       const c = core[Math.floor(endlessNoise(distance, 51) * core.length)];
       if (cells[c]?.type === 'normal') cells[c] = createCell('ice', 0, c);
     }
 
-    // 弹跳：后期出现，放在连续路线上；用错方向会失误，但不会让整条主路断掉。
+    // Launch pads appear later on connected routes; bad direction is risky but the route stays connected.
     if (distance > 26 && endlessNoise(distance, 61) < .16 + difficulty * .06) {
       const c = core[Math.floor(endlessNoise(distance, 62) * core.length)];
       if (cells[c]?.type === 'normal') cells[c] = createCell('bounce', 0, c);
     }
 
-    // 陷阱只放在额外侧格；即使出现陷阱，仍保留至少 3 格连续主路。
+    // Traps only appear on extra side cells; even with traps, at least three connected main cells remain.
     if (distance > 18 && side.length && endlessNoise(distance, 71) < .30 + difficulty * .14) {
       const c = side[Math.floor(endlessNoise(distance, 72) * side.length)];
       if (cells[c]?.type === 'normal') cells[c] = createCell('trap', 0, c);
     }
 
-    // 安全格前期偶尔给喘息，后期极少。
+    // Safe tiles appear occasionally early, rarely late.
     if (distance < 20 && endlessNoise(distance, 81) < .08) {
       const c = core[Math.floor(endlessNoise(distance, 82) * core.length)];
       if (cells[c]?.type === 'normal') cells[c] = createCell('safe', 0, c);
@@ -4478,7 +4659,7 @@
     const target = chooseEndlessTargetCenter(distance + Math.floor((state.endless.seed || 0) % 3));
     let shift = Math.sign(target - previousSafe);
 
-    // 后期每隔一两排就要接一次横向变化；如果目标相同，偶尔主动摆动一列。
+    // Later rows force lateral movement every one or two rows; if target stays the same, occasionally sway one column.
     if (shift === 0 && distance > 20 && endlessNoise(distance, 2) < Math.min(.62, .18 + difficulty * .22)) {
       shift = previousSafe <= 1 ? 1 : previousSafe >= COLS - 2 ? -1 : (endlessNoise(distance, 3) < .5 ? -1 : 1);
     }
@@ -4543,7 +4724,7 @@
     const dt = Math.min((now - state.lastFrame) / 1000, .05);
     state.lastFrame = now;
 
-    // 难度持续递增：崩塌线加速更明显，后期不横移会被追上。
+    // Difficulty keeps rising: the collapse line accelerates, and standing in one lane gets punished late.
     state.endless.speed = Math.min(1.85, .32 + state.endless.distance * .018);
     state.endless.line += state.endless.speed * dt;
     collapseLine.style.bottom = `${Math.min(92, state.endless.line * 8)}%`;
@@ -4580,7 +4761,7 @@
       if (cell.type === 'goal' || cell.type === 'safe' || cell.type === 'trap' || cell.type === 'teleA' || cell.type === 'teleB') continue;
 
       const roll = endlessNoise(state.endless.distance + attempt, 23);
-      // 变动只切换普通模式格子，不删主路；后期快裂/冰面/弹跳占比更高。
+      // Mutations only change normal-mode tile types, never remove the main route; late runs get more fragile, ice, and launch tiles.
       if (roll < .50 + difficulty * .10) cell.type = 'fast';
       else if (roll < .78) cell.type = 'ice';
       else if (roll < .88 && state.endless.distance > 30) cell.type = 'bounce';
@@ -4595,7 +4776,7 @@
     maybePlaceEndlessPortalPair();
     repairEndlessConnectivity();
     updateAllTiles();
-    if (changed) showToast('地板变动');
+    if (changed) showToast('Floor shifted');
   }
 
   function advanceEndlessIfNeeded() {
@@ -4621,7 +4802,7 @@
     updateAllTiles();
     invalidateBoardMetrics();
     updatePlayerPosition();
-    if (state.endless.distance % 10 === 0) showToast(`距离 ${state.endless.distance}m · ${getEndlessStage(state.endless.distance).name}`);
+    if (state.endless.distance % 10 === 0) showToast(`Distance ${state.endless.distance}m · ${getEndlessStage(state.endless.distance).name}`);
   }
 
   function endlessGameOver(reasonKey) {
@@ -4641,9 +4822,9 @@
     saveProgress();
     refreshUI();
     resetResultVisuals();
-    showRewardPop(`+${coinReward} 金币`);
-    resultTitle.textContent = '无尽结束';
-    resultDesc.innerHTML = `<span class="endless-rank">${rank}</span> · 分数 ${score} · ${score > oldBestScore ? '新纪录' : `差 ${Math.max(0, oldBestScore - score)} 分破纪录`}`;
+    showRewardPop(`+${coinReward} Coins`);
+    resultTitle.textContent = 'Endless Over';
+    resultDesc.innerHTML = `<span class="endless-rank">${rank}</span> · Score ${score} · ${score > oldBestScore ? 'New record' : `${Math.max(0, oldBestScore - score)} pts to record`}`;
     resultDistanceText.textContent = `${distance}m`;
     resultTimeText.textContent = `${state.elapsed.toFixed(1)}s`;
     resultStepsText.textContent = String(state.steps);
@@ -4651,10 +4832,10 @@
     resultBestStepsText.textContent = `${state.save.endlessBest}m`;
     resultHintBtn.hidden = true;
     resultActions.textContent = '';
-    resultActions.appendChild(createResultButton('再来一局', startEndless, true));
-    resultActions.appendChild(createResultButton('选关', showLevelSelect));
-    resultActions.appendChild(createResultButton('商城', showShop));
-    resultActions.appendChild(createResultButton('返回关卡模式', () => {
+    resultActions.appendChild(createResultButton('Run Again', startEndless, true));
+    resultActions.appendChild(createResultButton('Levels', showLevelSelect));
+    resultActions.appendChild(createResultButton('Shop', showShop));
+    resultActions.appendChild(createResultButton('Back to Campaign', () => {
       closeResultOverlay();
       showMenu();
     }));
@@ -4699,29 +4880,29 @@
 
   function updateHud() {
     if (state.status === 'playing') state.elapsed = (performance.now() - state.startTime) / 1000;
-    levelText.textContent = state.mode === 'endless' ? '无尽' : state.mode === 'daily' ? '每日' : `${state.level} / ${MAX_LEVEL}`;
+    levelText.textContent = state.mode === 'endless' ? 'Endless' : state.mode === 'daily' ? 'Daily' : `${state.level} / ${MAX_LEVEL}`;
     scoreText.textContent = state.mode === 'endless'
-      ? `${state.endless?.distance || 0}m · ${state.endless?.score || 0}分 · ${state.elapsed.toFixed(1)}s`
+      ? `${state.endless?.distance || 0}m · ${state.endless?.score || 0} pts · ${state.elapsed.toFixed(1)}s`
       : state.mode === 'daily'
-        ? `${state.elapsed.toFixed(1)}s · ${state.steps} · 死亡 ${state.daily?.deaths || 0}`
+        ? `${state.elapsed.toFixed(1)}s · ${state.steps} · Deaths ${state.daily?.deaths || 0}`
         : `${state.elapsed.toFixed(1)}s · ${state.steps}`;
   }
 
   function updateHints() {
     if (state.mode === 'endless') {
       const stage = getEndlessStage(state.endless?.distance || 0);
-      hintTitle.textContent = `无尽模式：${stage.name}`;
-      hintText.textContent = '平台会左右变道，越跑越快。贴边逃生和连续移动会加分。';
+      hintTitle.textContent = `Endless: ${stage.name}`;
+      hintText.textContent = 'The platform shifts lanes and gets faster. Edge escapes and chained movement add score.';
       renderObjectiveText();
       return;
     }
     if (state.mode === 'daily') {
-      hintTitle.textContent = `每日挑战：${todayKey()}`;
-      hintText.textContent = '同一天所有玩家地图一致。每日成绩独立保存，不影响主线解锁。';
+      hintTitle.textContent = `Daily Run: ${todayKey()}`;
+      hintText.textContent = 'Everyone gets the same map for the day. Daily results are saved separately and do not affect campaign unlocks.';
       return;
     }
     const def = LEVELS[state.level - 1];
-    hintTitle.textContent = `第 ${state.level} 关：${def.title}`;
+    hintTitle.textContent = `Level ${state.level}: ${def.title}`;
     hintText.textContent = def.hint;
     renderObjectiveText();
   }
@@ -4739,8 +4920,8 @@
       const dot = document.createElement('button');
       dot.type = 'button';
       dot.className = `dot${state.save.completed[i] ? ' done' : ''}${i === state.level ? ' current' : ''}`;
-      dot.setAttribute('aria-label', `第 ${i} 关`);
-      dot.addEventListener('click', () => isLevelUnlocked(i) ? startGame(i) : showToast('先通关当前关'));
+      dot.setAttribute('aria-label', `Level ${i}`);
+      dot.addEventListener('click', () => isLevelUnlocked(i) ? startGame(i) : showToast('Clear the current level first'));
       levelDots.appendChild(dot);
     }
   }
@@ -4750,7 +4931,7 @@
     state.status = 'select';
     resultOverlay.classList.add('hide');
     overlay.classList.add('hide');
-    levelSelectDesc.textContent = `每章 20 关。前 ${FREE_LEVELS} 关自由切换；第 21 关以后按通关进度解锁。`;
+    levelSelectDesc.textContent = `Each chapter has 20 levels. The first ${FREE_LEVELS} levels are open; Level 21+ unlock by progress.`;
     buildLevelSelectPanel();
     levelSelectOverlay.classList.remove('hide');
   }
@@ -4779,10 +4960,10 @@
         const num = document.createElement('strong');
         num.textContent = String(levelNumber);
         const meta = document.createElement('span');
-        if (locked) meta.textContent = '锁定';
-        else if (current) meta.textContent = '当前';
-        else if (done) meta.textContent = `已通关 ${'★'.repeat(Number(state.save.stars[levelNumber]) || 1)}`;
-        else meta.textContent = levelNumber <= FREE_LEVELS ? '自由' : '解锁';
+        if (locked) meta.textContent = 'Locked';
+        else if (current) meta.textContent = 'current';
+        else if (done) meta.textContent = `Cleared ${'★'.repeat(Number(state.save.stars[levelNumber]) || 1)}`;
+        else meta.textContent = levelNumber <= FREE_LEVELS ? 'Open' : 'Unlocked';
         button.append(num, meta);
         button.addEventListener('click', () => {
           if (locked) return;
@@ -4866,11 +5047,11 @@
     menuSelectBtn.onclick = showLevelSelect;
     dailyBtn.onclick = startDailyChallenge;
     shopBtn.onclick = showShop;
-    prevBtn.onclick = () => state.mode === 'level' ? startGame(state.level - 1) : showToast('无尽模式没有上一关');
+    prevBtn.onclick = () => state.mode === 'level' ? startGame(state.level - 1) : showToast('Endless has no previous level');
     nextBtn.onclick = () => {
-      if (state.mode !== 'level') return showToast('无尽模式没有下一关');
-      if (state.level >= MAX_LEVEL) return showToast('已到最后一关');
-      if (!isLevelUnlocked(state.level + 1)) return showToast('先通关当前关');
+      if (state.mode !== 'level') return showToast('Endless has no next level');
+      if (state.level >= MAX_LEVEL) return showToast('Final Level');
+      if (!isLevelUnlocked(state.level + 1)) return showToast('Clear the current level first');
       startGame(state.level + 1);
     };
     jumpLevelBtn.onclick = () => startGame(10);
@@ -4885,7 +5066,7 @@
 
   function getSwipeThreshold() {
     const width = boardInner?.clientWidth || window.innerWidth || 360;
-    return Math.max(24, Math.min(38, width * 0.085));
+    return isCoarseDevice() ? Math.max(34, Math.min(48, width * 0.11)) : Math.max(24, Math.min(38, width * 0.085));
   }
 
   function dirFromDelta(dx, dy) {
@@ -4907,6 +5088,7 @@
     state.activePadButton = btn;
     btn?.classList.add('pressed');
     activatePadFeedback();
+    if (isCoarseDevice() && navigator.vibrate) navigator.vibrate(8);
     requestMove(dir);
     if (state.mode === 'endless') {
       state.padRepeatTimer = window.setInterval(() => {
@@ -4937,7 +5119,7 @@
     start.previewDir = dir;
     showSwipeFeedback(dir);
 
-    // 滑动现在只是辅助：普通关卡松手才走；无尽模式允许拖动连续变向。
+    // Swipe is now assistive: normal levels move on release; Endless allows drag-to-steer chaining.
     if (state.mode === 'endless') {
       const now = performance.now();
       if (now - (start.lastMoveAt || 0) < PAD_REPEAT_MS) return;
@@ -4971,8 +5153,8 @@
     state.objective = null;
     pauseOverlay.classList.add('hide');
     const def = LEVELS[state.level - 1];
-    overlayTitle.textContent = '地板塌了';
-    overlayDesc.textContent = `当前共有 ${MAX_LEVEL} 关。前 ${FREE_LEVELS} 关自由切换，第 21 关以后按通关进度解锁；也可以进入基础无尽模式。`;
+    overlayTitle.textContent = 'Floor Rush';
+    overlayDesc.textContent = `There are ${MAX_LEVEL} levels. The first ${FREE_LEVELS} levels are open; Level 21+ unlock by campaign progress. Endless mode is also available.`;
     resultOverlay.classList.add('hide');
     levelSelectOverlay.classList.add('hide');
     resultGrid.hidden = true;
@@ -4980,9 +5162,9 @@
     ruleList.hidden = false;
     hintBtn.hidden = true;
     startBtn.hidden = false;
-    startBtn.textContent = '开始逃生';
+    startBtn.textContent = 'Start Run';
     startBtn.onclick = () => startGame(state.level);
-    hintTitle.textContent = `第 ${state.level} 关：${def.title}`;
+    hintTitle.textContent = `Level ${state.level}: ${def.title}`;
     hintText.textContent = def.hint;
     updateNavButtons();
     overlay.classList.remove('hide');
@@ -4991,17 +5173,17 @@
   function validateAllLevels() {
     const results = LEVELS.map((levelDef, index) => validateLevel(levelDef, index + 1));
     const failCount = results.filter(item => !item.pass).length;
-    const dailyResult = validateLevel(makeDailyChallenge(todayKey()), `每日挑战 ${todayKey()}`);
-    console.group('《地板塌了》关卡检测');
-    console.info(`当前共有 ${LEVELS.length} 关。前 ${FREE_LEVELS} 关自由切换：是。第 21 关以后按通关解锁：是。无尽模式基础版本：已实现。每日挑战：${dailyResult.pass ? 'PASS' : 'FAIL'}。`);
+    const dailyResult = validateLevel(makeDailyChallenge(todayKey()), `Daily Run ${todayKey()}`);
+    console.group('Floor Rush Level Check');
+    console.info(`There are ${LEVELS.length} levels. The first ${FREE_LEVELS} levels are open. Level 21+ unlocks after clearing. Basic Endless mode is implemented. Daily Run: ${dailyResult.pass ? 'PASS' : 'FAIL'}.`);
     results.forEach(item => {
       const status = item.pass ? 'PASS' : 'FAIL';
-      const detail = item.pass ? `最短路径 ${item.steps} 步` : item.reasons.join('；');
-      console[item.pass ? 'log' : 'error'](`第 ${item.level} 关 ${status}：${detail}`);
+      const detail = item.pass ? `Shortest path ${item.steps} moves` : item.reasons.join('; ');
+      console[item.pass ? 'log' : 'error'](`Level ${item.level} ${status}: ${detail}`);
     });
-    if (!dailyResult.pass) console.error(`每日挑战 FAIL：${dailyResult.reasons.join('；')}`);
-    else console.log(`每日挑战 PASS：最短路径 ${dailyResult.steps} 步`);
-    console.info(failCount ? `检测完成：${failCount} 关失败。` : '检测完成：全部主线关卡 PASS。');
+    if (!dailyResult.pass) console.error(`Daily Run FAIL: ${dailyResult.reasons.join('; ')}`);
+    else console.log(`Daily Run PASS: shortest path ${dailyResult.steps} moves`);
+    console.info(failCount ? `Check complete:${failCount} levels failed.` : 'Check complete: all campaign levels PASS.');
     console.groupEnd();
     return { results, dailyResult };
   }
@@ -5009,21 +5191,21 @@
   function validateLevel(levelDef, levelNumber) {
     const rows = levelDef.map || [];
     const reasons = [];
-    if (rows.length !== ROWS) reasons.push(`地图必须是 ${ROWS} 行`);
-    if (rows.some(row => row.length !== COLS)) reasons.push(`每行必须是 ${COLS} 列`);
+    if (rows.length !== ROWS) reasons.push(`Map must have ${ROWS} rows`);
+    if (rows.some(row => row.length !== COLS)) reasons.push(`Each row must have ${COLS} columns`);
     const flat = rows.join('');
     const startCount = [...flat].filter(ch => ch === 'S').length;
     const goalCount = [...flat].filter(ch => ch === 'G').length;
     const teleACount = [...flat].filter(ch => ch === 'A').length;
     const teleBCount = [...flat].filter(ch => ch === 'B').length;
-    if (startCount !== 1) reasons.push(`S 起点数量必须为 1，当前 ${startCount}`);
-    if (goalCount !== 1) reasons.push(`G 出口数量必须为 1，当前 ${goalCount}`);
-    if (teleACount !== teleBCount) reasons.push(`传送格 A/B 必须成对，当前 A=${teleACount}, B=${teleBCount}`);
-    if (teleACount > 1 || teleBCount > 1) reasons.push('当前解算器只支持每关一对 A/B 传送格');
+    if (startCount !== 1) reasons.push(`S S start count must be 1, current ${startCount}`);
+    if (goalCount !== 1) reasons.push(`G G exit count must be 1, current ${goalCount}`);
+    if (teleACount !== teleBCount) reasons.push(`Portal A/B must be paired. Current A=${teleACount}, B=${teleBCount}`);
+    if (teleACount > 1 || teleBCount > 1) reasons.push('Current solver supports only one A/B portal pair per level');
     if (reasons.length) return { level: levelNumber, pass: false, reasons, steps: null };
 
     const shortest = findShortestStaticPath(rows);
-    if (!shortest) reasons.push('起点到出口不存在可达路线');
+    if (!shortest) reasons.push('No reachable route from start to exit');
     const specialIssues = validateSpecialTiles(rows);
     reasons.push(...specialIssues);
     return { level: levelNumber, pass: reasons.length === 0, reasons, steps: shortest };
@@ -5041,8 +5223,8 @@
         });
         if (!hasSafeMove) {
           issues.push(ch === 'P'
-            ? `弹跳格 (${r},${c}) 没有任何安全落点`
-            : `冰面 (${r},${c}) 没有任何安全滑行终点`);
+            ? `Launch tile (${r},${c}) has no safe landing`
+            : `Ice (${r},${c}) has no safe slide endpoint`);
         }
       }
     }
