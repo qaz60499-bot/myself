@@ -1905,7 +1905,7 @@
     }
   }
 
-  @media (max-width: 390px), (pointer: coarse) {
+  @media (max-width: 390px) and (pointer: coarse) {
     .pad {
       width: 128px !important;
       grid-template-columns: repeat(3, 40px) !important;
@@ -1948,7 +1948,7 @@
     }
   }
 
-  @media (max-width: 350px), (pointer: coarse) {
+  @media (max-width: 350px) and (pointer: coarse) {
     .bottom { gap: 6px !important; }
     .pad {
       width: 116px !important;
@@ -1961,6 +1961,65 @@
       min-width: 36px !important;
       min-height: 36px !important;
       font-size: 17px !important;
+    }
+  }
+
+
+
+  /* MOBILE ACTION BAR PATCH: one-row top buttons on phones */
+  .mobile-top-actions {
+    display: none;
+  }
+
+  @media (max-width: 520px), (pointer: coarse) {
+    .actions,
+    .quick-actions {
+      display: none !important;
+    }
+    .mobile-top-actions {
+      display: grid !important;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px !important;
+      width: 100% !important;
+      flex: 0 0 auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .mobile-top-actions .small-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      min-height: 31px !important;
+      padding: 5px 4px !important;
+      font-size: 11px !important;
+      line-height: 1 !important;
+      border-radius: 999px !important;
+      opacity: .92 !important;
+      white-space: nowrap !important;
+    }
+    .board-wrap {
+      min-height: 0 !important;
+    }
+  }
+
+  @media (max-width: 380px), (pointer: coarse) {
+    .mobile-top-actions {
+      gap: 5px !important;
+    }
+    .mobile-top-actions .small-btn {
+      min-height: 29px !important;
+      font-size: 10px !important;
+      padding: 4px 2px !important;
+    }
+  }
+
+  @media (max-height: 700px) and (pointer: coarse) {
+    .mobile-top-actions .small-btn {
+      min-height: 28px !important;
+      font-size: 10px !important;
+      padding: 4px 2px !important;
     }
   }
 
@@ -1985,6 +2044,7 @@
     <button class="small-btn" id="pauseBtn" type="button">Pause</button>
     <button class="small-btn" id="soundBtn" type="button">Sound</button>
   </div>
+  <div class="mobile-top-actions" id="mobileTopActions" aria-label="Quick Actions"></div>
 
   <main class="board-wrap">
     <div class="board-frame">
@@ -2072,6 +2132,7 @@
       <button class="primary-btn" id="resumeBtn" type="button">Resume</button>
       <div class="secondary-row">
         <button class="small-btn" id="pauseRestartBtn" type="button">Restart</button>
+        <button class="small-btn" id="pauseEndlessBtn" type="button">Endless</button>
         <button class="small-btn" id="pauseMenuBtn" type="button">Main Menu</button>
       </div>
     </div>
@@ -2871,10 +2932,12 @@
   const pauseOverlay = document.getElementById('pauseOverlay');
   const resumeBtn = document.getElementById('resumeBtn');
   const pauseRestartBtn = document.getElementById('pauseRestartBtn');
+  const pauseEndlessBtn = document.getElementById('pauseEndlessBtn');
   const pauseMenuBtn = document.getElementById('pauseMenuBtn');
   const pauseDesc = document.getElementById('pauseDesc');
   const swipeIndicator = document.getElementById('swipeIndicator');
   const padEl = document.querySelector('.pad');
+  const mobileTopActions = document.getElementById('mobileTopActions');
 
   const state = {
     status: 'menu',
@@ -5057,7 +5120,23 @@
     jumpLevelBtn.onclick = () => startGame(10);
     lastLevelBtn.onclick = () => startGame(60);
     endlessBtn.onclick = startEndless;
-    window.addEventListener('resize', () => { invalidateBoardMetrics(); updatePlayerPosition(); });
+    if (pauseEndlessBtn) pauseEndlessBtn.onclick = () => { pauseOverlay.classList.add('hide'); startEndless(); };
+    syncMobileTopActions();
+    window.addEventListener('resize', () => { syncMobileTopActions(); invalidateBoardMetrics(); updatePlayerPosition(); });
+  }
+
+  function syncMobileTopActions() {
+    if (!mobileTopActions) return;
+    const mobile = isCoarseDevice();
+    const buttons = [restartBtn, selectBtn, pauseBtn, soundBtn].filter(Boolean);
+    if (mobile) {
+      buttons.forEach(btn => mobileTopActions.appendChild(btn));
+    } else {
+      if (restartBtn) document.querySelector('.actions')?.appendChild(restartBtn);
+      if (selectBtn) document.querySelector('.actions')?.appendChild(selectBtn);
+      if (pauseBtn) document.querySelector('.quick-actions')?.appendChild(pauseBtn);
+      if (soundBtn) document.querySelector('.quick-actions')?.appendChild(soundBtn);
+    }
   }
 
   function isCoarseDevice() {
