@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<title>Floor Rush - Escape Edition</title>
+<title>地板冲刺 - 逃生版</title>
 <style>
   :root {
     --bg0: #050711;
@@ -704,18 +704,21 @@
     display: grid;
   }
   .item-btn {
-    min-height: 34px;
-    padding: 6px 8px;
+    min-height: 42px;
+    padding: 8px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(202, 242, 255, .18);
+    border: 1px solid rgba(202, 242, 255, .24);
     color: var(--text);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 900;
     line-height: 1.05;
     background:
-      radial-gradient(120% 120% at 50% 20%, rgba(155, 243, 255, .14), transparent 42%),
-      linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.05));
-    box-shadow: 0 9px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.16);
+      radial-gradient(120% 120% at 50% 20%, rgba(155, 243, 255, .20), transparent 42%),
+      linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.06));
+    box-shadow: 0 12px 24px rgba(0,0,0,.30), 0 0 18px rgba(93,231,255,.10), inset 0 1px 0 rgba(255,255,255,.18);
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
   }
   .item-btn span {
     display: block;
@@ -729,20 +732,130 @@
     cursor: not-allowed;
   }
   .item-btn.active {
-    border-color: rgba(255, 211, 107, .7);
-    box-shadow: 0 0 22px rgba(255, 211, 107, .24), inset 0 1px 0 rgba(255,255,255,.2);
+    border-color: rgba(255, 211, 107, .86);
+    box-shadow: 0 0 26px rgba(255, 211, 107, .36), inset 0 1px 0 rgba(255,255,255,.22);
+    filter: brightness(1.12);
+  }
+  .item-btn.shield-ready {
+    border-color: rgba(105, 255, 185, .86);
+    box-shadow: 0 0 28px rgba(105, 255, 185, .36), inset 0 1px 0 rgba(255,255,255,.22);
+  }
+
+  .item-btn.empty {
+    border-color: rgba(255, 211, 107, .34);
+    color: rgba(255, 242, 190, .96);
+  }
+  .item-btn.empty span {
+    color: #ffd36b;
+  }
+  .item-prep-list {
+    display: grid;
+    gap: 9px;
+    margin: 13px 0;
+    text-align: left;
+  }
+  .item-prep-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    border-radius: 14px;
+    border: 1px solid rgba(185, 237, 255, .14);
+    background: rgba(255,255,255,.055);
+    padding: 11px;
+  }
+  .item-prep-card strong {
+    display: block;
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  .item-prep-card p {
+    margin: 4px 0 0;
+    color: rgba(226, 243, 255, .66);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+  .item-prep-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    color: #ffe38a;
+    font-size: 11px;
+    font-weight: 900;
+  }
+  .item-buy-btn {
+    min-width: 92px;
+    min-height: 42px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 231, 138, .36);
+    color: #231404;
+    font-size: 12px;
+    font-weight: 900;
+    background: linear-gradient(180deg, #ffe38a, #f0a92f 62%, #b96d10);
+    box-shadow: 0 10px 22px rgba(255, 211, 107, .22), inset 0 1px 0 rgba(255,255,255,.42);
+  }
+  .item-buy-btn:disabled {
+    opacity: .46;
+    filter: grayscale(.35);
+    cursor: not-allowed;
+  }
+  .item-prep-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .item-prep-actions .primary-btn,
+  .item-prep-actions .small-btn {
+    width: 100%;
+    border-radius: 12px;
+    min-height: 42px;
+  }
+  .tile.route-preview {
+    outline: 3px solid rgba(255, 232, 130, .98);
+    outline-offset: -3px;
+    box-shadow: 0 0 28px rgba(255, 211, 107, .58), inset 0 0 18px rgba(255,255,255,.18) !important;
+    animation: routePreviewPulse .42s ease-in-out infinite alternate;
+  }
+  .app.time-freeze .board-inner {
+    box-shadow: inset 0 0 70px rgba(93, 231, 255, .28), 0 0 42px rgba(93, 231, 255, .22);
+    filter: saturate(1.22) brightness(1.08);
+  }
+  .app.time-freeze .collapse-line {
+    background: linear-gradient(90deg, transparent, rgba(93, 231, 255, .95), transparent);
+    box-shadow: 0 0 28px rgba(93, 231, 255, .84), 0 -16px 42px rgba(93, 231, 255, .22);
+  }
+  @keyframes routePreviewPulse {
+    from { filter: brightness(1.05); }
+    to { filter: brightness(1.55) saturate(1.35); }
+  }
+  @media (max-width: 420px) {
+    .item-prep-card { grid-template-columns: 1fr; }
+    .item-buy-btn { width: 100%; }
   }
   @media (max-width: 520px), (pointer: coarse) {
-    .item-bar { gap: 5px !important; }
+    .board-wrap { order: 20 !important; }
+    .item-bar {
+      order: 30 !important;
+      gap: 7px !important;
+      width: 100% !important;
+      z-index: 48 !important;
+      pointer-events: auto !important;
+    }
+    .bottom { order: 31 !important; }
     .item-btn {
-      min-height: 28px !important;
-      padding: 4px 6px !important;
-      font-size: 10px !important;
+      min-height: 44px !important;
+      padding: 8px 7px !important;
+      font-size: 12px !important;
+      border-radius: 14px !important;
+      pointer-events: auto !important;
     }
     .item-btn span {
-      display: inline;
-      margin-left: 3px;
-      font-size: 9px !important;
+      display: block;
+      margin: 3px 0 0;
+      font-size: 10px !important;
     }
   }
   .level-select {
@@ -2292,39 +2405,39 @@
 <body>
 <div class="app" id="app">
   <div class="topbar">
-    <div class="stat topbar-stat topbar-stat-left"><span class="label">Level</span><span class="value" id="levelText">1 / 20</span><div class="topbar-icon-slot topbar-icon-slot-left" id="pauseTopbarSlot"></div></div>
-    <div class="title"><strong>Floor Rush</strong><span>Run. Don't look back.</span></div>
-    <div class="stat topbar-stat topbar-stat-right"><span class="label">Time / Moves</span><span class="value" id="scoreText">0.0s · 0</span><div class="topbar-icon-slot topbar-icon-slot-right" id="soundTopbarSlot"></div></div>
+    <div class="stat topbar-stat topbar-stat-left"><span class="label">关卡</span><span class="value" id="levelText">1 / 20</span><div class="topbar-icon-slot topbar-icon-slot-left" id="pauseTopbarSlot"></div></div>
+    <div class="title"><strong>地板冲刺</strong><span>跑起来，别回头。</span></div>
+    <div class="stat topbar-stat topbar-stat-right"><span class="label">时间 / 步数</span><span class="value" id="scoreText">0.0s · 0</span><div class="topbar-icon-slot topbar-icon-slot-right" id="soundTopbarSlot"></div></div>
   </div>
 
   <div class="level-dots" id="levelDots" aria-label="Level Select"></div>
   <div class="actions">
-    <button class="small-btn" id="prevBtn" type="button">Previous</button>
-    <button class="small-btn" id="restartBtn" type="button">Restart</button>
-    <button class="small-btn" id="selectBtn" type="button">Level Select</button>
-    <button class="small-btn" id="nextBtn" type="button">Next</button>
+    <button class="small-btn" id="prevBtn" type="button">上一关</button>
+    <button class="small-btn" id="restartBtn" type="button">重开</button>
+    <button class="small-btn" id="selectBtn" type="button">选关</button>
+    <button class="small-btn" id="nextBtn" type="button">下一关</button>
   </div>
   <div class="quick-actions">
-    <button class="small-btn" id="pauseBtn" type="button">Pause</button>
-    <button class="small-btn" id="soundBtn" type="button">Sound</button>
+    <button class="small-btn" id="pauseBtn" type="button">暂停</button>
+    <button class="small-btn" id="soundBtn" type="button">声音</button>
   </div>
 
-  <div class="item-bar" id="itemBar" aria-label="Run Items">
-    <button class="item-btn" id="routeItemBtn" type="button">Flash<span>--</span></button>
-    <button class="item-btn" id="slowItemBtn" type="button">Slow<span>--</span></button>
-    <button class="item-btn" id="safeItemBtn" type="button">Safe<span>--</span></button>
+  <div class="item-bar" id="itemBar" aria-label="局内道具">
+    <button class="item-btn" id="routeItemBtn" type="button">闪光<span>--</span></button>
+    <button class="item-btn" id="slowItemBtn" type="button">慢速<span>--</span></button>
+    <button class="item-btn" id="safeItemBtn" type="button">安全<span>--</span></button>
   </div>
 
   <main class="board-wrap">
     <div class="board-frame">
-      <div class="board-inner" id="boardInner" aria-label="collapsing floor escape board">
+      <div class="board-inner" id="boardInner" aria-label="塌陷地板逃生棋盘">
         <div class="grid" id="grid"></div>
         <div class="collapse-line" id="collapseLine"></div>
         <div class="player" id="player">
           <div class="aura"></div>
           <div class="runner up" id="runner"><span class="leg a"></span><span class="leg b"></span></div>
         </div>
-        <div class="toast" id="toast">Close call</div>
+        <div class="toast" id="toast">好险</div>
         <div class="swipe-indicator" id="swipeIndicator">↑</div>
       </div>
     </div>
@@ -2332,87 +2445,87 @@
 
   <section class="bottom">
     <div class="hint">
-      <strong id="hintTitle">Goal: reach the glowing exit</strong>
-      <p id="hintText">Use WASD / arrow keys on desktop. On mobile, swipe once to move one tile; hold and drag after the first swipe to keep stepping. Keypad is optional. Every tile you leave will fall. Use limited coin items only when the run is in danger.</p>
+      <strong id="hintTitle">目标：到达发光出口</strong>
+      <p id="hintText">电脑用 WASD / 方向键。手机轻滑一次移动一格；轻滑后按住拖动可以连续步进。方向键只是备用。你离开的地板都会塌，金币道具次数有限：预览看路线，冻结抢时间，护盾会自动救命。</p>
     </div>
-    <div class="pad" aria-label="Keypad">
+    <div class="pad" aria-label="方向键">
       <button class="up" data-dir="0,-1" type="button" aria-label="Up">↑</button>
       <button class="left" data-dir="-1,0" type="button" aria-label="Left">←</button>
       <button class="right" data-dir="1,0" type="button" aria-label="Right">→</button>
       <button class="down" data-dir="0,1" type="button" aria-label="Down">↓</button>
     </div>
-    <button class="mobile-keypad-toggle" id="keypadToggleBtn" type="button" aria-label="Toggle keypad">Keypad</button>
+    <button class="mobile-keypad-toggle" id="keypadToggleBtn" type="button" aria-label="切换方向键">方向键</button>
   </section>
 
   <div class="overlay" id="overlay">
     <div class="card">
-      <button class="close-btn" id="menuCloseBtn" type="button" aria-label="Close">×</button>
-      <h1 id="overlayTitle">Floor Rush</h1>
-      <p id="overlayDesc">Every step drops the floor behind you into the void. Read the route, use special tiles, and don't look back before the exit lights up.</p>
+      <button class="close-btn" id="menuCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1 id="overlayTitle">地板冲刺</h1>
+      <p id="overlayDesc">每走一步，身后的地板都会坠入深渊。看清路线，利用特殊地板，在出口亮起前别回头。</p>
       <div class="rule-list" id="ruleList">
-        <div class="rule">Normal tiles: after you leave, they sink, crack, shake, then fall.</div>
-        <div class="rule">Crack tiles !!: they fall faster. Step off immediately.</div>
-        <div class="rule">Ice, launch pads, and A/B portals change your movement rhythm.</div>
-        <div class="rule">Keyboard and mobile swipes are supported. One swipe moves one tile; hold and drag to keep stepping, and you can still buffer one next move while jumping.</div>
+        <div class="rule">普通地板：离开后会下沉、开裂、震动，然后坠落。</div>
+        <div class="rule">裂纹地板 !!：塌得更快，踩上后马上离开。</div>
+        <div class="rule">冰面、弹跳板和 A/B 传送门会改变移动节奏。</div>
+        <div class="rule">支持键盘和手机滑动。一滑一格；按住拖动可连续步进；跳跃中仍可缓存下一步。</div>
       </div>
       <div class="result-grid" id="resultGrid" hidden>
-        <div class="result-item"><span>Distance</span><strong id="distanceText">0 tiles</strong></div>
-        <div class="result-item"><span>Time</span><strong id="timeText">0.0s</strong></div>
-        <div class="result-item"><span>Moves</span><strong id="stepsText">0</strong></div>
-        <div class="result-item"><span>Best Time</span><strong id="bestTimeText">--</strong></div>
-        <div class="result-item"><span>Best Moves</span><strong id="bestStepsText">--</strong></div>
+        <div class="result-item"><span>距离</span><strong id="distanceText">0 tiles</strong></div>
+        <div class="result-item"><span>时间</span><strong id="timeText">0.0s</strong></div>
+        <div class="result-item"><span>步数</span><strong id="stepsText">0</strong></div>
+        <div class="result-item"><span>最佳时间</span><strong id="bestTimeText">--</strong></div>
+        <div class="result-item"><span>最佳步数</span><strong id="bestStepsText">--</strong></div>
       </div>
       <div class="level-select" id="levelSelectPanel" hidden></div>
-      <button class="primary-btn" id="startBtn" type="button">Start Run</button>
-      <button class="small-btn" id="hintBtn" type="button" hidden>Hint</button>
+      <button class="primary-btn" id="startBtn" type="button">开始逃生</button>
+      <button class="small-btn" id="hintBtn" type="button" hidden>提示</button>
       <div class="secondary-row">
-        <button class="small-btn" id="menuSelectBtn" type="button">Levels</button>
-        <button class="small-btn" id="dailyBtn" type="button">Daily Run</button>
-        <button class="small-btn" id="endlessBtn" type="button">Endless</button>
-        <button class="small-btn" id="shopBtn" type="button">Shop</button>
-        <button class="small-btn" id="jumpLevelBtn" type="button" hidden>Level 10</button>
-        <button class="small-btn" id="lastLevelBtn" type="button" hidden>Level 60</button>
+        <button class="small-btn" id="menuSelectBtn" type="button">关卡</button>
+        <button class="small-btn" id="dailyBtn" type="button">每日挑战</button>
+        <button class="small-btn" id="endlessBtn" type="button">无尽模式</button>
+        <button class="small-btn" id="shopBtn" type="button">商店</button>
+        <button class="small-btn" id="jumpLevelBtn" type="button" hidden>第10关</button>
+        <button class="small-btn" id="lastLevelBtn" type="button" hidden>第60关</button>
       </div>
     </div>
   </div>
 
   <div class="overlay hide" id="resultOverlay">
     <div class="card result-card compact-result">
-      <button class="close-btn" id="resultCloseBtn" type="button" aria-label="Close">×</button>
-      <h1 id="resultTitle">Result</h1>
-      <div class="result-stars" id="resultStars" aria-label="Star Rating"></div>
+      <button class="close-btn" id="resultCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1 id="resultTitle">结果</h1>
+      <div class="result-stars" id="resultStars" aria-label="星级评价"></div>
       <div class="reward-pop" id="rewardPop" hidden></div>
       <p id="resultDesc"></p>
       <div class="result-grid">
-        <div class="result-item"><span>Distance</span><strong id="resultDistanceText">0 tiles</strong></div>
-        <div class="result-item"><span>Time</span><strong id="resultTimeText">0.0s</strong></div>
-        <div class="result-item"><span>Moves</span><strong id="resultStepsText">0</strong></div>
-        <div class="result-item"><span>Best Time</span><strong id="resultBestTimeText">--</strong></div>
-        <div class="result-item"><span>Best Moves</span><strong id="resultBestStepsText">--</strong></div>
+        <div class="result-item"><span>距离</span><strong id="resultDistanceText">0 tiles</strong></div>
+        <div class="result-item"><span>时间</span><strong id="resultTimeText">0.0s</strong></div>
+        <div class="result-item"><span>步数</span><strong id="resultStepsText">0</strong></div>
+        <div class="result-item"><span>最佳时间</span><strong id="resultBestTimeText">--</strong></div>
+        <div class="result-item"><span>最佳步数</span><strong id="resultBestStepsText">--</strong></div>
       </div>
-      <button class="small-btn" id="resultHintBtn" type="button" hidden>Hint</button>
+      <button class="small-btn" id="resultHintBtn" type="button" hidden>提示</button>
       <div class="result-actions" id="resultActions"></div>
     </div>
   </div>
 
   <div class="overlay hide" id="pauseOverlay">
     <div class="card pause-card">
-      <h1>Pause</h1>
-      <p id="pauseDesc">Game paused.</p>
-      <button class="primary-btn" id="resumeBtn" type="button">Resume</button>
+      <h1>暂停</h1>
+      <p id="pauseDesc">游戏已暂停。</p>
+      <button class="primary-btn" id="resumeBtn" type="button">继续</button>
       <div class="secondary-row">
-        <button class="small-btn" id="pauseRestartBtn" type="button">Restart</button>
-        <button class="small-btn" id="pauseMenuBtn" type="button">Main Menu</button>
-        <button class="small-btn" id="pauseEndlessBtn" type="button">Endless</button>
+        <button class="small-btn" id="pauseRestartBtn" type="button">重开</button>
+        <button class="small-btn" id="pauseMenuBtn" type="button">主菜单</button>
+        <button class="small-btn" id="pauseEndlessBtn" type="button">无尽模式</button>
       </div>
     </div>
   </div>
 
   <div class="overlay hide" id="levelSelectOverlay">
     <div class="card select-card">
-      <button class="close-btn" id="levelSelectCloseBtn" type="button" aria-label="Close">×</button>
-      <h1>Level Select</h1>
-      <p id="levelSelectDesc">The first 20 levels are open. Level 21+ unlock as you clear the campaign.</p>
+      <button class="close-btn" id="levelSelectCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1>选择关卡</h1>
+      <p id="levelSelectDesc">前 20 关默认开放。第 21 关以后会随着通关进度解锁。</p>
       <div class="level-tabs" id="levelTabs"></div>
       <div class="level-select" id="levelSelectList"></div>
     </div>
@@ -2420,13 +2533,29 @@
 
   <div class="overlay hide" id="shopOverlay">
     <div class="card select-card">
-      <button class="close-btn" id="shopCloseBtn" type="button" aria-label="Close">×</button>
-      <h1>Shop</h1>
-      <p>Coins unlock cosmetics only. No pay-to-win upgrades.</p>
+      <button class="close-btn" id="shopCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1>商店</h1>
+      <p>金币只解锁外观，不提供数值碾压。</p>
       <div class="coin-pill" id="coinText">0 Coins</div>
       <div class="shop-list" id="shopList"></div>
     </div>
   </div>
+</div>
+
+  <div class="overlay hide" id="itemPrepOverlay">
+    <div class="card select-card">
+      <button class="close-btn" id="itemPrepCloseBtn" type="button" aria-label="关闭">×</button>
+      <h1>道具准备</h1>
+      <p id="itemPrepDesc">开局前购买道具。本局内点击上方道具按钮使用，次数有限。</p>
+      <div class="coin-pill" id="itemPrepCoins">0 金币</div>
+      <div class="item-prep-list" id="itemPrepList"></div>
+      <div class="item-prep-actions">
+        <button class="primary-btn" id="itemPrepStartBtn" type="button">开始本局</button>
+        <button class="small-btn" id="itemPrepSkipBtn" type="button">不买直接开始</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -2461,20 +2590,25 @@
     slow: { level: 40, endless: 60 },
     safe: { level: 50, endless: 80 }
   };
-  const ITEM_SLOW_MS = 2000;
-  const ITEM_SLOW_TIMER_SHIFT_MS = 1300;
-  const ITEM_FLASH_MS = 820;
+  const ITEM_INFO = {
+    route: { name: '路线预览', short: '预览', desc: '高亮未来 3–5 格推荐路线，紧张时直接看亮格走。' },
+    slow: { name: '时间冻结', short: '冻结', desc: '冻结塌陷约 2.2 秒，地板和无尽塌陷线都会停住。' },
+    safe: { name: '救命护盾', short: '护盾', desc: '提前开启后，下一次坠落、踩陷阱或被追上会自动救回一次。' }
+  };
+  const ITEM_SLOW_MS = 2200;
+  const ITEM_SLOW_TIMER_SHIFT_MS = 2200;
+  const ITEM_FLASH_MS = 1400;
   const FREE_LEVELS = 20;
   const MAX_LEVEL = 60;
   const CHAPTER_SIZE = 20;
-  const SAVE_KEY = 'floor-collapse-escape:v3';
+  const SAVE_钥 = 'floor-collapse-escape:v3';
   const DIRS = {
     up: { dx: 0, dy: -1, name: 'up' },
     down: { dx: 0, dy: 1, name: 'down' },
     left: { dx: -1, dy: 0, name: 'left' },
     right: { dx: 1, dy: 0, name: 'right' }
   };
-  const KEY_TO_DIR = {
+  const 钥_TO_DIR = {
     arrowup: DIRS.up, w: DIRS.up,
     arrowdown: DIRS.down, s: DIRS.down,
     arrowleft: DIRS.left, a: DIRS.left,
@@ -2502,55 +2636,55 @@
     teleA: 'A',
     teleB: 'B',
     goal: '◎',
-    key: 'KEY'
+    key: '钥'
   };
   const SPECIAL_TIPS = {
-    bounce: 'Launch pad: jumps one extra tile in your entry direction.',
-    ice: 'Ice: you keep sliding until the end.',
-    teleA: 'Portal: sends you to the matching gate.',
-    teleB: 'Portal: sends you to the matching gate.',
-    fast: 'Crack tile: falls faster.',
-    trap: 'Trap: step on it and the run ends.',
-    safe: 'Safe tile: does not fall, giving you a brief breather.',
-    key: 'Key: collect it before the exit opens.'
+    bounce: '弹跳板：会沿进入方向额外跳一格。',
+    ice: '冰面：会沿当前方向一直滑到尽头。',
+    teleA: '传送门：会传送到对应的另一个门。',
+    teleB: '传送门：会传送到对应的另一个门。',
+    fast: '裂纹地板：塌得更快。',
+    trap: '陷阱：踩上去本局结束。',
+    safe: '安全地板：不会塌，可以短暂停顿。',
+    key: '钥匙：收集后出口才会开启。'
   };
   const CHAPTERS = [
-    { title: 'Chapter 1: First Cracks', desc: 'Levels 1-20 are open by default, covering onboarding and core mechanics.' },
-    { title: 'Chapter 2: Frostbreak Routes', desc: 'Levels 21-40 unlock by progress, focusing on route planning, crack tiles, and ice.' },
-    { title: 'Chapter 3: Void Shift', desc: 'Levels 41-60 unlock by progress, mixing launch pads, portals, traps, and safe tiles.' }
+    { title: '章节 1：初见裂缝', desc: '第 1–20 关默认开放，用来熟悉核心规则和基础机制。' },
+    { title: '章节 2：冰裂路线', desc: '第 21–40 关随进度解锁，重点是路线规划、裂纹地板和冰面。' },
+    { title: '章节 3：深渊转移', desc: '第 41–60 关随进度解锁，混合弹跳板、传送门、陷阱和安全地板。' }
   ];
   const SKINS = [
-    { id: 'default', name: 'Runner', cost: 0 },
-    { id: 'robot', name: 'Robot', cost: 80 },
-    { id: 'dog', name: 'Dog', cost: 120 },
-    { id: 'chicken', name: 'Chicken', cost: 120 },
-    { id: 'alien', name: 'Alien', cost: 160 }
+    { id: 'default', name: '跑者', cost: 0 },
+    { id: 'robot', name: '机器人', cost: 80 },
+    { id: 'dog', name: '小狗', cost: 120 },
+    { id: 'chicken', name: '小鸡', cost: 120 },
+    { id: 'alien', name: '外星人', cost: 160 }
   ];
   const THEMES = [
-    { id: 'abyss', name: 'Abyss Tiles', cost: 0 },
-    { id: 'glacier', name: 'Glacier Tiles', cost: 120 },
-    { id: 'lava', name: 'Lava Tiles', cost: 140 },
-    { id: 'space', name: 'Space Tiles', cost: 160 }
+    { id: 'abyss', name: '深渊地板', cost: 0 },
+    { id: 'glacier', name: '冰川地板', cost: 120 },
+    { id: 'lava', name: '熔岩地板', cost: 140 },
+    { id: 'space', name: '太空地板', cost: 160 }
   ];
   const EXITS = [
-    { id: 'default', name: 'Blue Exit', cost: 0 },
-    { id: 'aurora', name: 'Aurora Exit', cost: 90 },
-    { id: 'gold', name: 'Gold Exit', cost: 110 },
-    { id: 'violet', name: 'Violet Exit', cost: 130 }
+    { id: 'default', name: '蓝色出口', cost: 0 },
+    { id: 'aurora', name: '极光出口', cost: 90 },
+    { id: 'gold', name: '金色出口', cost: 110 },
+    { id: 'violet', name: '紫色出口', cost: 130 }
   ];
   const COIN_REWARD_BY_STAR = { 1: 10, 2: 18, 3: 30 };
   const ENDLESS_STAGES = [
-    { at: 0, name: 'Active Start', tip: 'Active start: read fast and keep moving' },
-    { at: 60, name: 'Pressure Build', tip: 'Danger up: crack tiles appear more often' },
-    { at: 160, name: 'Mixed Pressure', tip: 'Danger up: ice, launch pads, and traps mix in' },
-    { at: 300, name: 'High-Pressure Rush', tip: 'Danger up: faster collapse and sharper lane shifts' },
-    { at: 500, name: 'Extreme Void Shift', tip: 'Extreme mode: portals, traps, and collapse pressure peak' }
+    { at: 0, name: '紧张开局', tip: '开局提速：快速读路，保持移动' },
+    { at: 60, name: '压力上升', tip: '危险提升：裂纹地板出现更频繁' },
+    { at: 160, name: '混合压力', tip: '危险提升：冰面、弹跳板和陷阱开始混合' },
+    { at: 300, name: '高压冲刺', tip: '危险提升：塌陷更快，左右变线更急' },
+    { at: 500, name: '极限深渊', tip: '极限模式：传送门、陷阱和塌陷压力达到峰值' }
   ];
   const OBJECTIVE_LABELS = {
-    steps: 'Move Limit',
-    key: 'Grab the Key',
-    avoidFastBonus: 'No-Crack Bonus',
-    safeBonus: 'Safe Tile Bonus'
+    steps: '步数限制',
+    key: '拿到钥匙',
+    avoidFastBonus: '避开裂纹奖励',
+    safeBonus: '安全地板奖励'
   };
   const COLLAPSE = {
     normal: 620,
@@ -2576,8 +2710,8 @@
   };
   const LEVELS = [
     {
-      title: "Don't Look Back",
-      hint: 'Dash along the bottom, then up the right side to the exit. The floor behind you will start falling, so turning back is not an option.',
+      title: "别回头",
+      hint: '沿底部冲刺，再从右侧向上到出口。身后的地板会开始坠落，所以不能回头。',
       map: [
         '######G',
         '######.',
@@ -2593,8 +2727,8 @@
       ]
     },
     {
-      title: 'First Turn',
-      hint: 'The path turns back upward, but you cannot step on the tile you just left. Read the next stretch before moving.',
+      title: '第一次转弯',
+      hint: '路线会向上折返，但你不能踩回刚离开的地板。移动前先看清下一段。',
       map: [
         '######G',
         '######.',
@@ -2610,8 +2744,8 @@
       ]
     },
     {
-      title: 'Narrow Bridge',
-      hint: 'Every move on a narrow bridge matters. There is a short sprint before the exit, so do not hesitate in the middle.',
+      title: '狭窄桥面',
+      hint: '窄路上每一步都重要。出口前有一段短冲刺，中途不要犹豫。',
       map: [
         '#####.G',
         '#####..',
@@ -2627,8 +2761,8 @@
       ]
     },
     {
-      title: 'First Dead End',
-      hint: 'A tempting fork is waiting above. The wrong turn seals you in, so choose the route that still connects to the exit.',
+      title: '第一个死胡同',
+      hint: '上方有个诱人的岔路。选错会把自己封死，要选择仍能连到出口的路线。',
       map: [
         '#####.G',
         '#####..',
@@ -2644,8 +2778,8 @@
       ]
     },
     {
-      title: 'Safe Landing',
-      hint: 'Green + tiles are safe and let you pause briefly. Some dead ends have safe tiles too; safety does not always mean the right path.',
+      title: '安全落脚点',
+      hint: '绿色 + 地板是安全的，可以短暂停顿。但有些死路也有安全格，安全不等于正确。',
       map: [
         '####..G',
         '####.##',
@@ -2661,8 +2795,8 @@
       ]
     },
     {
-      title: 'Route Choice',
-      hint: 'Both routes get close to the exit, but the shortcut is tighter. Safe tiles save rhythm, not bad decisions.',
+      title: '路线选择',
+      hint: '两条路都接近出口，但捷径更紧。安全格能救节奏，不能救错误判断。',
       map: [
         '###...G',
         '###.###',
@@ -2678,8 +2812,8 @@
       ]
     },
     {
-      title: 'Crack Tiles',
-      hint: 'Red !! tiles fall faster. Move again immediately after stepping on one; buffered inputs help.',
+      title: '裂纹地板',
+      hint: '红色 !! 地板塌得更快。踩上后立刻移动，输入缓存会很有用。',
       map: [
         '#####.G',
         '#####F.',
@@ -2695,8 +2829,8 @@
       ]
     },
     {
-      title: 'Crack Bridge',
-      hint: 'A chain of crack tiles must be crossed in one burst. Direction buttons highlight on press, which helps confirm mobile input.',
+      title: '裂纹桥',
+      hint: '一串裂纹地板必须一口气穿过。方向反馈会帮助你确认手机输入。',
       map: [
         '####..G',
         '####F##',
@@ -2712,8 +2846,8 @@
       ]
     },
     {
-      title: 'Fake Crack Route',
-      hint: 'Not every crack tile is on the right path. Some red tiles are bait and will trap you.',
+      title: '假裂纹路线',
+      hint: '不是所有裂纹格都在正确路线上。有些红色地板是诱饵，会把你困住。',
       map: [
         '###...G',
         '###F###',
@@ -2729,8 +2863,8 @@
       ]
     },
     {
-      title: 'Ice Basics',
-      hint: 'Ice keeps sliding in your current direction. Enter it on straight lines; do not slide into a corner.',
+      title: '冰面基础',
+      hint: '冰面会让你沿当前方向继续滑。直线进入，不要滑进角落。',
       map: [
         '#####.G',
         '####...',
@@ -2746,8 +2880,8 @@
       ]
     },
     {
-      title: 'Ice Speed',
-      hint: 'Ice can save moves, but it can also carry you too far. Check the landing tile at the end.',
+      title: '冰面加速',
+      hint: '冰面能省步数，也可能把你带太远。看清最后的落脚格。',
       map: [
         '####..G',
         '####I##',
@@ -2763,8 +2897,8 @@
       ]
     },
     {
-      title: 'Ice Dead Ends',
-      hint: 'Forks beside ice are often traps. Confirm the end of the slide, not just the next tile.',
+      title: '冰面死路',
+      hint: '冰面旁边的岔路常常是陷阱。确认滑行终点，不只看下一格。',
       map: [
         '###...G',
         '###I###',
@@ -2780,8 +2914,8 @@
       ]
     },
     {
-      title: 'Launch Pad Basics',
-      hint: 'Yellow launch pads jump one extra tile in your current direction. Use them to skip pressure, but make sure the landing exists.',
+      title: '弹跳板基础',
+      hint: '黄色弹跳板会沿当前方向多跳一格。它能跳过压力，但要确认有落脚点。',
       map: [
         '#####.G',
         '#####..',
@@ -2797,8 +2931,8 @@
       ]
     },
     {
-      title: 'Launch Route',
-      hint: 'Some shortcuts require launch pads. Choose the wrong direction and you fly off the platform.',
+      title: '弹跳路线',
+      hint: '有些捷径必须用弹跳板。方向错了就会飞出平台。',
       map: [
         '####..G',
         '####P##',
@@ -2814,8 +2948,8 @@
       ]
     },
     {
-      title: 'Fake Landing',
-      hint: 'Gaps near launch pads are bait. Check the second tile after the jump before choosing your entry direction.',
+      title: '假落点',
+      hint: '弹跳板旁的缺口常是诱饵。进入前先确认跳后的第二格。',
       map: [
         '###...G',
         '###P###',
@@ -2831,8 +2965,8 @@
       ]
     },
     {
-      title: 'Portals',
-      hint: 'A/B portals connect to each other. Use them to cross breaks while the collapse cuts off your old route.',
+      title: '传送门',
+      hint: 'A/B 传送门互相连接。当地板塌断旧路线时，用它跨过缺口。',
       map: [
         '###...G',
         '###.###',
@@ -2848,8 +2982,8 @@
       ]
     },
     {
-      title: 'Portal Choice',
-      hint: 'Portals are bright, but they can drop you into pressure. Be ready for the next move before entering.',
+      title: '传送选择',
+      hint: '传送门很亮，但可能把你送进高压位置。进入前准备好下一步。',
       map: [
         '####..G',
         '####F##',
@@ -2865,8 +2999,8 @@
       ]
     },
     {
-      title: 'Portal Gap',
-      hint: 'The correct route uses a portal to cross a gap. The wrong fork lets your own path seal you in.',
+      title: '传送缺口',
+      hint: '正确路线要用传送门跨过缺口。错误岔路会让你被自己的路线封死。',
       map: [
         '###...G',
         '###I###',
@@ -2882,8 +3016,8 @@
       ]
     },
     {
-      title: 'Mixed Challenge I',
-      hint: 'Crack tiles, ice, launch pads, and portals are mixed together. The rhythm is sprint, slide, warp, sprint again.',
+      title: '混合挑战 I',
+      hint: '裂纹地板、冰面、弹跳板和传送门混在一起。节奏是冲刺、滑行、传送、再冲刺。',
       map: [
         '###...G',
         '###P###',
@@ -2899,8 +3033,8 @@
       ]
     },
     {
-      title: 'Final Escape',
-      hint: 'Every tile type appears. Use buffered inputs and leap away the moment the floor gives out.',
+      title: '最终逃生',
+      hint: '所有地板类型都会出现。利用输入缓存，在地板塌陷瞬间跳走。',
       map: [
         '###..FG',
         '###P###',
@@ -2923,53 +3057,53 @@
   function applyTutorialLevels() {
     const tutorial = [
       {
-        title: 'Just Reach the Exit',
-        hint: 'Level one teaches one thing: move from the start to the glowing exit. Tiles begin falling after you leave them.',
+        title: '先到出口',
+        hint: '第一关只教一件事：从起点移动到发光出口。你离开后地板会开始坠落。',
         map: ['######G','######.','######.','######.','######.','######.','######.','######.','######.','######.','S......']
       },
       {
-        title: 'No Turning Back',
-        hint: 'Tiles you step off will fall. Do not turn back; follow the main route upward in one push.',
+        title: '不能回头',
+        hint: '你离开的地板会坠落。不要回头，沿主路线一口气向上。',
         map: ['######G','######.','####...','####.##','##...##','##.####','##...##','####.##','####.##','####.##','S....##']
       },
       {
-        title: 'Safe Tiles',
-        hint: 'Green + tiles do not fall. Use them for a quick pause, but do not treat them as a guaranteed correct route.',
+        title: '安全地板',
+        hint: '绿色 + 地板不会坠落。可以用来短暂停顿，但别把它当成必然正确路线。',
         map: ['######G','######.','######.','######O','######.','######.','######.','######.','######.','######.','S......']
       },
       {
-        title: 'Crack Tiles',
-        hint: 'Red !! tiles fall faster. Move again right after landing; do not stop.',
+        title: '裂纹地板',
+        hint: '红色 !! 地板塌得更快。落地后马上移动，不要停。',
         map: ['######G','######.','######.','######F','######.','######.','######F','######.','######.','######.','S..F...']
       },
       {
-        title: 'Ice Slide',
-        hint: 'Ice ≋ keeps sliding in your entry direction. Check whether the end of the slide has a route.',
+        title: '冰面滑行',
+        hint: '冰面 ≋ 会沿进入方向继续滑。先确认滑行终点是否有路。',
         map: ['######G','######.','######.','######.','######I','######.','######I','######.','######.','######.','S......']
       },
       {
-        title: 'Launch Landing',
-        hint: 'Yellow ⇈ pads jump one extra tile in your current direction. Check the second-tile landing before stepping in.',
+        title: '弹跳落点',
+        hint: '黄色 ⇈ 会沿当前方向额外跳一格。踩入前确认第二格落点。',
         map: ['######G','######.','######.','######.','######.','######.','######.','######.','######.','######.','S..P...']
       },
       {
-        title: 'Portals',
-        hint: 'A/B portals send you to each other. Prepare the next move before entering.',
+        title: '传送门',
+        hint: 'A/B 传送门会互相传送。进入前先准备下一步。',
         map: ['######G','######B','#######','#######','#######','#######','#######','#######','#######','#######','S..A###']
       },
       {
-        title: 'Avoid Traps',
-        hint: 'Purple ✕ tiles are traps. They often sit on bait routes that look shorter.',
+        title: '避开陷阱',
+        hint: '紫色 ✕ 是陷阱，常出现在看起来更短的诱饵路线。',
         map: ['######G','######.','####...','####.X#','####.##','####.##','####.##','####.##','####.##','####.##','S.....#']
       },
       {
-        title: 'Key Gate',
-        hint: 'This level requires the key before the exit opens. Do not route back through tiles that have already fallen.',
+        title: '钥匙门',
+        hint: '这一关需要先拿钥匙，出口才会开启。不要规划回到已经坠落的地板。',
         map: ['######G','######.','####...','####.##','##...##','##.####','##...##','####.##','####.##','####.##','S....##']
       },
       {
-        title: 'Mini Mix',
-        hint: 'Crack tiles, ice, launch pads, and safe tiles appear together. Read the landing, then keep the rhythm.',
+        title: '小型混合',
+        hint: '裂纹地板、冰面、弹跳板和安全地板会同时出现。看清落点，然后保持节奏。',
         map: ['######G','######.','####..O','####I##','####F##','####.##','####.##','####.##','####.##','####.##','S.P...#']
       }
     ];
@@ -2997,9 +3131,9 @@
   function getGeneratedTheme(levelNumber) {
     if (levelNumber <= 30) {
       return {
-        title: `Crack Route ${levelNumber - 20}`,
-        hint: 'Chapter 2A: crack tiles and forks force planning. Step off red tiles immediately.',
-        hintMove: 'Suggested first move: right. Take the lower main lane, then read the red crack bridge.',
+        title: `裂纹路线 ${levelNumber - 20}`,
+        hint: '章节 2A：裂纹地板和岔路会逼你提前规划。红色地板要立刻离开。',
+        hintMove: '建议第一步：向右。先走下方主路，再判断红色裂纹桥。',
         fast: 2 + (levelNumber % 3),
         ice: levelNumber >= 26 ? 1 : 0,
         bounce: 0,
@@ -3011,9 +3145,9 @@
     }
     if (levelNumber <= 40) {
       return {
-        title: `Frostbreak Line ${levelNumber - 30}`,
-        hint: 'Chapter 2B: ice carries you into the next route segment. Check the slide endpoint before using crack tiles.',
-        hintMove: 'Suggested first move: right. Before using ice, confirm that its endpoint connects to the main route.',
+        title: `冰裂线路 ${levelNumber - 30}`,
+        hint: '章节 2B：冰面会把你带入下一段路线。用裂纹地板前先看清滑行终点。',
+        hintMove: '建议第一步：向右。使用冰面前，确认终点能接回主路线。',
         fast: 2 + (levelNumber % 2),
         ice: 2 + (levelNumber % 3),
         bounce: 0,
@@ -3025,9 +3159,9 @@
     }
     if (levelNumber <= 50) {
       return {
-        title: `Launch Shift ${levelNumber - 40}`,
-        hint: 'Chapter 3A: launch pads and portals shorten the route, but you must check the second-tile landing first.',
-        hintMove: 'Suggested first move: right. Enter launch pads from the main-route direction, not from the side.',
+        title: `弹跳转移 ${levelNumber - 40}`,
+        hint: '章节 3A：弹跳板和传送门能缩短路线，但必须先确认第二格落点。',
+        hintMove: '建议第一步：向右。从主路线方向进入弹跳板，不要从侧面乱进。',
         fast: 2,
         ice: levelNumber >= 47 ? 1 : 0,
         bounce: 2 + (levelNumber % 2),
@@ -3038,9 +3172,9 @@
       };
     }
     return {
-      title: `Abyss Mix ${levelNumber - 50}`,
-      hint: 'Final chapter: crack tiles, ice, launch pads, portals, and traps all mix together. Buffer inputs to keep tempo.',
-      hintMove: 'Suggested first move: right. Claim the lower route first; after a portal, find the nearest safe landing fast.',
+      title: `深渊混合 ${levelNumber - 50}`,
+      hint: '最终章节：裂纹地板、冰面、弹跳板、传送门和陷阱混在一起。用输入缓存保持节奏。',
+      hintMove: '建议第一步：向右。先拿下方路线；传送后快速找最近的安全落点。',
       fast: 3 + (levelNumber % 2),
       ice: 2,
       bounce: 2,
@@ -3228,6 +3362,13 @@
   const routeItemBtn = document.getElementById('routeItemBtn');
   const slowItemBtn = document.getElementById('slowItemBtn');
   const safeItemBtn = document.getElementById('safeItemBtn');
+  const itemPrepOverlay = document.getElementById('itemPrepOverlay');
+  const itemPrepCloseBtn = document.getElementById('itemPrepCloseBtn');
+  const itemPrepDesc = document.getElementById('itemPrepDesc');
+  const itemPrepCoins = document.getElementById('itemPrepCoins');
+  const itemPrepList = document.getElementById('itemPrepList');
+  const itemPrepStartBtn = document.getElementById('itemPrepStartBtn');
+  const itemPrepSkipBtn = document.getElementById('itemPrepSkipBtn');
   const toast = document.getElementById('toast');
   const pauseBtn = document.getElementById('pauseBtn');
   const soundBtn = document.getElementById('soundBtn');
@@ -3285,7 +3426,8 @@
     reviveSnapshot: null,
     itemUsesThisRun: 0,
     safeStepCharges: 0,
-    itemSlowUntil: 0
+    itemSlowUntil: 0,
+    pendingItemStart: null
   };
 
   function defaultSave() {
@@ -3297,6 +3439,7 @@
       bestTimes: {},
       bestSteps: {},
       coins: 0,
+      items: { route: 0, slow: 0, safe: 0 },
       skinsUnlocked: { default: true },
       currentSkin: 'default',
       themesUnlocked: { abyss: true },
@@ -3316,7 +3459,7 @@
 
   function loadSave() {
     try {
-      const raw = localStorage.getItem(SAVE_KEY);
+      const raw = localStorage.getItem(SAVE_钥);
       if (!raw) {
         const legacy = Number(localStorage.getItem('floor-collapse-best') || 0);
         const save = defaultSave();
@@ -3340,6 +3483,8 @@
     next.bestTimes = next.bestTimes && typeof next.bestTimes === 'object' ? next.bestTimes : {};
     next.bestSteps = next.bestSteps && typeof next.bestSteps === 'object' ? next.bestSteps : {};
     next.coins = Math.max(0, Number(next.coins) || 0);
+    next.items = { route: 0, slow: 0, safe: 0, ...(next.items && typeof next.items === 'object' ? next.items : {}) };
+    for (const key of Object.keys(next.items)) next.items[key] = Math.max(0, Math.floor(Number(next.items[key]) || 0));
     next.skinsUnlocked = next.skinsUnlocked && typeof next.skinsUnlocked === 'object' ? next.skinsUnlocked : { default: true };
     next.skinsUnlocked.default = true;
     next.currentSkin = SKINS.some(item => item.id === next.currentSkin && next.skinsUnlocked[item.id]) ? next.currentSkin : 'default';
@@ -3362,7 +3507,7 @@
 
   function saveProgress() {
     state.save.lastPlayedAt = Date.now();
-    localStorage.setItem(SAVE_KEY, JSON.stringify(state.save));
+    localStorage.setItem(SAVE_钥, JSON.stringify(state.save));
   }
 
   function isLevelUnlocked(levelNumber) {
@@ -3431,7 +3576,7 @@
     prevBtn.disabled = state.mode !== 'level' || state.level <= 1;
     const nextLevel = state.level + 1;
     nextBtn.disabled = state.mode !== 'level' || nextLevel > MAX_LEVEL || !isLevelUnlocked(nextLevel);
-    nextBtn.textContent = nextLevel > MAX_LEVEL ? 'Final Level' : 'Next';
+    nextBtn.textContent = nextLevel > MAX_LEVEL ? '最终关' : '下一关';
   }
 
   function refreshUI() {
@@ -3440,6 +3585,7 @@
     buildDots();
     applyAppearance();
     renderShop();
+    updateItemButtons();
     if (!levelSelectOverlay.classList.contains('hide')) buildLevelSelectPanel();
   }
 
@@ -3456,7 +3602,7 @@
 
   function renderShop() {
     if (!shopList || !coinText) return;
-    coinText.textContent = `${state.save.coins || 0} Coins`;
+    coinText.textContent = `${state.save.coins || 0} 金币`;
     shopList.textContent = '';
     shopList.appendChild(createShopSection('Characters', SKINS, 'skin'));
     shopList.appendChild(createShopSection('Tile Themes', THEMES, 'theme'));
@@ -3489,7 +3635,7 @@
     const name = document.createElement('strong');
     name.textContent = item.name;
     const meta = document.createElement('span');
-    meta.textContent = active ? 'Equipped' : unlocked ? 'Unlocked. Tap to equip' : `${item.cost} Coins`;
+    meta.textContent = active ? '已装备' : unlocked ? '已解锁，点击装备' : `${item.cost} 金币`;
     button.append(preview, name, meta);
     button.addEventListener('click', () => buyOrEquip(item, kind));
     return button;
@@ -3500,12 +3646,12 @@
     const currentKey = kind === 'skin' ? 'currentSkin' : kind === 'theme' ? 'currentTheme' : 'currentExit';
     if (!unlockedMap[item.id]) {
       if ((state.save.coins || 0) < item.cost) {
-        showToast('Not enough coins');
+        showToast('金币不足');
         return;
       }
       state.save.coins -= item.cost;
       unlockedMap[item.id] = true;
-      showToast('Unlocked');
+      showToast('已解锁');
     }
     state.save[currentKey] = item.id;
     saveProgress();
@@ -3562,9 +3708,9 @@
       [[10,0],[10,4],[8,4],[8,1],[6,1],[6,6],[4,6],[4,2],[2,2],[2,5],[0,5],[0,6]]
     ];
     const theme = {
-      title: `Daily Run ${dateKey}`,
-      hint: "Daily Run does not affect campaign unlocks. Today's map is fixed, and retries count today's deaths.",
-      hintMove: 'Suggested first move: right. Take the lower route first.',
+      title: `每日挑战 ${dateKey}`,
+      hint: "每日挑战不影响普通关卡解锁。当天地图固定，重试会累计当天死亡次数。",
+      hintMove: '建议第一步：向右。先走下方路线。',
       fast: 3 + (seed % 2),
       ice: 1 + (seed % 3),
       bounce: 1 + ((seed >> 2) % 2),
@@ -3603,6 +3749,7 @@
     state.itemUsesThisRun = 0;
     state.safeStepCharges = 0;
     state.itemSlowUntil = 0;
+    app.classList.remove('time-freeze');
     state.status = 'playing';
     overlay.classList.add('hide');
     resultOverlay.classList.add('hide');
@@ -3736,7 +3883,7 @@
   function getReviveNeedText() {
     const cost = getCurrentReviveCost();
     const coins = Number(state.save.coins) || 0;
-    return `Need ${Math.max(0, cost - coins)} more Coins`;
+    return `还差 ${Math.max(0, cost - coins)} 金币`;
   }
 
   function getReviveNoteText() {
@@ -3747,12 +3894,12 @@
       const max = getMaxRevivesForMode(mode);
       const next = Math.min(max, state.revivesUsed + 1);
       return canAffordRevive()
-        ? `Revive ${next}/${max}: rewind to the last safe moment for ${cost} Coins. Reward is paid only when the run ends.`
-        : `Revive ${next}/${max} costs ${cost} Coins. ${getReviveNeedText()}.`;
+        ? `复活 ${next}/${max}：花费 ${cost} 金币回到上一个安全时刻。本局结束后才结算奖励。`
+         : `复活 ${next}/${max} 需要 ${cost} 金币。${getReviveNeedText()}。`;
     }
     return canAffordRevive()
-      ? `Revive from the last safe moment for ${cost} Coins.`
-      : `Revive costs ${cost} Coins. ${getReviveNeedText()}.`;
+      ? `花费 ${cost} 金币，从上一个安全时刻复活。`
+       : `复活需要 ${cost} 金币。${getReviveNeedText()}。`;
   }
 
   function createReviveButton() {
@@ -3760,12 +3907,32 @@
     const cost = getCurrentReviveCost();
     button.type = 'button';
     button.className = 'primary-btn revive-btn';
-    button.textContent = canAffordRevive() ? `Revive${getReviveCountLabel()} · ${cost} Coins` : getReviveNeedText();
+    button.textContent = canAffordRevive() ? `复活${getReviveCountLabel()} · ${cost} 金币` : getReviveNeedText();
     button.disabled = !isReviveAvailable() || !canAffordRevive();
     button.addEventListener('click', reviveRunWithCoins);
     return button;
   }
 
+
+  function getItemStock(type) {
+    if (!state.save.items || typeof state.save.items !== 'object') state.save.items = { route: 0, slow: 0, safe: 0 };
+    return Math.max(0, Math.floor(Number(state.save.items[type]) || 0));
+  }
+
+  function addItemStock(type, amount = 1) {
+    if (!state.save.items || typeof state.save.items !== 'object') state.save.items = { route: 0, slow: 0, safe: 0 };
+    state.save.items[type] = getItemStock(type) + Math.max(0, Math.floor(Number(amount) || 0));
+    saveProgress();
+    updateItemButtons();
+  }
+
+  function spendItemStock(type) {
+    if (getItemStock(type) <= 0) return false;
+    state.save.items[type] = getItemStock(type) - 1;
+    saveProgress();
+    updateItemButtons();
+    return true;
+  }
 
   function getItemLimitForMode(mode = state.mode) {
     return ITEM_LIMITS[mode] || 0;
@@ -3784,48 +3951,50 @@
   function canUseRunItem(type) {
     if (state.status !== 'playing') return false;
     if (state.mode !== 'level' && state.mode !== 'endless') return false;
-    if (state.moving || state.reviving) return false;
+    if (state.reviving) return false;
     if (getRemainingItemUses() <= 0) return false;
-    return (Number(state.save.coins) || 0) >= getItemCost(type);
+    return getItemStock(type) > 0;
   }
 
   function updateItemButtons() {
     if (!itemBar) return;
     const playable = state.status === 'playing' && (state.mode === 'level' || state.mode === 'endless');
     itemBar.classList.toggle('show', playable);
-    if (!playable) return;
+    const configs = [
+      { type: 'route', btn: routeItemBtn },
+      { type: 'slow', btn: slowItemBtn },
+      { type: 'safe', btn: safeItemBtn }
+    ];
+    if (!playable) {
+      configs.forEach(({ btn }) => { if (btn) btn.disabled = true; });
+      return;
+    }
     const used = Number(state.itemUsesThisRun) || 0;
     const limit = getItemLimitForMode();
     const remaining = Math.max(0, limit - used);
-    const coins = Number(state.save.coins) || 0;
-    const configs = [
-      { type: 'route', btn: routeItemBtn, label: 'Flash' },
-      { type: 'slow', btn: slowItemBtn, label: 'Slow' },
-      { type: 'safe', btn: safeItemBtn, label: 'Safe' }
-    ];
-    configs.forEach(({ type, btn, label }) => {
+    configs.forEach(({ type, btn }) => {
       if (!btn) return;
-      const cost = getItemCost(type);
-      const affordable = coins >= cost;
-      btn.innerHTML = `${label}<span>${cost}</span>`;
-      btn.title = remaining > 0 ? `${label} item. ${remaining}/${limit} item uses left this run.` : 'No item uses left this run.';
-      btn.disabled = !canUseRunItem(type) || !affordable;
+      const info = ITEM_INFO[type];
+      const stock = getItemStock(type);
+      btn.innerHTML = `${info.short}<span>x${stock}</span>`;
+      btn.title = remaining > 0 ? `${info.name}。库存 ${stock} 个，本局还可使用 ${remaining}/${limit} 次。` : '本局道具次数已用完。';
+      btn.disabled = false;
+      btn.classList.toggle('empty', stock <= 0);
       btn.classList.toggle('active', type === 'slow' && state.itemSlowUntil > performance.now());
+      btn.classList.toggle('shield-ready', type === 'safe' && (Number(state.safeStepCharges) || 0) > 0);
     });
   }
 
   function spendRunItem(type) {
-    const cost = getItemCost(type);
-    if (!canUseRunItem(type)) {
-      if (state.mode === 'daily') return showToast('Daily Run has no items');
-      if (getRemainingItemUses() <= 0) return showToast('No item uses left');
-      if ((Number(state.save.coins) || 0) < cost) return showToast('Not enough coins');
-      return showToast('Cannot use item now');
-    }
-    if (!spendCoins(cost)) return showToast('Not enough coins');
+    if (state.mode === 'daily') return showToast('每日挑战不能使用道具');
+    if (state.status !== 'playing' || (state.mode !== 'level' && state.mode !== 'endless')) return showToast('现在不能使用道具');
+    if (state.reviving) return showToast('正在复活');
+    if (getRemainingItemUses() <= 0) return showToast('本局道具次数已用完');
+    if (getItemStock(type) <= 0) return showToast('没有这个道具，开局前可以购买');
+    if (!spendItemStock(type)) return showToast('没有这个道具');
     state.itemUsesThisRun = (Number(state.itemUsesThisRun) || 0) + 1;
     updateItemButtons();
-    return cost;
+    return getItemCost(type);
   }
 
   function shiftActiveCellTimers(extraMs) {
@@ -3839,73 +4008,173 @@
     if (state.endless?.nextFloorEventAt) state.endless.nextFloorEventAt += extraMs;
   }
 
+  function getTimeFreezeRemaining(now = performance.now()) {
+    return Math.max(0, (Number(state.itemSlowUntil) || 0) - now);
+  }
+
   function useSlowItem() {
     const cost = spendRunItem('slow');
     if (!cost) return;
     const now = performance.now();
     state.itemSlowUntil = Math.max(state.itemSlowUntil || 0, now) + ITEM_SLOW_MS;
     shiftActiveCellTimers(ITEM_SLOW_TIMER_SHIFT_MS);
-    showToast(`Slow Time · -${cost} Coins`);
+    app.classList.add('time-freeze');
+    clearTimeout(useSlowItem.timer);
+    useSlowItem.timer = window.setTimeout(() => app.classList.remove('time-freeze'), getTimeFreezeRemaining() + 40);
+    showToast('时间冻结 · 地板暂停 2 秒');
     playSound('stage');
+    updateItemButtons();
   }
 
   function useSafeItem() {
     const cost = spendRunItem('safe');
     if (!cost) return;
     state.safeStepCharges = Math.max(0, Number(state.safeStepCharges) || 0) + 1;
-    showToast(`Safe Step armed · -${cost} Coins`);
+    showToast('救命护盾已开启 · 会自动救一次');
     playSound('coin');
+    updateItemButtons();
   }
 
   function useRouteItem() {
     const cost = spendRunItem('route');
     if (!cost) return;
-    const target = findRouteFlashTarget();
-    if (target) highlightCell(target.r, target.c, ITEM_FLASH_MS);
-    showToast(`Route Flash · -${cost} Coins`);
+    const route = findRoutePreviewCells(5);
+    if (route.length) highlightRouteCells(route, ITEM_FLASH_MS);
+    else {
+      const target = findHintCell();
+      if (target) highlightRouteCells([target], ITEM_FLASH_MS);
+    }
+    showToast(route.length > 1 ? '路线预览已显示 · 跟着亮格走' : '路线预览 · 看亮格');
     playSound('coin');
   }
 
   function applySafeStepToLanding(r, c) {
-    if ((Number(state.safeStepCharges) || 0) <= 0) return;
+    // 现在的“安全”道具改成救命护盾，不再把下一格变安全；避免玩家感觉不到效果。
+  }
+
+  function canPreviewEnter(r, c) {
     const cell = getCell(r, c);
-    if (!cell || isVoid(cell) || cell.type === 'goal' || cell.type === 'trap' || cell.type === 'key' || cell.type === 'teleA' || cell.type === 'teleB') return;
-    state.safeStepCharges = Math.max(0, Number(state.safeStepCharges) - 1);
-    cell.type = 'safe';
-    cell.phase = 'idle';
-    cell.leavingAt = 0;
-    cell.holdFallAt = 0;
-    updateTile(r, c);
-    showToast('Safe landing created');
-    playSound('coin');
+    return Boolean(cell && !isVoid(cell) && cell.phase !== 'gone' && cell.type !== 'trap');
+  }
+
+  function makeRouteKey(r, c) {
+    return `${r},${c}`;
+  }
+
+  function findRoutePreviewCells(maxCells = 5) {
+    if (state.status !== 'playing') return [];
+    const start = { r: state.player.r, c: state.player.c };
+    const target = state.mode === 'level' && state.objective?.type === 'key' && !state.objective.keyCollected && state.objective.key
+      ? state.objective.key
+      : state.goal;
+    const targetRow = Math.max(0, state.player.r - 4);
+    const queue = [{ r: start.r, c: start.c, route: [] }];
+    const seen = new Set([makeRouteKey(start.r, start.c)]);
+    while (queue.length) {
+      const cur = queue.shift();
+      const reached = state.mode === 'endless'
+        ? cur.r <= targetRow && cur.route.length > 0
+        : cur.r === target.r && cur.c === target.c;
+      if (reached) return cur.route.slice(0, maxCells);
+      if (cur.route.length >= 9) continue;
+      const dirs = state.mode === 'endless' ? [DIRS.up, DIRS.left, DIRS.right, DIRS.down] : [DIRS.right, DIRS.up, DIRS.left, DIRS.down];
+      for (const dir of dirs) {
+        const path = resolveMove({ r: cur.r, c: cur.c }, dir);
+        if (path.blocked || path.fail || !path.steps?.length) continue;
+        const final = path.steps[path.steps.length - 1];
+        if (!canPreviewEnter(final.r, final.c)) continue;
+        const key = makeRouteKey(final.r, final.c);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const nextRoute = cur.route.concat(path.steps.filter(step => canPreviewEnter(step.r, step.c)));
+        queue.push({ r: final.r, c: final.c, route: nextRoute });
+      }
+    }
+    const fallback = findHintCell();
+    return fallback ? [fallback] : [];
+  }
+
+  function highlightRouteCells(cells, ms = ITEM_FLASH_MS) {
+    const unique = [];
+    const seen = new Set();
+    for (const cell of cells) {
+      if (!cell) continue;
+      const key = makeRouteKey(cell.r, cell.c);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      unique.push(cell);
+    }
+    unique.slice(0, 5).forEach((cell, index) => {
+      const el = state.tileEls?.[cell.r]?.[cell.c];
+      if (!el) return;
+      el.classList.add('route-preview', 'hint-cell');
+      el.style.animationDelay = `${index * 70}ms`;
+      window.setTimeout(() => {
+        el.classList.remove('route-preview', 'hint-cell');
+        el.style.animationDelay = '';
+      }, ms + index * 55);
+    });
   }
 
   function findRouteFlashTarget() {
-    if (state.mode === 'endless') {
-      const priorities = [DIRS.up, DIRS.left, DIRS.right, DIRS.down];
-      for (const dir of priorities) {
-        const nr = state.player.r + dir.dy;
-        const nc = state.player.c + dir.dx;
-        if (!isBlocked(nr, nc)) return { r: nr, c: nc };
-      }
-      return findHintCell();
+    const route = findRoutePreviewCells(1);
+    return route[0] || findHintCell();
+  }
+
+  function tryUseShieldRescue(reasonKey = 'stay') {
+    if (state.mode === 'daily') return false;
+    if ((Number(state.safeStepCharges) || 0) <= 0) return false;
+    state.safeStepCharges = Math.max(0, Number(state.safeStepCharges) - 1);
+    const snap = state.reviveSnapshot;
+    const now = performance.now();
+    if (snap?.cells?.length) {
+      const timerShift = now - (snap.at || now) + 900;
+      state.mode = snap.mode;
+      state.level = snap.level;
+      state.cells = cloneCellsForRevive(snap.cells);
+      shiftCellTimersAfterRevive(state.cells, timerShift);
+      state.player = { ...snap.player };
+      state.goal = { ...snap.goal };
+      state.elapsed = Number(snap.elapsed) || 0;
+      state.startTime = now - state.elapsed * 1000;
+      state.lastFrame = now;
+      state.steps = Number(snap.steps) || 0;
+      state.lastDir = DIRS[snap.lastDirName] || DIRS.up;
+      state.lastPathKind = snap.lastPathKind || 'normal';
+      state.objective = clonePlainForRevive(snap.objective);
+      state.endless = clonePlainForRevive(snap.endless);
+      if (state.endless?.nextFloorEventAt) state.endless.nextFloorEventAt += timerShift;
     }
-    const startKey = `${state.player.r},${state.player.c}`;
-    const queue = [{ r: state.player.r, c: state.player.c, first: null }];
-    const seen = new Set([startKey]);
-    while (queue.length) {
-      const cur = queue.shift();
-      if (cur.r === state.goal.r && cur.c === state.goal.c) return cur.first;
-      for (const dir of Object.values(DIRS)) {
-        const nr = cur.r + dir.dy;
-        const nc = cur.c + dir.dx;
-        const key = `${nr},${nc}`;
-        if (seen.has(key) || isBlocked(nr, nc)) continue;
-        seen.add(key);
-        queue.push({ r: nr, c: nc, first: cur.first || { r: nr, c: nc } });
-      }
-    }
-    return findHintCell();
+    state.status = 'playing';
+    state.moving = false;
+    state.queuedDir = null;
+    playerEl.classList.remove('flyout', 'danger', 'jump', 'land');
+    playerEl.style.opacity = '';
+    collapseLine.classList.toggle('show', state.mode === 'endless');
+    if (state.mode !== 'endless') collapseLine.style.bottom = '-20%';
+    applyShieldGraceCell();
+    if (state.mode === 'endless') repairEndlessConnectivity();
+    updateAllTiles();
+    invalidateBoardMetrics();
+    updatePlayerPosition();
+    updateHud();
+    updateNavButtons();
+    saveReviveSnapshot();
+    showToast('护盾触发 · 已救回一次');
+    playSound('stage');
+    return true;
+  }
+
+  function applyShieldGraceCell() {
+    const now = performance.now();
+    const cell = getCell(state.player.r, state.player.c);
+    if (!cell) return;
+    if (cell.type === 'void' || cell.type === 'trap') cell.type = 'normal';
+    cell.phase = 'idle';
+    cell.leavingAt = 0;
+    cell.holdFallAt = Number.isFinite(getHoldDelay(cell)) ? now + getHoldDelay(cell) + 900 : 0;
+    updateTile(state.player.r, state.player.c);
+    highlightRouteCells([{ r: state.player.r, c: state.player.c }], 900);
   }
 
   function shiftCellTimersAfterRevive(cells, delta) {
@@ -3931,9 +4200,9 @@
   }
 
   function reviveRunWithCoins() {
-    if (!isReviveAvailable()) return showToast('Revive unavailable');
+    if (!isReviveAvailable()) return showToast('无法复活');
     const reviveCost = getCurrentReviveCost();
-    if (!spendCoins(reviveCost)) return showToast('Not enough coins');
+    if (!spendCoins(reviveCost)) return showToast('金币不足');
 
     const snap = state.reviveSnapshot;
     const now = performance.now();
@@ -3977,13 +4246,92 @@
     updateNavButtons();
     saveReviveSnapshot();
     playSound('coin');
-    showToast(`Revived · -${reviveCost} Coins`);
+    showToast(`已复活 · -${reviveCost} 金币`);
+  }
+
+
+
+  function getItemPrepModeLabel(mode) {
+    return mode === 'endless' ? '无尽模式' : '普通模式';
+  }
+
+  function showItemPrep(mode, levelNumber, starter) {
+    if (mode === 'daily') return starter();
+    state.pendingItemStart = { mode, levelNumber, starter };
+    renderItemPrep();
+    itemPrepOverlay?.classList.remove('hide');
+  }
+
+  function startPendingItemRun() {
+    const pending = state.pendingItemStart;
+    itemPrepOverlay?.classList.add('hide');
+    state.pendingItemStart = null;
+    if (pending?.starter) pending.starter();
+  }
+
+  function requestStartGame(levelNumber = state.level) {
+    const nextLevel = Math.max(1, Math.min(MAX_LEVEL, levelNumber));
+    if (!isLevelUnlocked(nextLevel)) {
+      showToast('先通关当前关卡');
+      return;
+    }
+    showItemPrep('level', nextLevel, () => directStartGame(nextLevel));
+  }
+
+  function renderItemPrep() {
+    if (!itemPrepOverlay || !itemPrepList) return;
+    const pending = state.pendingItemStart || { mode: 'level', levelNumber: state.level };
+    const mode = pending.mode || 'level';
+    const limit = getItemLimitForMode(mode);
+    if (itemPrepDesc) {
+      itemPrepDesc.textContent = `${getItemPrepModeLabel(mode)}每局最多使用 ${limit} 个道具。买完进游戏后，底部大按钮可直接点；护盾会自动救命。`;
+    }
+    if (itemPrepCoins) itemPrepCoins.textContent = `${state.save.coins || 0} 金币`;
+    itemPrepList.textContent = '';
+    ['route', 'slow', 'safe'].forEach(type => {
+      const info = ITEM_INFO[type];
+      const cost = getItemCost(type, mode);
+      const stock = getItemStock(type);
+      const card = document.createElement('div');
+      card.className = 'item-prep-card';
+      const body = document.createElement('div');
+      body.innerHTML = `<strong>${info.name}</strong><p>${info.desc}</p><span class="item-prep-meta">库存 x${stock} · ${cost} 金币/个</span>`;
+      const buy = document.createElement('button');
+      buy.type = 'button';
+      buy.className = 'item-buy-btn';
+      buy.textContent = (state.save.coins || 0) >= cost ? `购买 ${cost}` : `差 ${cost - (state.save.coins || 0)}`;
+      buy.disabled = (state.save.coins || 0) < cost;
+      buy.addEventListener('click', () => buyPrepItem(type, mode));
+      card.append(body, buy);
+      itemPrepList.appendChild(card);
+    });
+  }
+
+  function buyPrepItem(type, mode = state.pendingItemStart?.mode || 'level') {
+    const cost = getItemCost(type, mode);
+    if ((state.save.coins || 0) < cost) return showToast('金币不足');
+    state.save.coins -= cost;
+    addItemStock(type, 1);
+    saveProgress();
+    renderItemPrep();
+    refreshUI();
+    showToast(`${ITEM_INFO[type].name} +1`);
+    playSound('coin');
+  }
+
+  function closeItemPrepOverlay() {
+    state.pendingItemStart = null;
+    itemPrepOverlay?.classList.add('hide');
   }
 
   function startGame(levelNumber = state.level) {
+    return requestStartGame(levelNumber);
+  }
+
+  function directStartGame(levelNumber = state.level) {
     const nextLevel = Math.max(1, Math.min(MAX_LEVEL, levelNumber));
     if (!isLevelUnlocked(nextLevel)) {
-      showToast('Clear the current level first');
+      showToast('先通关当前关卡');
       return;
     }
     const parsed = parseLevel(nextLevel);
@@ -4006,6 +4354,7 @@
     state.itemUsesThisRun = 0;
     state.safeStepCharges = 0;
     state.itemSlowUntil = 0;
+    app.classList.remove('time-freeze');
     state.objective = setupLevelObjective(nextLevel, parsed);
     state.status = 'playing';
     overlay.classList.add('hide');
@@ -4030,7 +4379,7 @@
     updateHints();
     refreshUI();
     saveReviveSnapshot();
-    showToast(`Level ${state.level}`);
+    showToast(`第 ${state.level} 关`);
   }
 
   function enterCell(r, c) {
@@ -4040,12 +4389,12 @@
     if (cell.type === 'key' && state.objective) {
       state.objective.keyCollected = true;
       cell.type = 'normal';
-      showToast('Key collected');
+      showToast('已获得钥匙');
       playSound('coin');
     }
     if (cell.type === 'safe' && state.objective) state.objective.safeStepped = true;
     if (cell.type === 'fast' && state.objective) state.objective.touchedFast = true;
-    cell.holdFallAt = Number.isFinite(getHoldDelay(cell)) ? performance.now() + getHoldDelay(cell) : 0;
+    cell.holdFallAt = Number.isFinite(getHoldDelay(cell)) ? performance.now() + getHoldDelay(cell) + getTimeFreezeRemaining() : 0;
     maybeShowSpecialTip(cell.type);
     updateTile(r, c);
   }
@@ -4054,7 +4403,7 @@
     const cell = getCell(r, c);
     if (!cell || isVoid(cell) || cell.type === 'goal' || cell.type === 'safe' || cell.phase === 'gone') return;
     if (!cell.leavingAt) {
-      cell.leavingAt = performance.now();
+      cell.leavingAt = performance.now() + getTimeFreezeRemaining();
       cell.holdFallAt = 0;
       cell.phase = 'sink';
       updateTile(r, c);
@@ -4157,7 +4506,7 @@
     const finalStep = path.steps[path.steps.length - 1];
     if (finalStep && getCell(finalStep.r, finalStep.c)?.type === 'goal' && isGoalLockedByObjective()) {
       bump();
-      showToast('Grab the key before the exit opens');
+      showToast('先拿钥匙，出口才会开启');
       playSound('bump');
       state.moving = false;
       runQueuedMoveSoon();
@@ -4175,9 +4524,9 @@
 
     createDust(from.r, from.c);
     playSound(path.kind === 'teleport' ? 'teleport' : path.kind === 'ice' ? 'ice' : path.kind === 'bounce' ? 'bounce' : 'jump');
-    if (path.kind === 'teleport') showToast('Warped out');
-    if (path.kind === 'ice') showToast('Slide through');
-    if (path.kind === 'bounce') showToast('Launched');
+    if (path.kind === 'teleport') showToast('传送成功');
+    if (path.kind === 'ice') showToast('滑过去');
+    if (path.kind === 'bounce') showToast('弹射');
     state.lastPathKind = path.kind;
 
     playerEl.classList.remove('jump', 'land');
@@ -4390,7 +4739,7 @@
       { transform: `${playerEl.style.transform} scale(.9)` },
       { transform: `${playerEl.style.transform} scale(1)` }
     ], { duration: 120, easing: 'ease-out' });
-    showToast('Blocked');
+    showToast('被挡住了');
   }
 
   function shakeScreen() {
@@ -4424,9 +4773,9 @@
     showRewardPop(`+${rewardInfo.coins} Coins`);
     playWinCelebration();
     playSound('win');
-    resultTitle.textContent = 'Cleared';
+    resultTitle.textContent = '通关';
     const extra = getObjectiveResultText();
-    const rewardNote = rewardInfo.firstClear ? 'First-clear reward' : rewardInfo.improved ? 'New record reward' : 'Replay reward';
+    const rewardNote = rewardInfo.firstClear ? '首通奖励' : rewardInfo.improved ? '新纪录奖励' : '重复通关奖励';
     resultDesc.textContent = `${rewardNote}${extra}`;
     showResult(0);
     resultHintBtn.hidden = true;
@@ -4438,6 +4787,7 @@
     if (state.status !== 'playing') return;
     if (state.mode === 'endless') return endlessGameOver(reasonKey);
     if (state.mode === 'daily') return dailyGameOver(reasonKey);
+    if (tryUseShieldRescue(reasonKey)) return;
     state.status = 'lost';
     state.elapsed = (performance.now() - state.startTime) / 1000;
     state.moving = false;
@@ -4484,8 +4834,8 @@
     showRewardPop(`+${reward} Coins`);
     playWinCelebration();
     playSound('win');
-    resultTitle.textContent = `Daily Run Cleared`;
-    resultDesc.textContent = firstDailyReward ? 'First Daily clear reward' : improved ? 'New Daily best' : 'Replay reward';
+    resultTitle.textContent = `每日挑战完成`;
+    resultDesc.textContent = firstDailyReward ? '首次每日通关奖励' : improved ? '每日新纪录' : '重复挑战奖励';
     showResult(0);
     resultBestTimeText.textContent = `${state.save.dailyChallengeBest[key].time.toFixed(1)}s`;
     resultBestStepsText.textContent = String(state.save.dailyChallengeBest[key].steps);
@@ -4504,8 +4854,8 @@
     state.daily.deaths += 1;
     const best = state.save.dailyChallengeBest[key];
     const reason = getFailureCopy(reasonKey);
-    resultTitle.textContent = 'Daily Run Failed';
-    resultDesc.textContent = `${reason.desc} Deaths today ${state.daily.deaths} times.Daily Run does not affect campaign unlocks.`;
+    resultTitle.textContent = '每日挑战失败';
+    resultDesc.textContent = `${reason.desc}。今日死亡 ${state.daily.deaths} 次。每日挑战不影响普通关卡解锁。`;
     showResult(distanceToGoal());
     resultBestTimeText.textContent = best ? `${Number(best.time).toFixed(1)}s` : '--';
     resultBestStepsText.textContent = best ? String(best.steps) : '--';
@@ -4517,44 +4867,44 @@
 
   function getFailureCopy(reasonKey) {
     const copy = {
-      stay: { title: 'Floor Gave Way', desc: 'You waited too long' },
-      blocked: { title: 'Route Sealed', desc: 'No route ahead' },
-      trap: { title: 'Hit a Trap', desc: 'Avoid ✕' },
-      bounceVoid: { title: 'Bad Launch', desc: 'Check the second tile' },
-      iceWrong: { title: 'Bad Slide', desc: 'Check the endpoint' },
-      tooManySteps: { title: 'Move Limit Failed', desc: 'Find a shorter route' }
+      stay: { title: '地板塌了', desc: '你停留太久了' },
+      blocked: { title: '路线封死', desc: '前方没路了' },
+      trap: { title: '踩中陷阱', desc: '避开 ✕' },
+      bounceVoid: { title: '弹跳失误', desc: '确认第二格落点' },
+      iceWrong: { title: '滑行失误', desc: '确认滑行终点' },
+      tooManySteps: { title: '步数限制 Failed', desc: 'Find a shorter route' }
     };
-    return copy[reasonKey] || { title: 'You Fell', desc: 'Run it back' };
+    return copy[reasonKey] || { title: '你掉下去了', desc: '再来一局' };
   }
 
   function renderResultActions(kind) {
     resultActions.textContent = '';
     if (kind === 'dailyWin' || kind === 'dailyFail') {
-      resultActions.appendChild(createResultButton('Retry Daily', startDailyChallenge, true));
-      resultActions.appendChild(createResultButton('Levels', showLevelSelect));
-      resultActions.appendChild(createResultButton('Shop', showShop));
-      resultActions.appendChild(createResultButton('Endless', startEndless));
+      resultActions.appendChild(createResultButton('重试每日', startDailyChallenge, true));
+      resultActions.appendChild(createResultButton('关卡', showLevelSelect));
+      resultActions.appendChild(createResultButton('商店', showShop));
+      resultActions.appendChild(createResultButton('无尽模式', startEndless));
       return;
     }
     if (kind === 'win') {
       const nextLevel = state.level + 1;
-      resultActions.appendChild(createResultButton(nextLevel > MAX_LEVEL ? 'Final Level' : 'Next', () => {
-        if (nextLevel > MAX_LEVEL) return showToast('Final Level');
-        if (!isLevelUnlocked(nextLevel)) return showToast('Clear the current level first');
+      resultActions.appendChild(createResultButton(nextLevel > MAX_LEVEL ? '最终关' : '下一关', () => {
+        if (nextLevel > MAX_LEVEL) return showToast('已经是最终关');
+        if (!isLevelUnlocked(nextLevel)) return showToast('先通关当前关卡');
         startGame(nextLevel);
       }, true, nextLevel > MAX_LEVEL || !isLevelUnlocked(nextLevel)));
-      resultActions.appendChild(createResultButton('Levels', showLevelSelect));
-      resultActions.appendChild(createResultButton('Shop', showShop));
-      resultActions.appendChild(createResultButton('Endless', startEndless));
+      resultActions.appendChild(createResultButton('关卡', showLevelSelect));
+      resultActions.appendChild(createResultButton('商店', showShop));
+      resultActions.appendChild(createResultButton('无尽模式', startEndless));
       return;
     }
     if (kind === 'fail' && isReviveAvailable()) {
       resultActions.appendChild(createReviveButton());
     }
-    resultActions.appendChild(createResultButton('Retry', () => startGame(state.level), true));
-    resultActions.appendChild(createResultButton('Levels', showLevelSelect));
-    resultActions.appendChild(createResultButton('Shop', showShop));
-    resultActions.appendChild(createResultButton('Endless', startEndless));
+    resultActions.appendChild(createResultButton('重试', () => startGame(state.level), true));
+    resultActions.appendChild(createResultButton('关卡', showLevelSelect));
+    resultActions.appendChild(createResultButton('商店', showShop));
+    resultActions.appendChild(createResultButton('无尽模式', startEndless));
   }
 
   function createResultButton(text, handler, primary = false, disabled = false) {
@@ -4588,6 +4938,7 @@
       const el = document.getElementById(id);
       if (el && !el.classList.contains('hide')) { el.classList.add('hide'); return; }
     }
+    if (itemPrepOverlay && !itemPrepOverlay.classList.contains('hide')) return closeItemPrepOverlay();
     if (!shopOverlay.classList.contains('hide')) return closeShopOverlay();
     if (!levelSelectOverlay.classList.contains('hide')) return closeLevelSelectOverlay();
     if (!resultOverlay.classList.contains('hide')) return closeResultOverlay();
@@ -4609,7 +4960,7 @@
   }
 
   function showResult(distance) {
-    resultDistanceText.textContent = `${distance} tiles`;
+    resultDistanceText.textContent = `${distance} 格`;
     resultTimeText.textContent = `${state.elapsed.toFixed(1)}s`;
     resultStepsText.textContent = String(state.steps);
     const bestTime = Number(state.save.bestTimes[state.level]);
@@ -4666,7 +5017,7 @@
   function setupLevelObjective(levelNumber, parsed) {
     const objective = {
       type: 'normal',
-      label: 'Reach the exit',
+      label: '到达出口',
       keyCollected: false,
       safeStepped: false,
       touchedFast: false,
@@ -4679,7 +5030,7 @@
 
     if (levelNumber === 9 && path.length > 5) {
       objective.type = 'key';
-      objective.label = 'Grab the key, then enter the exit';
+      objective.label = '先拿钥匙，再进入出口';
       const keyIndex = Math.max(2, Math.min(path.length - 3, Math.floor(path.length * .55)));
       const keyPos = path[keyIndex];
       const cell = parsed.cells?.[keyPos.r]?.[keyPos.c];
@@ -4689,15 +5040,15 @@
       }
     } else if (levelNumber === 10) {
       objective.type = 'safeBonus';
-      objective.label = 'Bonus goal: step on a safe tile +10 Coins';
+      objective.label = '奖励目标：踩到安全地板 +10 金币';
       objective.bonus = 'safe';
     } else if (levelNumber >= 8 && levelNumber % 4 === 0) {
       objective.type = 'steps';
       objective.limit = Math.max(shortest + 5, Math.min(34, shortest + 9));
-      objective.label = `Move limit: reach the exit in ${objective.limit} moves`;
+      objective.label = `步数限制：在 ${objective.limit} 步内到达出口`;
     } else if (levelNumber >= 10 && levelNumber % 5 === 0 && path.length > 5) {
       objective.type = 'key';
-      objective.label = 'Grab the key, then enter the exit';
+      objective.label = '先拿钥匙，再进入出口';
       const keyIndex = Math.max(2, Math.min(path.length - 3, Math.floor(path.length * .55)));
       const keyPos = path[keyIndex];
       const cell = parsed.cells?.[keyPos.r]?.[keyPos.c];
@@ -4710,11 +5061,11 @@
       }
     } else if (levelNumber >= 12 && levelNumber % 6 === 0) {
       objective.type = 'safeBonus';
-      objective.label = 'Bonus goal: step on a safe tile +10 Coins';
+      objective.label = '奖励目标：踩到安全地板 +10 金币';
       objective.bonus = 'safe';
     } else if (levelNumber >= 14 && levelNumber % 7 === 0) {
       objective.type = 'avoidFastBonus';
-      objective.label = 'Bonus goal: avoid crack tiles +10 Coins';
+      objective.label = '奖励目标：避开裂纹地板 +10 金币';
       objective.bonus = 'avoidFast';
     }
     return objective;
@@ -4809,7 +5160,7 @@
     e.lastMoveAt = now;
     e.maxCombo = Math.max(e.maxCombo, e.combo);
     e.score += 1 + Math.floor(e.combo / 4);
-    if (e.combo >= 3 && e.combo % 3 === 0) showToast(e.combo >= 9 ? `Perfect Tempo x${e.combo}` : `Combo Escape x${e.combo}`);
+    if (e.combo >= 3 && e.combo % 3 === 0) showToast(e.combo >= 9 ? `完美节奏 x${e.combo}` : `连续逃生 x${e.combo}`);
 
     const dangerRow = ROWS - 1 - Math.floor(e.line);
     const gap = dangerRow - state.player.r;
@@ -4818,7 +5169,7 @@
       e.score += bonus;
       e.nearMisses += 1;
       e.coinsEarned += gap === 1 ? 2 : 1;
-      showToast(gap === 1 ? `Last-second leap +${bonus}` : `Edge escape +${bonus}`);
+      showToast(gap === 1 ? `极限一跳 +${bonus}` : `边缘逃生 +${bonus}`);
       playSound('coin');
     }
   }
@@ -4843,9 +5194,9 @@
   function getEndlessRank(distance) {
     if (distance >= 600) return 'Floor Legend';
     if (distance >= 300) return 'Abyss Ace';
-    if (distance >= 150) return 'Edge Runner';
+    if (distance >= 150) return 'Edge 跑者';
     if (distance >= 50) return 'Still Standing';
-    return 'Rookie Runner';
+    return 'Rookie 跑者';
   }
 
   function showSwipeFeedback(dir, hold = false) {
@@ -4884,7 +5235,7 @@
     state.touchDragActive = true;
     if (!state.touchDragToastShown) {
       state.touchDragToastShown = true;
-      showToast('Drag Step');
+      showToast('拖动步进');
     }
     showSwipeFeedback(dir, true);
     requestMove(dir);
@@ -4920,7 +5271,7 @@
     state.save.audioMuted = !state.save.audioMuted;
     saveProgress();
     updateSoundButton();
-    showToast(state.save.audioMuted ? 'Sound Off' : 'Sound On');
+    showToast(state.save.audioMuted ? '声音关闭' : '声音开启');
     if (!state.save.audioMuted) playSound('coin');
   }
 
@@ -4930,7 +5281,7 @@
       renderUtilityButtonContent(soundBtn, 'sound');
       return;
     }
-    soundBtn.textContent = state.save.audioMuted ? 'Muted' : 'Sound';
+    soundBtn.textContent = state.save.audioMuted ? '静音' : '声音';
   }
 
   function playSound(kind = 'jump') {
@@ -4970,8 +5321,8 @@
     state.status = 'paused';
     state.pausedAt = performance.now();
     pauseDesc.textContent = state.mode === 'endless'
-      ? `Distance ${state.endless?.distance || 0}m · ${getEndlessStage(state.endless?.distance || 0).name}`
-      : `Level ${state.level} · ${state.elapsed.toFixed(1)}s`;
+      ? `距离 ${state.endless?.distance || 0}m · ${getEndlessStage(state.endless?.distance || 0).name}`
+       : `第 ${state.level} 关 · ${state.elapsed.toFixed(1)}秒`;
     pauseOverlay.classList.remove('hide');
   }
 
@@ -4993,17 +5344,17 @@
     state.status = 'playing';
     state.pausedAt = 0;
     pauseOverlay.classList.add('hide');
-    showToast('Resume');
+    showToast('继续');
   }
 
 
   function ensureExtraUi() {
-    addMenuToolButton('guideBtn', 'Rules', showGuideOverlay);
-    addMenuToolButton('statsBtn', 'Check', showStatsOverlay);
-    addMenuToolButton('saveBtn', 'Save', showSaveOverlay);
+    addMenuToolButton('guideBtn', '规则', showGuideOverlay);
+    addMenuToolButton('statsBtn', '检查', showStatsOverlay);
+    addMenuToolButton('saveBtn', '存档', showSaveOverlay);
     const pauseRow = pauseOverlay?.querySelector('.secondary-row');
     if (pauseRow && !document.getElementById('pauseGuideBtn')) {
-      const guide = createToolButton('pauseGuideBtn', 'Rules', showGuideOverlay);
+      const guide = createToolButton('pauseGuideBtn', '规则', showGuideOverlay);
       pauseRow.appendChild(guide);
     }
     createGuideOverlay();
@@ -5033,7 +5384,7 @@
     const el = document.createElement('div');
     el.className = 'overlay hide';
     el.id = id;
-    el.innerHTML = `<div class="card select-card extra-tool-card"><button class="close-btn" type="button" aria-label="Close">×</button><h1>${title}</h1>${bodyHtml}</div>`;
+    el.innerHTML = `<div class="card select-card extra-tool-card"><button class="close-btn" type="button" aria-label="关闭">×</button><h1>${title}</h1>${bodyHtml}</div>`;
     app.appendChild(el);
     const close = () => el.classList.add('hide');
     el.querySelector('.close-btn')?.addEventListener('click', close);
@@ -5047,33 +5398,33 @@
   }
 
   function createGuideOverlay() {
-    createExtraOverlay('guideOverlay', 'Tile Guide', `
-      <p>Remember one simple rule for each tile.</p>
+    createExtraOverlay('guideOverlay', '地板图鉴', `
+      <p>每种地板记住一个核心规则。</p>
       <div class="guide-grid">
-        <div class="guide-item"><strong>Normal</strong>Sinks, cracks, then falls after you leave.</div>
-        <div class="guide-item"><strong>!! Crack</strong>Falls faster. Move right after landing.</div>
-        <div class="guide-item"><strong>≋ Ice</strong>Slides to the end in your entry direction.</div>
-        <div class="guide-item"><strong>⇈ Launch</strong>Jumps one extra tile in your current direction.</div>
-        <div class="guide-item"><strong>✕ Trap</strong>Step on it and the run ends.</div>
-        <div class="guide-item"><strong>+ Safe Tiles</strong>Does not fall, giving you a brief pause.</div>
-        <div class="guide-item"><strong>A/B Portal</strong>Warps between A and B. Plan your next move before entering.</div>
-        <div class="guide-item"><strong>KEY</strong>The exit opens only after you collect the key.</div>
+        <div class="guide-item"><strong>普通</strong>离开后会下沉、开裂，然后坠落。</div>
+        <div class="guide-item"><strong>!! 裂纹</strong>塌得更快，落地后马上移动。</div>
+        <div class="guide-item"><strong>≋ 冰面</strong>沿进入方向一路滑到尽头。</div>
+        <div class="guide-item"><strong>⇈ 弹跳</strong>沿当前方向额外跳一格。</div>
+        <div class="guide-item"><strong>✕ 陷阱</strong>踩上去本局结束。</div>
+        <div class="guide-item"><strong>+ 安全地板</strong>Does not fall, giving you a brief pause.</div>
+        <div class="guide-item"><strong>A/B 传送门</strong>在 A 和 B 之间传送。进入前先想好下一步。</div>
+        <div class="guide-item"><strong>钥匙</strong>收集钥匙后出口才会开启。</div>
       </div>`);
   }
 
   function createStatsOverlay() {
-    createExtraOverlay('statsOverlay', 'Level Check', '<p>Use this to check whether levels are valid.</p><div class="debug-list" id="statsList"></div><button class="primary-btn" id="recheckBtn" type="button">Recheck</button>');
+    createExtraOverlay('statsOverlay', '关卡检查', '<p>用来检查关卡是否可通。</p><div class="debug-list" id="statsList"></div><button class="primary-btn" id="recheckBtn" type="button">重新检查</button>');
     document.getElementById('recheckBtn')?.addEventListener('click', renderStatsPanel);
   }
 
   function createSaveOverlay() {
-    createExtraOverlay('saveOverlay', 'Save Tools', `
-      <p>This local HTML save only lives in the current browser. Export a backup before testing.</p>
+    createExtraOverlay('saveOverlay', '存档工具', `
+      <p>这个本地 HTML 存档只存在当前浏览器里。测试前建议先导出备份。</p>
       <textarea class="save-box" id="saveBox" spellcheck="false"></textarea>
       <div class="tool-row">
-        <button class="small-btn" id="copySaveBtn" type="button">Copy Export</button>
-        <button class="small-btn" id="importSaveBtn" type="button">Import Save</button>
-        <button class="small-btn danger-btn" id="resetSaveBtn" type="button">Reset Save</button>
+        <button class="small-btn" id="copySaveBtn" type="button">复制导出</button>
+        <button class="small-btn" id="importSaveBtn" type="button">导入存档</button>
+        <button class="small-btn danger-btn" id="resetSaveBtn" type="button">重置存档</button>
       </div>`);
     document.getElementById('copySaveBtn')?.addEventListener('click', copySaveText);
     document.getElementById('importSaveBtn')?.addEventListener('click', importSaveText);
@@ -5113,24 +5464,24 @@
     const specialText = Object.entries(counts).filter(([, v]) => v > 0).map(([k, v]) => `${k}×${v}`).join(', ') || 'None';
     const objective = setupPreviewObjective(state.level, levelDef);
     const items = [
-      ['Current Level', state.mode === 'level' ? `Level ${state.level}` : state.mode === 'endless' ? 'Endless' : 'Daily Run'],
-      ['Check Result', validation.pass ? `Playable, shortest ${validation.steps} moves` : validation.reasons.join('; ')],
-      ['Goal', objective],
-      ['Special Tiles', specialText],
-      ['Fails', String(state.save.fails[state.level] || 0)],
-      ['Best Stars', state.save.stars[state.level] ? '★'.repeat(state.save.stars[state.level]) : 'Not cleared'],
-      ['Coins', `${state.save.coins || 0}`],
-      ['Endless Best', `${state.save.endlessBest || 0}m / ${state.save.endlessBestScore || 0} pts`]
+      ['当前关卡', state.mode === 'level' ? `第 ${state.level} 关` : state.mode === 'endless' ? '无尽模式' : '每日挑战'],
+      ['检查结果', validation.pass ? `可通关，最短 ${validation.steps} 步` : validation.reasons.join('；')],
+      ['目标', objective],
+      ['特殊地板', specialText],
+      ['失败次数', String(state.save.fails[state.level] || 0)],
+      ['最佳星级', state.save.stars[state.level] ? '★'.repeat(state.save.stars[state.level]) : '未通关'],
+      ['金币', `${state.save.coins || 0}`],
+      ['无尽最佳', `${state.save.endlessBest || 0}m / ${state.save.endlessBestScore || 0} 分`]
     ];
     list.innerHTML = items.map(([k, v]) => `<div class="debug-item"><span>${k}</span><span>${v}</span></div>`).join('');
   }
 
   function setupPreviewObjective(levelNumber, levelDef) {
-    if (levelNumber === 9 || (levelNumber >= 10 && levelNumber % 5 === 0)) return 'Grab the Key';
-    if (levelNumber === 10 || (levelNumber >= 12 && levelNumber % 6 === 0)) return 'Safe tile bonus';
-    if (levelNumber >= 8 && levelNumber % 4 === 0) return 'Move Limit';
-    if (levelNumber >= 14 && levelNumber % 7 === 0) return 'No-Crack Bonus';
-    return 'Reach the exit';
+    if (levelNumber === 9 || (levelNumber >= 10 && levelNumber % 5 === 0)) return '拿到钥匙';
+    if (levelNumber === 10 || (levelNumber >= 12 && levelNumber % 6 === 0)) return '安全地板奖励';
+    if (levelNumber >= 8 && levelNumber % 4 === 0) return '步数限制';
+    if (levelNumber >= 14 && levelNumber % 7 === 0) return '避开裂纹奖励';
+    return '到达出口';
   }
 
   async function copySaveText() {
@@ -5139,16 +5490,16 @@
     box.select();
     try {
       await navigator.clipboard?.writeText(box.value);
-      showToast('Save copied');
+      showToast('存档已复制');
     } catch (error) {
       document.execCommand?.('copy');
-      showToast('Save selected');
+      showToast('存档已选中');
     }
   }
 
   function importSaveText() {
     const box = document.getElementById('saveBox');
-    if (!box?.value.trim()) return showToast('Paste a save first');
+    if (!box?.value.trim()) return showToast('请先粘贴存档');
     try {
       const parsed = JSON.parse(box.value);
       state.save = migrateSave(parsed.save || parsed);
@@ -5156,9 +5507,9 @@
       refreshUI();
       updateSoundButton();
       document.getElementById('saveOverlay')?.classList.add('hide');
-      showToast('Save imported');
+      showToast('存档已导入');
     } catch (error) {
-      showToast('Invalid save format');
+      showToast('存档格式无效');
     }
   }
 
@@ -5170,17 +5521,17 @@
     refreshUI();
     document.getElementById('saveOverlay')?.classList.add('hide');
     showMenu();
-    showToast('Save reset');
+    showToast('存档已重置');
   }
 
   function getLevelHintMove(levelNumber) {
     const def = LEVELS[levelNumber - 1];
-    return def?.hintMove || 'Suggested first move: right. Follow the main route before handling special tiles.';
+    return def?.hintMove || '建议第一步：向右。先走主路线，再处理特殊地板。';
   }
 
   function showHintForCurrentLevel() {
     const text = state.mode === 'daily'
-      ? 'Suggested first move: right. Take the lower main lane first.'
+      ? '建议第一步：向右。先走下方主路线。'
       : getLevelHintMove(state.level);
     showToast(text);
     const target = findHintCell();
@@ -5204,7 +5555,13 @@
     window.setTimeout(() => el.classList.remove('hint-cell'), ms);
   }
 
+
+
   function startEndless() {
+    showItemPrep('endless', 1, () => directStartEndless());
+  }
+
+  function directStartEndless() {
     state.mode = 'endless';
     state.level = 1;
     state.endless = {
@@ -5245,6 +5602,7 @@
     state.itemUsesThisRun = 0;
     state.safeStepCharges = 0;
     state.itemSlowUntil = 0;
+    app.classList.remove('time-freeze');
     state.status = 'playing';
     overlay.classList.add('hide');
     resultOverlay.classList.add('hide');
@@ -5265,9 +5623,9 @@
     updateHud();
     updateNavButtons();
     saveReviveSnapshot();
-    hintTitle.textContent = 'Endless: climb up';
-    hintText.textContent = 'Mobile: swipe once for one tile, or hold and drag to keep stepping. Endless gets faster over time and forces left/right lane changes.';
-    showToast('Endless');
+    hintTitle.textContent = '无尽模式：向上逃';
+    hintText.textContent = '手机：轻滑一次移动一格，也可以按住拖动连续步进。无尽模式会越来越快，并强制左右换线。';
+    showToast('无尽模式');
   }
 
   function makeEndlessInitial() {
@@ -5494,7 +5852,7 @@
     return { cells, safeColumn: nextSafe };
   }
 
-  function clearEndlessPortals() {
+  function clearEndless传送门() {
     if (!state.cells?.length) return;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < COLS; c++) {
@@ -5514,7 +5872,7 @@
     if (state.endless.distance - (state.endless.lastPortalAt || -99) < 28) return;
     if (endlessNoise(state.endless.distance, 91) > .16) return;
 
-    clearEndlessPortals();
+    clearEndless传送门();
     const nearRow = Math.max(1, state.player.r - 2);
     const farRow = Math.max(0, state.player.r - 5);
     const nearCols = getStableColumns(nearRow);
@@ -5543,10 +5901,12 @@
     // Difficulty keeps rising smoothly: warm-up first, real pressure after 180m, extreme after 500m.
     const difficulty = getEndlessDifficulty(state.endless.distance || 0);
     state.endless.speed = Math.min(1.58, .28 + difficulty * .58);
-    const slowFactor = state.itemSlowUntil > now ? .45 : 1;
-    state.endless.line += state.endless.speed * dt * slowFactor;
+    const frozen = state.itemSlowUntil > now;
+    if (!frozen) state.endless.line += state.endless.speed * dt;
     collapseLine.style.bottom = `${Math.min(92, state.endless.line * 8)}%`;
     updateEndlessStageNotice();
+
+    if (frozen) return;
 
     if (now >= state.endless.nextFloorEventAt) {
       mutateEndlessFloor(now);
@@ -5595,7 +5955,7 @@
     maybePlaceEndlessPortalPair();
     repairEndlessConnectivity();
     updateAllTiles();
-    if (changed) showToast('Floor shifted');
+    if (changed) showToast('地板变化');
   }
 
   function advanceEndlessIfNeeded() {
@@ -5621,10 +5981,11 @@
     updateAllTiles();
     invalidateBoardMetrics();
     updatePlayerPosition();
-    if (state.endless.distance % 10 === 0) showToast(`Distance ${state.endless.distance}m · ${getEndlessStage(state.endless.distance).name}`);
+    if (state.endless.distance % 10 === 0) showToast(`距离 ${state.endless.distance}m · ${getEndlessStage(state.endless.distance).name}`);
   }
 
   function endlessGameOver(reasonKey) {
+    if (tryUseShieldRescue(reasonKey)) return;
     state.status = 'lost';
     state.elapsed = (performance.now() - state.startTime) / 1000;
     state.moving = false;
@@ -5643,9 +6004,9 @@
     const reason = getFailureCopy(reasonKey);
     refreshUI();
     resetResultVisuals();
-    resultTitle.textContent = 'Endless Fall';
+    resultTitle.textContent = '无尽坠落';
     const reviveNote = getReviveNoteText();
-    resultDesc.innerHTML = `<span class="endless-rank">${rank}</span> · ${reason.desc} · Score ${score}${reviveNote ? `<span class="revive-note">${reviveNote}</span>` : ''}`;
+    resultDesc.innerHTML = `<span class="endless-rank">${rank}</span> · ${reason.desc} · 得分 ${score}${reviveNote ? `<span class="revive-note">${reviveNote}</span>` : ''}`;
     resultDistanceText.textContent = `${distance}m`;
     resultTimeText.textContent = `${state.elapsed.toFixed(1)}s`;
     resultStepsText.textContent = String(state.steps);
@@ -5654,9 +6015,9 @@
     resultHintBtn.hidden = true;
     resultActions.textContent = '';
     resultActions.appendChild(createReviveButton());
-    resultActions.appendChild(createResultButton('Cash Out', () => finalizeEndlessGameOver(reasonKey), true));
-    resultActions.appendChild(createResultButton('Shop', showShop));
-    resultActions.appendChild(createResultButton('Levels', showLevelSelect));
+    resultActions.appendChild(createResultButton('结算奖励', () => finalizeEndlessGameOver(reasonKey), true));
+    resultActions.appendChild(createResultButton('商店', showShop));
+    resultActions.appendChild(createResultButton('关卡', showLevelSelect));
     resultOverlay.classList.remove('hide');
   }
 
@@ -5677,8 +6038,8 @@
     refreshUI();
     resetResultVisuals();
     showRewardPop(`+${coinReward} Coins`);
-    resultTitle.textContent = 'Endless Over';
-    resultDesc.innerHTML = `<span class="endless-rank">${rank}</span> · Score ${score} · ${score > oldBestScore ? 'New record' : `${Math.max(0, oldBestScore - score)} pts to record`}`;
+    resultTitle.textContent = '无尽结束';
+    resultDesc.innerHTML = `<span class="endless-rank">${rank}</span> · 得分 ${score} · ${score > oldBestScore ? '新纪录' : `还差 ${Math.max(0, oldBestScore - score)} 分破纪录`}`;
     resultDistanceText.textContent = `${distance}m`;
     resultTimeText.textContent = `${state.elapsed.toFixed(1)}s`;
     resultStepsText.textContent = String(state.steps);
@@ -5686,10 +6047,10 @@
     resultBestStepsText.textContent = `${state.save.endlessBest}m`;
     resultHintBtn.hidden = true;
     resultActions.textContent = '';
-    resultActions.appendChild(createResultButton('Run Again', startEndless, true));
-    resultActions.appendChild(createResultButton('Levels', showLevelSelect));
-    resultActions.appendChild(createResultButton('Shop', showShop));
-    resultActions.appendChild(createResultButton('Back to Campaign', () => {
+    resultActions.appendChild(createResultButton('再跑一次', startEndless, true));
+    resultActions.appendChild(createResultButton('关卡', showLevelSelect));
+    resultActions.appendChild(createResultButton('商店', showShop));
+    resultActions.appendChild(createResultButton('返回关卡', () => {
       closeResultOverlay();
       showMenu();
     }));
@@ -5734,30 +6095,30 @@
 
   function updateHud() {
     if (state.status === 'playing') state.elapsed = (performance.now() - state.startTime) / 1000;
-    levelText.textContent = state.mode === 'endless' ? 'Endless' : state.mode === 'daily' ? 'Daily' : `${state.level} / ${MAX_LEVEL}`;
+    levelText.textContent = state.mode === 'endless' ? '无尽' : state.mode === 'daily' ? '每日' : `${state.level} / ${MAX_LEVEL}`;
     scoreText.textContent = state.mode === 'endless'
-      ? `${state.endless?.distance || 0}m · ${state.endless?.score || 0} pts · ${state.elapsed.toFixed(1)}s`
+      ? `${state.endless?.distance || 0}m · ${state.endless?.score || 0}分 · ${state.elapsed.toFixed(1)}秒`
       : state.mode === 'daily'
-        ? `${state.elapsed.toFixed(1)}s · ${state.steps} · Deaths ${state.daily?.deaths || 0}`
-        : `${state.elapsed.toFixed(1)}s · ${state.steps}`;
+        ? `${state.elapsed.toFixed(1)}秒 · ${state.steps}步 · 死亡 ${state.daily?.deaths || 0}`
+         : `${state.elapsed.toFixed(1)}秒 · ${state.steps}步`;
     updateItemButtons();
   }
 
   function updateHints() {
     if (state.mode === 'endless') {
       const stage = getEndlessStage(state.endless?.distance || 0);
-      hintTitle.textContent = `Endless: ${stage.name}`;
-      hintText.textContent = 'Swipe once for one tile. Hold and drag to keep stepping. Items are limited, so use Slow, Flash, or Safe only when a run is in danger.';
+      hintTitle.textContent = `无尽模式：${stage.name}`;
+      hintText.textContent = '轻滑一次走一格。按住拖动可连续步进。道具次数有限：预览看路线，冻结抢时间，护盾会自动救命。';
       renderObjectiveText();
       return;
     }
     if (state.mode === 'daily') {
-      hintTitle.textContent = `Daily Run: ${todayKey()}`;
-      hintText.textContent = 'Everyone gets the same map for the day. Daily results are saved separately and do not affect campaign unlocks.';
+      hintTitle.textContent = `每日挑战：${todayKey()}`;
+      hintText.textContent = '所有玩家当天地图相同。每日成绩单独保存，不影响普通关卡解锁。';
       return;
     }
     const def = LEVELS[state.level - 1];
-    hintTitle.textContent = `Level ${state.level}: ${def.title}`;
+    hintTitle.textContent = `第 ${state.level} 关：${def.title}`;
     hintText.textContent = def.hint;
     renderObjectiveText();
   }
@@ -5775,8 +6136,8 @@
       const dot = document.createElement('button');
       dot.type = 'button';
       dot.className = `dot${state.save.completed[i] ? ' done' : ''}${i === state.level ? ' current' : ''}`;
-      dot.setAttribute('aria-label', `Level ${i}`);
-      dot.addEventListener('click', () => isLevelUnlocked(i) ? startGame(i) : showToast('Clear the current level first'));
+      dot.setAttribute('aria-label', `第 ${i} 关`);
+      dot.addEventListener('click', () => isLevelUnlocked(i) ? startGame(i) : showToast('先通关当前关卡'));
       levelDots.appendChild(dot);
     }
   }
@@ -5786,7 +6147,7 @@
     state.status = 'select';
     resultOverlay.classList.add('hide');
     overlay.classList.add('hide');
-    levelSelectDesc.textContent = `Each chapter has 20 levels. The first ${FREE_LEVELS} levels are open; Level 21+ unlock by progress.`;
+    levelSelectDesc.textContent = `每章 20 关。前 ${FREE_LEVELS} 关开放；第 21 关以后会随进度解锁。`;
     buildLevelSelectPanel();
     levelSelectOverlay.classList.remove('hide');
   }
@@ -5815,10 +6176,10 @@
         const num = document.createElement('strong');
         num.textContent = String(levelNumber);
         const meta = document.createElement('span');
-        if (locked) meta.textContent = 'Locked';
-        else if (current) meta.textContent = 'current';
-        else if (done) meta.textContent = `Cleared ${'★'.repeat(Number(state.save.stars[levelNumber]) || 1)}`;
-        else meta.textContent = levelNumber <= FREE_LEVELS ? 'Open' : 'Unlocked';
+        if (locked) meta.textContent = '未解锁';
+        else if (current) meta.textContent = '当前';
+        else if (done) meta.textContent = `已通关 ${'★'.repeat(Number(state.save.stars[levelNumber]) || 1)}`;
+        else meta.textContent = levelNumber <= FREE_LEVELS ? '开放' : '已解锁';
         button.append(num, meta);
         button.addEventListener('click', () => {
           if (locked) return;
@@ -5840,6 +6201,20 @@
     state.rafId = requestAnimationFrame(tick);
   }
 
+  function bindItemButton(button, handler) {
+    if (!button || !handler) return;
+    const run = event => {
+      event.preventDefault();
+      event.stopPropagation();
+      handler();
+    };
+    button.addEventListener('pointerdown', run, { passive: false });
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+  }
+
   function bindInput() {
     document.addEventListener('keydown', event => {
       const key = event.key.toLowerCase();
@@ -5847,9 +6222,9 @@
         closeTopOverlay();
         return;
       }
-      if (KEY_TO_DIR[key]) {
+      if (钥_TO_DIR[key]) {
         event.preventDefault();
-        requestMove(KEY_TO_DIR[key]);
+        requestMove(钥_TO_DIR[key]);
       }
       if (key === 'r') startGame(state.level);
       if (key === 'p') pauseGame();
@@ -5902,11 +6277,14 @@
     resultCloseBtn.onclick = closeResultOverlay;
     levelSelectCloseBtn.onclick = closeLevelSelectOverlay;
     shopCloseBtn.onclick = closeShopOverlay;
+    if (itemPrepCloseBtn) itemPrepCloseBtn.onclick = closeItemPrepOverlay;
+    if (itemPrepStartBtn) itemPrepStartBtn.onclick = startPendingItemRun;
+    if (itemPrepSkipBtn) itemPrepSkipBtn.onclick = startPendingItemRun;
     pauseBtn.onclick = pauseGame;
     soundBtn.onclick = toggleSound;
-    if (routeItemBtn) routeItemBtn.onclick = useRouteItem;
-    if (slowItemBtn) slowItemBtn.onclick = useSlowItem;
-    if (safeItemBtn) safeItemBtn.onclick = useSafeItem;
+    bindItemButton(routeItemBtn, useRouteItem);
+    bindItemButton(slowItemBtn, useSlowItem);
+    bindItemButton(safeItemBtn, useSafeItem);
     if (keypadToggleBtn) keypadToggleBtn.onclick = toggleKeypad;
     resumeBtn.onclick = resumeGame;
     pauseRestartBtn.onclick = () => { pauseOverlay.classList.add('hide'); state.status = 'playing'; state.mode === 'endless' ? startEndless() : startGame(state.level); };
@@ -5917,6 +6295,7 @@
     bindOverlayClose(resultOverlay, closeResultOverlay);
     bindOverlayClose(levelSelectOverlay, closeLevelSelectOverlay);
     bindOverlayClose(shopOverlay, closeShopOverlay);
+    if (itemPrepOverlay) bindOverlayClose(itemPrepOverlay, closeItemPrepOverlay);
 
     startBtn.onclick = () => startGame(state.level);
     restartBtn.onclick = () => state.mode === 'endless' ? startEndless() : startGame(state.level);
@@ -5924,11 +6303,11 @@
     menuSelectBtn.onclick = showLevelSelect;
     dailyBtn.onclick = startDailyChallenge;
     shopBtn.onclick = showShop;
-    prevBtn.onclick = () => state.mode === 'level' ? startGame(state.level - 1) : showToast('Endless has no previous level');
+    prevBtn.onclick = () => state.mode === 'level' ? startGame(state.level - 1) : showToast('无尽模式没有上一关');
     nextBtn.onclick = () => {
-      if (state.mode !== 'level') return showToast('Endless has no next level');
-      if (state.level >= MAX_LEVEL) return showToast('Final Level');
-      if (!isLevelUnlocked(state.level + 1)) return showToast('Clear the current level first');
+      if (state.mode !== 'level') return showToast('无尽模式没有下一关');
+      if (state.level >= MAX_LEVEL) return showToast('已经是最终关');
+      if (!isLevelUnlocked(state.level + 1)) return showToast('先通关当前关卡');
       startGame(state.level + 1);
     };
     jumpLevelBtn.onclick = () => startGame(10);
@@ -6038,10 +6417,10 @@
     state.keypadVisible = !state.keypadVisible;
     app.classList.toggle('keypad-on', state.keypadVisible);
     if (keypadToggleBtn) {
-      keypadToggleBtn.textContent = state.keypadVisible ? 'Hide Pad' : 'Keypad';
+      keypadToggleBtn.textContent = state.keypadVisible ? '隐藏方向键' : '方向键';
       keypadToggleBtn.setAttribute('aria-pressed', String(state.keypadVisible));
     }
-    showToast(state.keypadVisible ? 'Keypad On' : 'Swipe Mode');
+    showToast(state.keypadVisible ? '方向键已开启' : '滑动模式');
   }
 
   function handlePointerMove(event) {
@@ -6105,8 +6484,8 @@
     pauseOverlay.classList.add('hide');
     updateItemButtons();
     const def = LEVELS[state.level - 1];
-    overlayTitle.textContent = 'Floor Rush';
-    overlayDesc.textContent = `There are ${MAX_LEVEL} levels. The first ${FREE_LEVELS} levels are open; Level 21+ unlock by campaign progress. Endless mode is also available.`;
+    overlayTitle.textContent = '地板冲刺';
+    overlayDesc.textContent = `共有 ${MAX_LEVEL} 关。前 ${FREE_LEVELS} 关开放；第 21 关以后会随通关进度解锁。也可以游玩无尽模式。`;
     resultOverlay.classList.add('hide');
     levelSelectOverlay.classList.add('hide');
     resultGrid.hidden = true;
@@ -6114,9 +6493,9 @@
     ruleList.hidden = false;
     hintBtn.hidden = true;
     startBtn.hidden = false;
-    startBtn.textContent = 'Start Run';
+    startBtn.textContent = '开始逃生';
     startBtn.onclick = () => startGame(state.level);
-    hintTitle.textContent = `Level ${state.level}: ${def.title}`;
+    hintTitle.textContent = `第 ${state.level} 关：${def.title}`;
     hintText.textContent = def.hint;
     updateNavButtons();
     overlay.classList.remove('hide');
