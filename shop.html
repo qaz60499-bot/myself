@@ -2021,6 +2021,190 @@
     }
   }
 
+
+  /* FINAL FIX: mobile keeps Previous / Next visible; pause menu includes Endless as a 2x2 action grid */
+  .pause-card .secondary-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #pauseEndlessBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (max-width: 520px), (pointer: coarse) {
+    .actions {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 4px !important;
+      width: 100% !important;
+      padding: 0 1px !important;
+      overflow: visible !important;
+    }
+
+    .actions #prevBtn,
+    .actions #restartBtn,
+    .actions #selectBtn,
+    .actions #nextBtn {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex: 1 1 0 !important;
+      min-width: 0 !important;
+      max-width: 116px !important;
+      min-height: 28px !important;
+      padding: 4px 6px !important;
+      border-radius: 999px !important;
+      font-size: 10px !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      opacity: .9 !important;
+      backdrop-filter: blur(10px) !important;
+      pointer-events: auto !important;
+    }
+
+    .actions #prevBtn:disabled,
+    .actions #nextBtn:disabled {
+      display: inline-flex !important;
+      opacity: .38 !important;
+      filter: grayscale(.25) !important;
+    }
+  }
+
+  @media (max-width: 380px), (pointer: coarse), (max-height: 700px) and (pointer: coarse) {
+    .actions {
+      gap: 3px !important;
+    }
+
+    .actions #prevBtn,
+    .actions #restartBtn,
+    .actions #selectBtn,
+    .actions #nextBtn {
+      min-height: 26px !important;
+      padding: 4px 4px !important;
+      font-size: 9.5px !important;
+      max-width: 98px !important;
+    }
+  }
+
+
+  /* MOBILE SWIPE CONTROL PATCH: swipe is primary, keypad is optional and hidden by default */
+  .mobile-keypad-toggle {
+    display: none;
+  }
+
+  @media (max-width: 520px), (pointer: coarse) {
+    .board-inner,
+    .board-wrap {
+      touch-action: none !important;
+    }
+
+    .pad {
+      display: none !important;
+      position: fixed !important;
+      left: max(12px, env(safe-area-inset-left)) !important;
+      bottom: calc(52px + var(--safe-bottom, 0px)) !important;
+      width: 114px !important;
+      grid-template-columns: repeat(3, 36px) !important;
+      grid-template-rows: repeat(3, 36px) !important;
+      gap: 3px !important;
+      opacity: .68 !important;
+      transform: translateZ(0) scale(.96) !important;
+      transform-origin: bottom left !important;
+      z-index: 30 !important;
+      pointer-events: auto !important;
+    }
+
+    .app.keypad-on .pad {
+      display: grid !important;
+    }
+
+    .pad.active,
+    .pad:active {
+      opacity: .96 !important;
+      transform: translateZ(0) scale(1.02) !important;
+    }
+
+    .pad button {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      min-height: 36px !important;
+      padding: 0 !important;
+      border-radius: 11px !important;
+      font-size: 17px !important;
+    }
+
+    .mobile-keypad-toggle {
+      display: inline-flex !important;
+      position: fixed !important;
+      right: max(12px, env(safe-area-inset-right)) !important;
+      bottom: calc(48px + var(--safe-bottom, 0px)) !important;
+      z-index: 31 !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 64px !important;
+      min-height: 28px !important;
+      padding: 4px 9px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(202, 242, 255, .16) !important;
+      color: rgba(245, 251, 255, .78) !important;
+      font-size: 10px !important;
+      font-weight: 900 !important;
+      background: rgba(7, 13, 24, .46) !important;
+      box-shadow: 0 8px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.08) !important;
+      backdrop-filter: blur(8px) !important;
+      opacity: .72 !important;
+    }
+
+    .app.keypad-on .mobile-keypad-toggle {
+      opacity: .95 !important;
+      color: #ffe38a !important;
+      border-color: rgba(255, 211, 107, .34) !important;
+      box-shadow: 0 0 20px rgba(255, 211, 107, .16), 0 8px 18px rgba(0,0,0,.24) !important;
+    }
+
+    .swipe-indicator {
+      width: 58px !important;
+      height: 58px !important;
+      margin-left: -29px !important;
+      margin-top: -29px !important;
+      font-size: 31px !important;
+    }
+  }
+
+  @media (max-width: 380px), (pointer: coarse), (max-height: 700px) and (pointer: coarse) {
+    .mobile-keypad-toggle {
+      right: max(9px, env(safe-area-inset-right)) !important;
+      bottom: calc(42px + var(--safe-bottom, 0px)) !important;
+      min-width: 58px !important;
+      min-height: 26px !important;
+      padding: 3px 7px !important;
+      font-size: 9px !important;
+    }
+    .pad {
+      left: max(9px, env(safe-area-inset-left)) !important;
+      bottom: calc(42px + var(--safe-bottom, 0px)) !important;
+      width: 104px !important;
+      grid-template-columns: repeat(3, 32px) !important;
+      grid-template-rows: repeat(3, 32px) !important;
+      gap: 4px !important;
+    }
+    .pad button {
+      width: 32px !important;
+      height: 32px !important;
+      min-width: 32px !important;
+      min-height: 32px !important;
+      border-radius: 10px !important;
+      font-size: 15px !important;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -2061,7 +2245,7 @@
   <section class="bottom">
     <div class="hint">
       <strong id="hintTitle">Goal: reach the glowing exit</strong>
-      <p id="hintText">Use WASD / arrow keys. On mobile, use the keypad; swipes are assistive. Every tile you leave will sink, crack, shake, then fall into the abyss.</p>
+      <p id="hintText">Use WASD / arrow keys on desktop. On mobile, swipe anywhere on the board: one swipe moves one tile. Keypad is optional. Every tile you leave will sink, crack, shake, then fall into the abyss.</p>
     </div>
     <div class="pad" aria-label="Keypad">
       <button class="up" data-dir="0,-1" type="button" aria-label="Up">↑</button>
@@ -2069,6 +2253,7 @@
       <button class="right" data-dir="1,0" type="button" aria-label="Right">→</button>
       <button class="down" data-dir="0,1" type="button" aria-label="Down">↓</button>
     </div>
+    <button class="mobile-keypad-toggle" id="keypadToggleBtn" type="button" aria-label="Toggle keypad">Keypad</button>
   </section>
 
   <div class="overlay" id="overlay">
@@ -2080,7 +2265,7 @@
         <div class="rule">Normal tiles: after you leave, they sink, crack, shake, then fall.</div>
         <div class="rule">Crack tiles !!: they fall faster. Step off immediately.</div>
         <div class="rule">Ice, launch pads, and A/B portals change your movement rhythm.</div>
-        <div class="rule">Keypad, keyboard, and swipes are supported. You can buffer the next move while jumping.</div>
+        <div class="rule">Keyboard and mobile swipes are supported. One swipe moves one tile; you can buffer one next move while jumping.</div>
       </div>
       <div class="result-grid" id="resultGrid" hidden>
         <div class="result-item"><span>Distance</span><strong id="distanceText">0 tiles</strong></div>
@@ -2130,6 +2315,7 @@
       <div class="secondary-row">
         <button class="small-btn" id="pauseRestartBtn" type="button">Restart</button>
         <button class="small-btn" id="pauseMenuBtn" type="button">Main Menu</button>
+        <button class="small-btn" id="pauseEndlessBtn" type="button">Endless</button>
       </div>
     </div>
   </div>
@@ -2932,9 +3118,11 @@
   const resumeBtn = document.getElementById('resumeBtn');
   const pauseRestartBtn = document.getElementById('pauseRestartBtn');
   const pauseMenuBtn = document.getElementById('pauseMenuBtn');
+  const pauseEndlessBtn = document.getElementById('pauseEndlessBtn');
   const pauseDesc = document.getElementById('pauseDesc');
   const swipeIndicator = document.getElementById('swipeIndicator');
   const padEl = document.querySelector('.pad');
+  const keypadToggleBtn = document.getElementById('keypadToggleBtn');
 
   const state = {
     status: 'menu',
@@ -2965,7 +3153,9 @@
     padRepeatTimer: 0,
     activePadButton: null,
     padActiveTimer: 0,
-    boardMetrics: null
+    boardMetrics: null,
+    keypadVisible: false,
+    touchMoveCooldownUntil: 0
   };
 
   function defaultSave() {
@@ -4521,7 +4711,7 @@
     updateHud();
     updateNavButtons();
     hintTitle.textContent = 'Endless: climb up';
-    hintText.textContent = 'Endless gets faster over time. Routes force left/right lane changes and add crack tiles, ice, launch pads, traps, safe tiles, and portals. Each row still keeps at least three connected main tiles.';
+    hintText.textContent = 'Mobile: swipe anywhere on the board; one swipe moves one tile. Endless gets faster over time and forces left/right lane changes.';
     showToast('Endless');
   }
 
@@ -4957,7 +5147,7 @@
     if (state.mode === 'endless') {
       const stage = getEndlessStage(state.endless?.distance || 0);
       hintTitle.textContent = `Endless: ${stage.name}`;
-      hintText.textContent = 'The platform shifts lanes and gets faster. Edge escapes and chained movement add score.';
+      hintText.textContent = 'Swipe the board to move one tile. The platform shifts lanes and gets faster; edge escapes add score.';
       renderObjectiveText();
       return;
     }
@@ -5080,10 +5270,22 @@
 
     boardInner.addEventListener('pointerdown', event => {
       if (event.pointerType === 'mouse' && event.button !== 0) return;
+      if (state.status !== 'playing') return;
+      event.preventDefault();
       boardInner.setPointerCapture?.(event.pointerId);
-      state.pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, baseX: event.clientX, baseY: event.clientY, time: performance.now(), previewDir: null, used: false, lastMoveAt: 0 };
+      state.pointer = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        baseX: event.clientX,
+        baseY: event.clientY,
+        time: performance.now(),
+        previewDir: null,
+        previewName: '',
+        used: false
+      };
     });
-    boardInner.addEventListener('pointermove', event => handlePointerMove(event));
+    boardInner.addEventListener('pointermove', event => handlePointerMove(event), { passive: false });
     boardInner.addEventListener('pointerup', event => finishPointer(event));
     boardInner.addEventListener('pointercancel', () => { state.pointer = null; });
     window.addEventListener('blur', () => { state.pointer = null; });
@@ -5097,9 +5299,11 @@
     shopCloseBtn.onclick = closeShopOverlay;
     pauseBtn.onclick = pauseGame;
     soundBtn.onclick = toggleSound;
+    if (keypadToggleBtn) keypadToggleBtn.onclick = toggleKeypad;
     resumeBtn.onclick = resumeGame;
     pauseRestartBtn.onclick = () => { pauseOverlay.classList.add('hide'); state.status = 'playing'; state.mode === 'endless' ? startEndless() : startGame(state.level); };
     pauseMenuBtn.onclick = () => { pauseOverlay.classList.add('hide'); showMenu(); };
+    pauseEndlessBtn.onclick = () => { pauseOverlay.classList.add('hide'); state.status = 'playing'; startEndless(); };
     updateSoundButton();
     bindOverlayClose(overlay, closeMenuOverlay);
     bindOverlayClose(resultOverlay, closeResultOverlay);
@@ -5182,7 +5386,7 @@
 
   function getSwipeThreshold() {
     const width = boardInner?.clientWidth || window.innerWidth || 360;
-    return Math.max(24, Math.min(38, width * 0.085));
+    return Math.max(24, Math.min(30, width * 0.065));
   }
 
   function dirFromDelta(dx, dy) {
@@ -5222,41 +5426,55 @@
     }
   }
 
+  function toggleKeypad() {
+    state.keypadVisible = !state.keypadVisible;
+    app.classList.toggle('keypad-on', state.keypadVisible);
+    if (keypadToggleBtn) {
+      keypadToggleBtn.textContent = state.keypadVisible ? 'Hide Pad' : 'Keypad';
+      keypadToggleBtn.setAttribute('aria-pressed', String(state.keypadVisible));
+    }
+    showToast(state.keypadVisible ? 'Keypad On' : 'Swipe Mode');
+  }
+
   function handlePointerMove(event) {
     const start = state.pointer;
     if (!start || start.id !== event.pointerId || state.status !== 'playing') return;
-    const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
+    event.preventDefault();
+
+    const dx = event.clientX - start.baseX;
+    const dy = event.clientY - start.baseY;
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
-    if (Math.max(adx, ady) < getSwipeThreshold()) return;
-    const dir = dirFromDelta(dx, dy);
-    start.previewDir = dir;
-    showSwipeFeedback(dir);
+    const previewThreshold = Math.max(12, getSwipeThreshold() * 0.55);
+    if (Math.max(adx, ady) < previewThreshold) return;
 
-    // Swipe is now assistive: normal levels move on release; Endless allows drag-to-steer chaining.
-    if (state.mode === 'endless') {
-      const now = performance.now();
-      if (now - (start.lastMoveAt || 0) < PAD_REPEAT_MS) return;
-      requestMove(dir);
-      start.used = true;
-      start.lastMoveAt = now;
-      start.x = event.clientX;
-      start.y = event.clientY;
+    const dir = dirFromDelta(dx, dy);
+    if (start.previewName !== dir.name) {
+      start.previewDir = dir;
+      start.previewName = dir.name;
+      showSwipeFeedback(dir);
     }
   }
 
   function finishPointer(event) {
     const start = state.pointer;
     if (!start || start.id !== event.pointerId) return;
-    const dx = event.clientX - (state.mode === 'endless' ? start.x : start.baseX);
-    const dy = event.clientY - (state.mode === 'endless' ? start.y : start.baseY);
+    event.preventDefault();
+
+    const dx = event.clientX - start.baseX;
+    const dy = event.clientY - start.baseY;
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
     const threshold = getSwipeThreshold();
     state.pointer = null;
+
+    if (state.status !== 'playing') return;
     if (Math.max(adx, ady) < threshold) return;
-    if (state.mode === 'endless' && start.used) return;
+
+    const now = performance.now();
+    if (now < state.touchMoveCooldownUntil) return;
+    state.touchMoveCooldownUntil = now + 70;
+
     const dir = start.previewDir || dirFromDelta(dx, dy);
     showSwipeFeedback(dir);
     requestMove(dir);
