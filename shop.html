@@ -2176,6 +2176,19 @@
       margin-top: -29px !important;
       font-size: 31px !important;
     }
+    .swipe-indicator.hold {
+      color: #66edff !important;
+      border-color: rgba(102, 237, 255, .64) !important;
+      box-shadow:
+        0 0 30px rgba(102, 237, 255, .30),
+        inset 0 1px 0 rgba(255,255,255,.18) !important;
+      animation: dragPulse .52s ease-in-out infinite alternate;
+    }
+  }
+
+  @keyframes dragPulse {
+    from { filter: brightness(1); transform: translateY(0) scale(1); }
+    to { filter: brightness(1.28); transform: translateY(0) scale(1.08); }
   }
 
   @media (max-width: 380px), (pointer: coarse), (max-height: 700px) and (pointer: coarse) {
@@ -2245,7 +2258,7 @@
   <section class="bottom">
     <div class="hint">
       <strong id="hintTitle">Goal: reach the glowing exit</strong>
-      <p id="hintText">Use WASD / arrow keys on desktop. On mobile, swipe anywhere on the board: one swipe moves one tile. Keypad is optional. Every tile you leave will sink, crack, shake, then fall into the abyss.</p>
+      <p id="hintText">Use WASD / arrow keys on desktop. On mobile, swipe once to move one tile; hold and drag after the first swipe to keep stepping. Keypad is optional. Every tile you leave will sink, crack, shake, then fall into the abyss.</p>
     </div>
     <div class="pad" aria-label="Keypad">
       <button class="up" data-dir="0,-1" type="button" aria-label="Up">↑</button>
@@ -2265,7 +2278,7 @@
         <div class="rule">Normal tiles: after you leave, they sink, crack, shake, then fall.</div>
         <div class="rule">Crack tiles !!: they fall faster. Step off immediately.</div>
         <div class="rule">Ice, launch pads, and A/B portals change your movement rhythm.</div>
-        <div class="rule">Keyboard and mobile swipes are supported. One swipe moves one tile; you can buffer one next move while jumping.</div>
+        <div class="rule">Keyboard and mobile swipes are supported. One swipe moves one tile; hold and drag to keep stepping, and you can still buffer one next move while jumping.</div>
       </div>
       <div class="result-grid" id="resultGrid" hidden>
         <div class="result-item"><span>Distance</span><strong id="distanceText">0 tiles</strong></div>
@@ -2348,6 +2361,9 @@
   const ROWS = 11;
   const COLS = 7;
   const PAD_REPEAT_MS = 118;
+  const TOUCH_HOLD_MS = 190;
+  const TOUCH_DRAG_REPEAT_MS = 145;
+  const TOUCH_TAP_COOLDOWN_MS = 70;
   const FREE_LEVELS = 20;
   const MAX_LEVEL = 60;
   const CHAPTER_SIZE = 20;
@@ -3155,7 +3171,12 @@
     padActiveTimer: 0,
     boardMetrics: null,
     keypadVisible: false,
-    touchMoveCooldownUntil: 0
+    touchMoveCooldownUntil: 0,
+    touchHoldTimer: 0,
+    touchDragTimer: 0,
+    touchDragActive: false,
+    touchDragDir: null,
+    touchDragToastShown: false
   };
 
   function defaultSave() {
@@ -4358,13 +4379,72 @@
     return 'Rookie Runner';
   }
 
-  function showSwipeFeedback(dir) {
+  function showSwipeFeedback(dir, hold = false) {
     if (!swipeIndicator || !dir) return;
     const arrows = { up: '↑', down: '↓', left: '←', right: '→' };
     swipeIndicator.textContent = arrows[dir.name] || '↑';
+    swipeIndicator.classList.toggle('hold', Boolean(hold));
     swipeIndicator.classList.add('show');
     clearTimeout(showSwipeFeedback.timer);
-    showSwipeFeedback.timer = window.setTimeout(() => swipeIndicator.classList.remove('show'), 180);
+    showSwipeFeedback.timer = window.setTimeout(() => {
+      if (!state.touchDragActive) swipeIndicator.classList.remove('show', 'hold');
+    }, hold ? 260 : 180);
+  }
+
+  function markTouchHoldReady(pointerId) {
+    const start = state.pointer;
+    if (!start || start.id !== pointerId || state.status !== 'playing') return;
+    start.holdReady = true;
+    if (start.previewDir) startTouchDrag(start.previewDir);
+  }
+
+  function startTouchDrag(dir) {
+    const start = state.pointer;
+    if (!start || state.status !== 'playing' || !dir) return;
+    state.touchDragDir = dir;
+    start.previewDir = dir;
+    start.previewName = dir.name;
+
+    if (start.dragActive) {
+      showSwipeFeedback(dir, true);
+      return;
+    }
+
+    start.dragActive = true;
+    start.used = true;
+    state.touchDragActive = true;
+    if (!state.touchDragToastShown) {
+      state.touchDragToastShown = true;
+      showToast('Drag Step');
+    }
+    showSwipeFeedback(dir, true);
+    requestMove(dir);
+    clearInterval(state.touchDragTimer);
+    state.touchDragTimer = window.setInterval(() => {
+      if (!state.pointer || state.status !== 'playing' || !state.touchDragActive) {
+        stopTouchDrag(false);
+        return;
+      }
+      if (state.touchDragDir) requestMove(state.touchDragDir);
+    }, TOUCH_DRAG_REPEAT_MS);
+  }
+
+  function stopTouchDrag(clearPointer = true) {
+    clearTimeout(state.touchHoldTimer);
+    state.touchHoldTimer = 0;
+    if (state.touchDragTimer) {
+      window.clearInterval(state.touchDragTimer);
+      state.touchDragTimer = 0;
+    }
+    state.touchDragActive = false;
+    state.touchDragDir = null;
+    if (clearPointer) state.pointer = null;
+    if (swipeIndicator) swipeIndicator.classList.remove('hold');
+  }
+
+  function clearPointerInput() {
+    stopTouchDrag(true);
+    if (swipeIndicator) swipeIndicator.classList.remove('show', 'hold');
   }
 
   function toggleSound() {
@@ -4711,7 +4791,7 @@
     updateHud();
     updateNavButtons();
     hintTitle.textContent = 'Endless: climb up';
-    hintText.textContent = 'Mobile: swipe anywhere on the board; one swipe moves one tile. Endless gets faster over time and forces left/right lane changes.';
+    hintText.textContent = 'Mobile: swipe once for one tile, or hold and drag to keep stepping. Endless gets faster over time and forces left/right lane changes.';
     showToast('Endless');
   }
 
@@ -5147,7 +5227,7 @@
     if (state.mode === 'endless') {
       const stage = getEndlessStage(state.endless?.distance || 0);
       hintTitle.textContent = `Endless: ${stage.name}`;
-      hintText.textContent = 'Swipe the board to move one tile. The platform shifts lanes and gets faster; edge escapes add score.';
+      hintText.textContent = 'Swipe once for one tile. Hold and drag to keep stepping; the platform shifts lanes and gets faster, and edge escapes add score.';
       renderObjectiveText();
       return;
     }
@@ -5272,6 +5352,7 @@
       if (event.pointerType === 'mouse' && event.button !== 0) return;
       if (state.status !== 'playing') return;
       event.preventDefault();
+      stopTouchDrag(false);
       boardInner.setPointerCapture?.(event.pointerId);
       state.pointer = {
         id: event.pointerId,
@@ -5282,15 +5363,19 @@
         time: performance.now(),
         previewDir: null,
         previewName: '',
+        holdReady: false,
+        dragActive: false,
         used: false
       };
+      clearTimeout(state.touchHoldTimer);
+      state.touchHoldTimer = window.setTimeout(() => markTouchHoldReady(event.pointerId), TOUCH_HOLD_MS);
     });
     boardInner.addEventListener('pointermove', event => handlePointerMove(event), { passive: false });
     boardInner.addEventListener('pointerup', event => finishPointer(event));
-    boardInner.addEventListener('pointercancel', () => { state.pointer = null; });
-    window.addEventListener('blur', () => { state.pointer = null; });
+    boardInner.addEventListener('pointercancel', clearPointerInput);
+    window.addEventListener('blur', clearPointerInput);
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) { state.pointer = null; if (state.status === 'playing') pauseGame(); }
+      if (document.hidden) { clearPointerInput(); if (state.status === 'playing') pauseGame(); }
     });
 
     menuCloseBtn.onclick = closeMenuOverlay;
@@ -5445,10 +5530,18 @@
     const dy = event.clientY - start.baseY;
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
-    const previewThreshold = Math.max(12, getSwipeThreshold() * 0.55);
-    if (Math.max(adx, ady) < previewThreshold) return;
+    const distance = Math.max(adx, ady);
+    const threshold = getSwipeThreshold();
+    const previewThreshold = Math.max(12, threshold * 0.55);
+    if (distance < previewThreshold) return;
 
     const dir = dirFromDelta(dx, dy);
+    const isHold = start.holdReady || performance.now() - start.time >= TOUCH_HOLD_MS;
+    if (distance >= threshold && isHold) {
+      startTouchDrag(dir);
+      return;
+    }
+
     if (start.previewName !== dir.name) {
       start.previewDir = dir;
       start.previewName = dir.name;
@@ -5466,14 +5559,16 @@
     const adx = Math.abs(dx);
     const ady = Math.abs(dy);
     const threshold = getSwipeThreshold();
-    state.pointer = null;
+    const wasDrag = Boolean(start.dragActive || state.touchDragActive);
+    stopTouchDrag(true);
 
+    if (wasDrag) return;
     if (state.status !== 'playing') return;
     if (Math.max(adx, ady) < threshold) return;
 
     const now = performance.now();
     if (now < state.touchMoveCooldownUntil) return;
-    state.touchMoveCooldownUntil = now + 70;
+    state.touchMoveCooldownUntil = now + TOUCH_TAP_COOLDOWN_MS;
 
     const dir = start.previewDir || dirFromDelta(dx, dy);
     showSwipeFeedback(dir);
