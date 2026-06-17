@@ -2730,375 +2730,6 @@
  }
  }
 
-/* Visual upgrade pass: CrazyGames-ready hierarchy and responsive polish.
-   CSS-only so gameplay, controls, saves, ads, and SDK calls remain unchanged. */
-:root {
- --panel: rgba(9, 17, 31,.84);
- --line: rgba(136, 232, 255,.31);
- --text: #f7fbff;
- --muted: rgba(222, 238, 255,.72);
- --cyan: #68eaff;
- --amber: #ffd56a;
- --danger: #ff6848;
- --violet: #8b7dff;
- --green: #6dffbb;
- --ink: #060913;
- --radius-sm: 10px;
- --radius-md: 14px;
- --radius-lg: 20px;
- --shadow-panel: 0 16px 40px rgba(0,0,0,.36), inset 0 1px 0 rgba(255,255,255,.08);
- --shadow-glow: 0 0 22px rgba(104,234,255,.16);
-}
-
-body {
- background:
- radial-gradient(circle at 50% -10%, rgba(104, 234, 255,.24), transparent 33%),
- radial-gradient(circle at 9% 22%, rgba(139, 125, 255,.15), transparent 30%),
- radial-gradient(circle at 92% 74%, rgba(255, 104, 72,.15), transparent 28%),
- linear-gradient(180deg, #101826 0%, #09111f 46%, #050711 100%) !important;
-}
-
-.app::before {
- content: "";
- position: absolute;
- inset: 0;
- pointer-events: none;
- background:
- linear-gradient(rgba(255,255,255,.024) 1px, transparent 1px),
- linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
- background-size: 42px 42px;
- mask-image: radial-gradient(circle at 50% 42%, black 0 58%, transparent 84%);
- opacity: .55;
- z-index: 0;
-}
-
-.topbar,
-.actions,
-.item-bar,
-.board-wrap,
-.bottom,
-.level-dots {
- position: relative;
- z-index: 1;
-}
-
-.topbar {
- filter: drop-shadow(0 12px 22px rgba(0,0,0,.22));
-}
-
-.stat,
-.title,
-.hint,
-.card,
-.item-btn,
-.coin-pill,
-.level-card {
- border-color: var(--line) !important;
- box-shadow: var(--shadow-panel), var(--shadow-glow) !important;
-}
-
-.stat,
-.title {
- background:
- linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.025)),
- rgba(9,17,31,.82) !important;
-}
-
-.stat {
- border-radius: var(--radius-md) !important;
- position: relative;
- overflow: hidden;
-}
-
-.stat::after {
- content: "";
- position: absolute;
- left: 8px;
- right: 8px;
- bottom: 5px;
- height: 2px;
- border-radius: 999px;
- background: linear-gradient(90deg, rgba(104,234,255,.72), rgba(255,213,106,.72));
- opacity: .42;
-}
-
-.label {
- color: rgba(222,238,255,.66) !important;
- font-size: 10px !important;
- letter-spacing: 0 !important;
- text-transform: uppercase;
-}
-
-.value {
- color: #ffffff;
- text-shadow: 0 0 12px rgba(104,234,255,.28);
-}
-
-.title {
- border-radius: 16px !important;
- background:
- radial-gradient(circle at 50% 0%, rgba(255,213,106,.22), transparent 44%),
- linear-gradient(180deg, rgba(32,48,82,.94), rgba(8,14,28,.96)) !important;
-}
-
-.title strong,
-.card h1 {
- text-shadow: 0 0 20px rgba(104,234,255,.35), 0 2px 0 rgba(0,0,0,.24);
-}
-
-.title span {
- color: rgba(255,213,106,.82) !important;
-}
-
-.level-dots {
- padding: 1px 0;
-}
-
-.dot {
- width: 9px;
- height: 9px;
- background: rgba(214,236,255,.18) !important;
- transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease;
-}
-
-.dot.current {
- transform: scale(1.2);
-}
-
-.board-frame {
- border-radius: 24px !important;
- background:
- radial-gradient(circle at 50% 4%, rgba(104,234,255,.20), transparent 32%),
- linear-gradient(180deg, rgba(130,223,255,.16), rgba(255,255,255,.035)),
- rgba(3,7,15,.92) !important;
- box-shadow:
- 0 26px 80px rgba(0,0,0,.58),
- 0 0 44px rgba(104,234,255,.18),
- inset 0 0 0 1px rgba(255,255,255,.045),
- inset 0 0 28px rgba(104,234,255,.05) !important;
-}
-
-.board-frame::after {
- content: "";
- position: absolute;
- inset: 0;
- border-radius: inherit;
- pointer-events: none;
- background:
- linear-gradient(90deg, transparent, rgba(255,255,255,.13), transparent);
- transform: translateX(-120%);
- animation: boardSheen 4.8s ease-in-out infinite;
- opacity: .45;
-}
-
-.board-inner {
- border: 1px solid rgba(104,234,255,.18);
- background:
- radial-gradient(circle at 50% 25%, rgba(34,79,128,.52), rgba(4,6,12,.98) 64%),
- #03050b !important;
-}
-
-.tile {
- border-radius: 9px !important;
- border-color: rgba(172,231,255,.24) !important;
- box-shadow:
- 0 9px 18px rgba(0,0,0,.38),
- 0 0 14px rgba(104,234,255,.14),
- inset 0 1px 0 rgba(255,255,255,.24),
- inset 0 -12px 18px rgba(0,0,0,.24) !important;
-}
-
-.tile.safe {
- box-shadow:
- 0 9px 18px rgba(0,0,0,.36),
- 0 0 18px rgba(109,255,187,.22),
- inset 0 1px 0 rgba(255,255,255,.26) !important;
-}
-
-.tile.start,
-.tile.goal {
- filter: saturate(1.1) brightness(1.04);
-}
-
-.player .aura {
- filter: blur(.2px) saturate(1.15);
-}
-
-.hint {
- border-radius: var(--radius-md) !important;
- background:
- linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025)),
- rgba(9,17,31,.78) !important;
-}
-
-.hint strong {
- color: #ffffff;
-}
-
-.hint p {
- color: var(--muted) !important;
-}
-
-.pad button,
-.small-btn,
-.primary-btn,
-.item-btn,
-.close-btn,
-.level-card,
-.shop-item button,
-.item-prep-actions button {
- cursor: pointer;
- border-color: rgba(188,238,255,.28) !important;
- transition: transform .14s ease, filter .14s ease, box-shadow .14s ease, border-color .14s ease, background-color .14s ease !important;
-}
-
-.small-btn,
-.pad button,
-.item-btn {
- background:
- radial-gradient(120% 130% at 50% 0%, rgba(104,234,255,.20), transparent 44%),
- linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.055)) !important;
-}
-
-.primary-btn {
- color: #04111a !important;
- background:
- radial-gradient(120% 130% at 50% 0%, rgba(255,255,255,.58), transparent 40%),
- linear-gradient(180deg, #85f4ff, #31b7f4 58%, #1572ce) !important;
- border-color: rgba(199,250,255,.75) !important;
- box-shadow: 0 14px 32px rgba(49,183,244,.36), 0 0 24px rgba(104,234,255,.24), inset 0 1px 0 rgba(255,255,255,.62) !important;
-}
-
-.small-btn:hover,
-.pad button:hover,
-.item-btn:hover,
-.close-btn:hover,
-.level-card:not(:disabled):hover {
- transform: translateY(-1px);
- filter: brightness(1.12);
- border-color: rgba(255,213,106,.58) !important;
-}
-
-.primary-btn:hover {
- transform: translateY(-1px);
- filter: brightness(1.07) saturate(1.08);
-}
-
-.small-btn:disabled,
-.level-card:disabled,
-.item-btn:disabled {
- cursor: not-allowed;
-}
-
-.card {
- border-radius: var(--radius-lg) !important;
- background:
- radial-gradient(circle at 50% -8%, rgba(104,234,255,.23), transparent 35%),
- radial-gradient(circle at 95% 95%, rgba(255,104,72,.12), transparent 28%),
- linear-gradient(180deg, rgba(24,37,64,.97), rgba(7,12,22,.99)) !important;
-}
-
-.card h1 {
- letter-spacing: 0;
-}
-
-.rule,
-.result-item,
-.shop-item,
-.item-prep-row {
- border-color: rgba(188,238,255,.16) !important;
- background:
- linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.035)) !important;
-}
-
-.result-item strong,
-.coin-pill {
- color: #ffffff;
- text-shadow: 0 0 12px rgba(255,213,106,.22);
-}
-
-.toast {
- border-color: rgba(255,213,106,.38) !important;
- background: rgba(6,10,19,.86) !important;
- box-shadow: 0 16px 34px rgba(0,0,0,.46), 0 0 24px rgba(255,213,106,.16) !important;
-}
-
-.overlay {
- background:
- radial-gradient(circle at 50% 36%, rgba(104,234,255,.10), transparent 34%),
- rgba(2,4,10,.70) !important;
-}
-
-@keyframes boardSheen {
- 0%, 62%, 100% { transform: translateX(-120%); }
- 78% { transform: translateX(120%); }
-}
-
-@media (min-width: 900px) and (min-aspect-ratio: 9 / 16) {
- body::before,
- body::after {
- content: "";
- position: fixed;
- top: 50%;
- width: min(18vw, 260px);
- height: min(54vh, 560px);
- pointer-events: none;
- transform: translateY(-50%);
- opacity: .52;
- background:
- linear-gradient(rgba(104,234,255,.18) 2px, transparent 2px),
- linear-gradient(90deg, rgba(104,234,255,.12) 2px, transparent 2px);
- background-size: 24px 24px;
- mask-image: linear-gradient(90deg, transparent, black 35%, black 65%, transparent);
-}
- body::before { left: 2vw; }
- body::after { right: 2vw; }
-}
-
-@media (min-aspect-ratio: 9 / 16) and (max-height: 760px) {
- .stat::after { display: none; }
- .board-frame { border-radius: 18px !important; }
- .card { border-radius: 16px !important; }
- .small-btn:hover,
- .pad button:hover,
- .item-btn:hover,
- .close-btn:hover,
- .level-card:not(:disabled):hover,
- .primary-btn:hover {
- transform: none;
- }
-}
-
-@media (max-width: 520px), (pointer: coarse) {
- .app::before { opacity: .38; background-size: 34px 34px; }
- .topbar { filter: none; }
- .stat::after { left: 7px; right: 7px; bottom: 4px; }
- .board-frame { border-radius: 20px !important; }
- .board-frame::after { opacity: .28; }
- .small-btn:hover,
- .pad button:hover,
- .item-btn:hover,
- .close-btn:hover,
- .level-card:not(:disabled):hover,
- .primary-btn:hover {
- transform: none;
-}
-}
-
-@media (prefers-reduced-motion: reduce) {
- .board-frame::after,
- .dot,
- .small-btn,
- .pad button,
- .item-btn,
- .primary-btn,
- .close-btn,
- .level-card {
- animation: none !important;
- transition-duration: .01ms !important;
-}
-}
-
 </style>
 <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 </head>
@@ -3147,7 +2778,7 @@ body {
  <section class="bottom">
  <div class="hint">
  <strong id="hintTitle">Goal: reach the glowing exit</strong>
- <p id="hintText">Use WASD or arrow keys on desktop. On mobile, swipe once to move one tile; hold and drag for continuous steps. The keypad is only a backup. Tiles collapse after you leave them. Power-ups: Preview shows the route, Freeze stops the fall, and Shield rescues you once. Endless Mode can use stocked power-ups without a use limit.</p>
+ <p id="hintText">Use WASD or arrow keys on desktop. On mobile, use a short swipe to move one tile; hold after the first step to keep moving. The keypad is only a backup. Tiles collapse after you leave them. Power-ups: Preview shows the route, Freeze stops the fall, and Shield rescues you once. Endless Mode can use stocked power-ups without a use limit.</p>
  </div>
  <div class="pad" aria-label="Keypad">
  <button class="up" data-dir="0,-1" type="button" aria-label="Up">↑</button>
@@ -3167,7 +2798,7 @@ body {
  <div class="rule">Leave a tile and it collapses behind you.</div>
  <div class="rule">Cracked tiles (!!) fall faster. Move immediately.</div>
  <div class="rule">Ice slides, launch pads jump, and portals warp you.</div>
- <div class="rule">Use keyboard, swipe, or the optional keypad. You can buffer the next move while jumping.</div>
+ <div class="rule">Use keyboard, short swipes, or the optional keypad. You can buffer the next move while jumping.</div>
  </div>
  <div class="result-grid" id="resultGrid" hidden>
  <div class="result-item"><span>Distance</span><strong id="distanceText">0 tiles</strong></div>
@@ -3306,9 +2937,12 @@ body {
  const ROWS = 11;
  const COLS = 7;
  const PAD_REPEAT_MS = 118;
- const TOUCH_HOLD_MS = 190;
- const TOUCH_DRAG_REPEAT_MS = 145;
- const TOUCH_TAP_COOLDOWN_MS = 70;
+ // Mobile short-swipe tuning: one compact, deliberate flick equals one tile.
+ const TOUCH_HOLD_MS = 300;
+ const TOUCH_DRAG_REPEAT_MS = 165;
+ const TOUCH_TAP_COOLDOWN_MS = 45;
+ const TOUCH_DIRECTION_LOCK_RATIO = 1.12;
+ const TOUCH_DIAGONAL_FALLBACK_RATIO = 1.42;
  const NORMAL_REVIVE_COSTS = [
  { maxLevel: 10, cost: 30 },
  { maxLevel: 20, cost: 50 },
@@ -6064,10 +5698,10 @@ body {
  const start = state.pointer;
  if (!start || start.id !== pointerId || state.status !== 'playing') return;
  start.holdReady = true;
- if (start.previewDir) startTouchDrag(start.previewDir);
+ if (start.previewDir) startTouchDrag(start.previewDir, !start.used);
  }
 
- function startTouchDrag(dir) {
+ function startTouchDrag(dir, moveImmediately = true) {
  const start = state.pointer;
  if (!start || state.status !== 'playing' || !dir) return;
  state.touchDragDir = dir;
@@ -6084,17 +5718,23 @@ body {
  state.touchDragActive = true;
  if (!state.touchDragToastShown) {
  state.touchDragToastShown = true;
- showToast('Drag Step');
+ showToast('Hold to keep moving');
  }
  showSwipeFeedback(dir, true);
+ if (moveImmediately) {
+ pulseTouchFeedback();
  requestMove(dir);
+ }
  clearInterval(state.touchDragTimer);
  state.touchDragTimer = window.setInterval(() => {
  if (!state.pointer || state.status !== 'playing' || !state.touchDragActive) {
  stopTouchDrag(false);
  return;
  }
- if (state.touchDragDir) requestMove(state.touchDragDir);
+ if (state.touchDragDir) {
+ pulseTouchFeedback();
+ requestMove(state.touchDragDir);
+ }
  }, TOUCH_DRAG_REPEAT_MS);
  }
 
@@ -6518,7 +6158,7 @@ body {
  updateNavButtons();
  saveReviveSnapshot();
  hintTitle.textContent = 'Endless Mode: Climb Up';
- hintText.textContent = 'Mobile: swipe once to move one tile. You can also hold and drag for continuous steps. Endless Mode gets faster over time and forces left/right lane shifts.';
+ hintText.textContent = 'Mobile: a short swipe moves one tile immediately. Hold after the first step for continuous movement. Endless Mode gets faster over time and forces left/right lane shifts.';
  showToast('Endless Mode');
  }
 
@@ -7297,13 +6937,35 @@ body {
 
  function getSwipeThreshold() {
  const width = boardInner?.clientWidth || window.innerWidth || 360;
- return Math.max(24, Math.min(30, width * 0.065));
+ return Math.max(18, Math.min(24, width * 0.046));
  }
 
  function dirFromDelta(dx, dy) {
  const adx = Math.abs(dx);
  const ady = Math.abs(dy);
  return adx > ady ? (dx > 0 ? DIRS.right: DIRS.left): (dy > 0 ? DIRS.down: DIRS.up);
+ }
+
+ function getLockedSwipeDir(dx, dy, previousDir = null, allowDiagonalFallback = false) {
+ const adx = Math.abs(dx);
+ const ady = Math.abs(dy);
+ if (!adx && !ady) return previousDir;
+
+ const horizontal = dx >= 0 ? DIRS.right: DIRS.left;
+ const vertical = dy >= 0 ? DIRS.down: DIRS.up;
+ const dominant = adx >= ady ? horizontal: vertical;
+ const major = Math.max(adx, ady);
+ const minor = Math.max(1, Math.min(adx, ady));
+
+ // Near a diagonal, retain the already-previewed axis instead of flickering.
+ if (previousDir && major / minor < TOUCH_DIRECTION_LOCK_RATIO) return previousDir;
+ if (major / minor >= TOUCH_DIRECTION_LOCK_RATIO) return dominant;
+ return allowDiagonalFallback && major / minor >= 1 / TOUCH_DIAGONAL_FALLBACK_RATIO ? dominant: null;
+ }
+
+ function pulseTouchFeedback() {
+ if (!isCoarseDevice()) return;
+ try { navigator.vibrate?.(7); } catch (error) {}
  }
 
  function activatePadFeedback() {
@@ -7359,21 +7021,40 @@ body {
  const ady = Math.abs(dy);
  const distance = Math.max(adx, ady);
  const threshold = getSwipeThreshold();
- const previewThreshold = Math.max(12, threshold * 0.55);
+ const previewThreshold = Math.max(7, threshold * 0.42);
  if (distance < previewThreshold) return;
 
- const dir = dirFromDelta(dx, dy);
- const isHold = start.holdReady || performance.now() - start.time >= TOUCH_HOLD_MS;
- if (distance >= threshold && isHold) {
- startTouchDrag(dir);
- return;
- }
+ const allowFallback = distance >= threshold * TOUCH_DIAGONAL_FALLBACK_RATIO;
+ const dir = getLockedSwipeDir(dx, dy, start.previewDir, allowFallback);
+ if (!dir) return;
 
  if (start.previewName !== dir.name) {
  start.previewDir = dir;
  start.previewName = dir.name;
- showSwipeFeedback(dir);
+ showSwipeFeedback(dir, Boolean(start.dragActive));
  }
+
+ if (start.dragActive) {
+ state.touchDragDir = dir;
+ return;
+ }
+
+ // Trigger the tile movement as soon as the short flick becomes clear.
+ // Releasing the finger will not fire a duplicate move.
+ if (!start.used && distance >= threshold) {
+ const now = performance.now();
+ if (now >= state.touchMoveCooldownUntil) {
+ start.used = true;
+ start.triggeredAt = now;
+ state.touchMoveCooldownUntil = now + TOUCH_TAP_COOLDOWN_MS;
+ pulseTouchFeedback();
+ showSwipeFeedback(dir);
+ requestMove(dir);
+ }
+ }
+
+ const isHold = start.holdReady || performance.now() - start.time >= TOUCH_HOLD_MS;
+ if (start.used && isHold) startTouchDrag(dir, false);
  }
 
  function finishPointer(event) {
@@ -7387,9 +7068,11 @@ body {
  const ady = Math.abs(dy);
  const threshold = getSwipeThreshold();
  const wasDrag = Boolean(start.dragActive || state.touchDragActive);
+ const alreadyTriggered = Boolean(start.used);
+ const previewDir = start.previewDir;
  stopTouchDrag(true);
 
- if (wasDrag) return;
+ if (wasDrag || alreadyTriggered) return;
  if (state.status !== 'playing') return;
  if (Math.max(adx, ady) < threshold) return;
 
@@ -7397,7 +7080,8 @@ body {
  if (now < state.touchMoveCooldownUntil) return;
  state.touchMoveCooldownUntil = now + TOUCH_TAP_COOLDOWN_MS;
 
- const dir = start.previewDir || dirFromDelta(dx, dy);
+ const dir = previewDir || getLockedSwipeDir(dx, dy, null, true) || dirFromDelta(dx, dy);
+ pulseTouchFeedback();
  showSwipeFeedback(dir);
  requestMove(dir);
  }
@@ -7413,7 +7097,7 @@ body {
  const def = LEVELS[state.level - 1];
  overlayTitle.textContent = 'Floor Rush';
  overlayDesc.textContent = 'Reach the glowing exit. Tiles collapse after you leave them.';
- ruleList.innerHTML = '<div class="rule">Move with arrow keys / WASD on desktop, or swipe on mobile.</div><div class="rule">Leave a tile and it collapses behind you. Keep moving forward.</div><div class="rule">Special tiles appear gradually: safe tiles, cracks, ice, launch pads, portals, and traps.</div>';
+ ruleList.innerHTML = '<div class="rule">Move with arrow keys / WASD on desktop, or use short swipes on mobile.</div><div class="rule">Leave a tile and it collapses behind you. Keep moving forward.</div><div class="rule">Special tiles appear gradually: safe tiles, cracks, ice, launch pads, portals, and traps.</div>';
  if (moreModesPanel) moreModesPanel.hidden = true;
  if (moreModesBtn) moreModesBtn.textContent = 'More Modes';
  resultOverlay.classList.add('hide');
