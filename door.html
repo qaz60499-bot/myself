@@ -1053,7 +1053,11 @@
     border-radius:14px;
     background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.05)),#202431;
   }
+  .pauseLevelSelectBtn{
+    grid-column:1 / -1;
+  }
   .pauseQuitBtn{
+    grid-column:1 / -1;
     background:linear-gradient(135deg,#ff4658,#8f1321)!important;
   }
   .resumeCountdownCard{
@@ -2113,302 +2117,347 @@
     }
   }
 
-  /* Mobile portrait fit pass: reserve separate lanes for items and run controls. */
-  @media (max-width:699px) and (orientation:portrait){
-    :root{
-      --mobile-edge:8px;
-      --mobile-bottom-bar:42px;
-      --mobile-item-bar:42px;
-      --mobile-bottom-gap:7px;
-      --mobile-reserve-bottom:calc(var(--mobile-bottom-bar) + var(--mobile-item-bar) + 24px + var(--safe-bottom));
-    }
-    html,
-    body{
-      height:100dvh;
-      min-height:100dvh;
-      max-width:100vw;
-      overflow:hidden;
-    }
-    body{
-      align-items:flex-start;
-    }
+
+  /* Targeted bug fixes: short CrazyGames frames and overlay accessibility. */
+  .coinBadge{display:none;}
+  #settingsOverlay .card,
+  #demoOverlay .card,
+  #endOverlay .card,
+  #reviveOverlay .card{
+    max-height:calc(var(--app-height, 100dvh) - 44px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+  }
+  @media (min-width:700px) and (max-height:600px){
+    .top{padding:8px 14px 5px;}
+    .brand{min-width:112px;padding:5px 8px 6px;}
+    .brand .cn{font-size:16px;}
+    .brand .en{font-size:8px;margin-top:3px;}
+    .hud{gap:5px;}
+    .pill{min-height:36px;padding:4px 5px;border-radius:11px;}
+    .pill b{font-size:12px;}
+    .pill span{font-size:8px;margin-top:2px;}
+    .stabilityPanel{margin-top:6px;padding:5px 8px 7px;}
+    .stabilityLabel{margin-bottom:5px;font-size:10px;}
+    .stabilityLabel b{font-size:12px;}
+    .stabilityTrack{height:11px;}
+    .instructionBox{margin-top:6px;border-radius:15px;}
+    .instructionBox::after{top:6px;font-size:8px;}
+    .instruction{min-height:54px;padding:17px 12px 7px;font-size:19px;}
+    .subTip{padding:0 10px 7px;font-size:10px;line-height:1.25;}
+    .timerShell{margin-top:5px;height:9px;}
+    .machine{top:205px;bottom:62px;}
+    .buttonZone{top:44px;bottom:14px;}
+    .feverBanner{top:169px;height:28px;font-size:11px;}
+    .bottom{bottom:7px;height:45px;}
+  }
+
+  /* Final mobile width override: intentionally placed last so earlier media rules cannot override it. */
+  @media (max-width:699px){
     .phone{
-      width:100vw;
-      height:100dvh;
-      min-height:100dvh;
-      max-height:none;
-      border-radius:0;
+      width:100vw!important;
+      max-width:none!important;
     }
     .top{
-      padding:7px 9px 5px;
-    }
-    .titleRow{
-      gap:6px;
-      align-items:center;
-    }
-    .brand{
-      min-width:102px;
-      padding:5px 7px 6px;
-      border-radius:12px;
-    }
-    .brand .cn{
-      font-size:15px;
-      line-height:1;
-      letter-spacing:.4px;
-    }
-    .brand .en{
-      margin-top:3px;
-      font-size:8px;
-      letter-spacing:1px;
-    }
-    .hud{
-      flex:1 1 auto;
-      width:auto;
-      grid-template-columns:repeat(5,minmax(0,1fr));
-      gap:4px;
-    }
-    .pill{
-      min-height:32px;
-      padding:4px 3px 3px;
-      border-radius:10px;
-    }
-    .pill b{
-      font-size:11px;
-      line-height:1;
-    }
-    .pill span{
-      margin-top:2px;
-      font-size:7px;
-      letter-spacing:.35px;
-    }
-    .stabilityPanel{
-      margin-top:6px;
-      padding:5px 7px 6px;
-      border-radius:13px;
-    }
-    .stabilityLabel{
-      margin-bottom:4px;
-      font-size:10px;
-      letter-spacing:.25px;
-    }
-    .stabilityLabel b{
-      font-size:12px;
-    }
-    .stabilityTrack{
-      height:10px;
-    }
-    .instructionBox{
-      margin-top:6px;
-      border-radius:14px;
-    }
-    .instructionBox::after{
-      left:9px;
-      top:6px;
-      padding:1px 6px;
-      font-size:8px;
-    }
-    .instruction{
-      min-height:clamp(48px, 8dvh, 62px);
-      padding:17px 11px 7px;
-      font-size:clamp(16px, 4.7vw, 20px);
-      line-height:1.12;
-    }
-    .subTip{
-      padding:0 11px 8px;
-      font-size:10px;
-      line-height:1.22;
-    }
-    .timerShell{
-      margin-top:6px;
-      height:8px;
-    }
-    .feverBanner{
-      top:clamp(174px, 23dvh, 198px);
-      left:12px;
-      right:12px;
-      height:27px;
-      font-size:11px;
-    }
-    .coinBadge{
-      top:clamp(174px, 23dvh, 198px);
-      right:12px;
-      min-height:26px;
-      padding:0 9px;
-      font-size:10px;
+      padding-left:6px!important;
+      padding-right:6px!important;
     }
     .machine{
-      left:var(--mobile-edge);
-      right:var(--mobile-edge);
-      top:clamp(202px, 25.5dvh, 224px);
-      bottom:var(--mobile-reserve-bottom);
-      border-radius:18px;
+      left:2px!important;
+      right:2px!important;
+      border-radius:20px!important;
+    }
+    .machine::after{
+      inset:6px!important;
+      border-radius:15px!important;
+    }
+    .buttonZone{
+      left:4px!important;
+      right:4px!important;
     }
     .warningLights{
-      left:14px;
-      right:14px;
-      top:10px;
-      height:14px;
-    }
-    .light{
-      width:11px;
-      height:11px;
-    }
-    .gauge{
-      top:28px;
-      width:46px;
-      height:27px;
-    }
-    .gauge.left{left:14px}
-    .gauge.right{right:14px}
-    .buttonZone{
-      left:12px;
-      right:12px;
-      top:42px;
-      bottom:14px;
-    }
-    .gameBtn{
-      min-width:44px;
-      min-height:44px;
-      padding:5px;
-    }
-    .itemDock{
-      left:var(--mobile-edge);
-      right:var(--mobile-edge);
-      bottom:calc(var(--mobile-bottom-bar) + 14px + var(--safe-bottom));
-      min-height:var(--mobile-item-bar);
-      justify-content:center;
-      gap:6px;
-      padding:4px 8px;
-      border-radius:999px;
-      background:rgba(5,7,12,.72);
-    }
-    .itemBtn{
-      width:38px;
-      height:38px;
-      font-size:11px;
-      border-radius:50%;
-    }
-    .itemCount{
-      min-width:16px;
-      height:16px;
-      font-size:9px;
+      left:12px!important;
+      right:12px!important;
     }
     .bottom{
-      left:var(--mobile-edge);
-      right:var(--mobile-edge);
-      bottom:calc(var(--mobile-bottom-gap) + var(--safe-bottom));
-      width:auto;
-      max-width:none;
-      height:var(--mobile-bottom-bar);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:5px;
-      padding:4px;
-      border-radius:999px;
-    }
-    .bottom .ctrl{
-      flex:1 1 0;
-      width:auto;
-      min-width:0;
-      min-height:34px;
-      padding:0 7px;
-      border-radius:999px;
-      font-size:10px;
-      line-height:1;
-      white-space:nowrap;
-    }
-    .bottom .primary{
-      flex-grow:1.25;
-      min-width:0;
-    }
-    .bottom .powerBtn{
-      flex:1 1 0;
-      width:auto;
-      min-width:0;
-      padding:0 6px;
-      border-radius:999px;
-      font-size:9px;
-    }
-    .soundToggle{
-      flex:0.9 1 0;
-      min-width:0;
-      width:auto;
+      right:4px!important;
+      max-width:calc(100vw - 8px)!important;
     }
   }
-  @media (max-width:380px) and (orientation:portrait){
-    :root{
-      --mobile-edge:7px;
-      --mobile-bottom-bar:40px;
-      --mobile-item-bar:40px;
-      --mobile-reserve-bottom:calc(var(--mobile-bottom-bar) + var(--mobile-item-bar) + 22px + var(--safe-bottom));
-    }
+  @media (max-width:360px){
     .top{
-      padding:6px 8px 4px;
-    }
-    .brand{
-      min-width:94px;
-      padding:5px 6px;
-    }
-    .brand .cn{
-      font-size:14px;
-    }
-    .brand .en{
-      font-size:7px;
-      letter-spacing:.8px;
-    }
-    .hud{
-      gap:3px;
-    }
-    .pill{
-      min-height:30px;
-      padding:3px 2px;
-    }
-    .pill b{
-      font-size:10px;
-    }
-    .pill span{
-      font-size:6.5px;
-      letter-spacing:.2px;
+      padding-left:4px!important;
+      padding-right:4px!important;
     }
     .machine{
-      top:clamp(196px, 25dvh, 214px);
+      left:0!important;
+      right:0!important;
+      border-left-width:0!important;
+      border-right-width:0!important;
+      border-radius:16px!important;
     }
     .buttonZone{
-      left:10px;
-      right:10px;
-      top:40px;
-      bottom:12px;
+      left:3px!important;
+      right:3px!important;
     }
-    .itemBtn{
-      width:36px;
-      height:36px;
-      font-size:10px;
+  }
+
+
+  /* Campaign levels: presentation only; core button rules and balance stay unchanged. */
+  .endlessStartBtn{
+    margin-top:8px;
+    background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04)),#1b2435;
+  }
+  .endlessStartBtn:disabled{
+    opacity:.52;
+    filter:saturate(.55);
+    cursor:not-allowed;
+    transform:none!important;
+  }
+  #levelOverlay{
+    padding:12px;
+  }
+  .levelSelectCard{
+    width:min(94vw,470px);
+    max-width:470px;
+    max-height:calc(var(--app-height,100dvh) - 24px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:20px 18px 18px;
+    overscroll-behavior:contain;
+  }
+  .levelSelectCard h1{
+    margin-bottom:7px;
+  }
+  .levelSelectIntro{
+    margin:0 0 13px!important;
+    font-size:12px!important;
+    line-height:1.45!important;
+  }
+  .levelGrid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:12px;
+    text-align:left;
+  }
+  .levelCard{
+    position:relative;
+    min-height:138px;
+    padding:13px 12px 12px;
+    border-radius:17px;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.025)),
+      linear-gradient(135deg,rgba(118,216,255,.08),rgba(255,73,99,.07)),
+      rgba(7,11,19,.58);
+    border:1px solid rgba(190,213,255,.18);
+    box-shadow:0 13px 25px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08);
+    overflow:hidden;
+  }
+  .levelCard.completed{
+    border-color:rgba(101,238,158,.42);
+    box-shadow:0 0 22px rgba(101,238,158,.09),0 13px 25px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .levelCard.locked{
+    opacity:.58;
+    filter:saturate(.55);
+  }
+  .levelCard.endlessCard{
+    grid-column:1 / -1;
+    min-height:126px;
+    background:
+      radial-gradient(circle at 85% 15%,rgba(255,212,71,.18),transparent 34%),
+      linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.025)),
+      rgba(7,11,19,.62);
+  }
+  .levelNumber{
+    color:#90e3ff;
+    font-size:10px;
+    font-weight:1000;
+    letter-spacing:1.4px;
+  }
+  .levelName{
+    margin-top:5px;
+    color:#fff;
+    font-size:16px;
+    line-height:1.12;
+    font-weight:1000;
+  }
+  .levelMeta{
+    margin-top:7px;
+    min-height:30px;
+    color:#b9c5db;
+    font-size:10.5px;
+    line-height:1.38;
+    font-weight:820;
+  }
+  .levelStatus{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:6px;
+    margin-top:9px;
+    color:#fff2a7;
+    font-size:9.5px;
+    font-weight:1000;
+  }
+  .levelPlayBtn{
+    width:100%;
+    min-height:36px;
+    margin-top:8px;
+    border:none;
+    border-radius:11px;
+    color:#fff;
+    font-size:11px;
+    font-weight:1000;
+    letter-spacing:.4px;
+    background:linear-gradient(90deg,#357fff,#786dff 48%,#ff3f73);
+    box-shadow:0 9px 18px rgba(255,63,115,.16),inset 0 1px 0 rgba(255,255,255,.22);
+  }
+  .levelPlayBtn:disabled{
+    opacity:.48;
+    filter:saturate(.5);
+    box-shadow:none;
+  }
+  .levelCompleteMark{
+    position:absolute;
+    right:10px;
+    top:9px;
+    padding:3px 7px;
+    border-radius:999px;
+    color:#092315;
+    background:#65ee9e;
+    font-size:8px;
+    font-weight:1000;
+    letter-spacing:.7px;
+  }
+  .campaignResult{
+    margin-top:12px;
+    padding:11px 12px;
+    border-radius:14px;
+    background:rgba(118,216,255,.08);
+    border:1px solid rgba(118,216,255,.20);
+    color:#dcecff;
+    font-size:12px;
+    line-height:1.5;
+    font-weight:850;
+    text-align:left;
+  }
+  #levelSelectEndBtn.hidden,
+  #endlessBtn.hidden{display:none!important;}
+  @media (max-width:430px){
+    #levelOverlay{padding:7px;}
+    .levelSelectCard{
+      width:calc(100vw - 14px);
+      max-height:calc(var(--app-height,100dvh) - 14px);
+      padding:17px 13px 14px;
     }
-    .bottom{
+    .levelGrid{gap:8px;}
+    .levelCard{min-height:132px;padding:12px 10px 11px;}
+    .levelName{font-size:14px;}
+    .levelMeta{font-size:9.8px;}
+  }
+  @media (max-width:350px){
+    .levelGrid{grid-template-columns:1fr;}
+    .levelCard.endlessCard{grid-column:auto;}
+  }
+
+
+  /* Final gameplay visibility fixes: keep Fever and items out of the command and button field. */
+  .feverBanner{
+    left:auto;
+    right:12px;
+    top:266px;
+    width:auto;
+    min-width:128px;
+    height:28px;
+    padding:0 14px;
+    transform:translateY(-8px) scale(.96);
+  }
+  .phone.frenzy .feverBanner{
+    transform:translateY(0) scale(1);
+  }
+  @media (min-width:700px){
+    .feverBanner{top:270px;right:24px;}
+    .itemDock{
+      top:266px!important;
+      bottom:auto!important;
+      left:24px!important;
       gap:4px;
       padding:4px;
     }
-    .bottom .ctrl{
-      min-height:32px;
-      padding:0 5px;
-      font-size:9px;
+    .itemBtn{width:38px;height:38px;font-size:12px;}
+  }
+  @media (max-height:760px){
+    .feverBanner{top:246px;}
+  }
+  @media (max-width:430px) and (max-height:680px){
+    .feverBanner{top:230px;}
+  }
+  @media (min-width:700px) and (max-height:600px){
+    .feverBanner{top:211px;right:22px;}
+    .itemDock{
+      top:209px!important;
+      left:22px!important;
+      gap:3px;
+      padding:3px;
     }
-    .bottom .powerBtn{
-      padding:0 5px;
-      font-size:8px;
+    .itemBtn{width:32px;height:32px;font-size:10px;}
+    .itemCount{min-width:14px;height:14px;font-size:8px;}
+  }
+  @media (max-width:699px){
+    .itemDock{
+      top:262px!important;
+      bottom:auto!important;
     }
   }
-  @media (min-width:420px) and (max-width:699px) and (orientation:portrait){
-    .machine{
-      top:clamp(210px, 24.5dvh, 232px);
+  @media (max-width:699px) and (max-height:760px){
+    .itemDock{top:242px!important;}
+  }
+  @media (max-width:430px) and (max-height:680px){
+    .itemDock{top:226px!important;}
+  }
+
+
+  /* Keep temporary run UI in dedicated side space instead of covering commands or controls. */
+  .feverBanner{display:none!important;}
+  @media (max-width:699px){
+    .itemDock{
+      top:320px!important;
+      bottom:auto!important;
+      left:8px!important;
+      flex-direction:column;
+      gap:5px;
+      padding:5px;
     }
-    .instruction{
-      min-height:clamp(54px, 7.5dvh, 68px);
+    .phone.hasItemDock .buttonZone{left:60px!important;}
+  }
+  @media (max-width:699px) and (max-height:760px){
+    .itemDock{top:299px!important;}
+  }
+  @media (max-width:430px) and (max-height:680px){
+    .itemDock{top:278px!important;}
+  }
+  @media (min-width:700px){
+    .itemDock{
+      top:322px!important;
+      bottom:auto!important;
+      left:24px!important;
+      flex-direction:column;
+      gap:4px;
+      padding:4px;
     }
-    .bottom .ctrl{
-      font-size:11px;
+    .phone.hasItemDock .buttonZone{left:60px!important;}
+  }
+  @media (min-width:700px) and (max-height:600px){
+    .itemDock{
+      top:255px!important;
+      left:24px!important;
+      gap:3px;
+      padding:3px;
     }
+    .phone.hasItemDock .buttonZone{left:56px!important;}
   }
 
 </style>
@@ -2490,13 +2539,23 @@
         <div class="walletLine" id="startCoins">Coins: 0</div>
         <div class="upgradeStatus" id="upgradeStatus"></div>
         <div class="taskStatus" id="taskStatus"></div>
-        <button class="bigBtn" id="startBtn">PLAY</button>
+        <button class="bigBtn" id="startBtn">LEVEL SELECT</button>
+        <button class="bigBtn endlessStartBtn" id="endlessBtn">ENDLESS MODE</button>
         <div class="startQuickActions">
           <button class="bigBtn quickBtn" id="shopBtn">UPGRADES</button>
           <button class="bigBtn quickBtn" id="demoBtn">HOW TO PLAY</button>
           <button class="bigBtn quickBtn" id="settingsBtn">SETTINGS</button>
         </div>
         <div class="smallText">Survive the meltdown. Upgrade the console. Push deeper into overdrive.</div>
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="levelOverlay">
+      <div class="card levelSelectCard">
+        <h1>SELECT LEVEL</h1>
+        <p class="levelSelectIntro">Five campaign levels increase from Easy to Extreme. Each contains 10 rounds, with a checkpoint at round 6. Endless Mode is available from the start.</p>
+        <div class="levelGrid" id="levelGrid"></div>
+        <button class="bigBtn" id="levelBackBtn">BACK</button>
       </div>
     </div>
 
@@ -2560,6 +2619,7 @@
             <button class="bigBtn" id="pauseRestartBtn">RESTART RUN</button>
             <button class="bigBtn" id="pauseSettingsBtn">SETTINGS</button>
             <button class="bigBtn" id="pauseDemoBtn">HOW TO PLAY</button>
+            <button class="bigBtn pauseLevelSelectBtn" id="pauseLevelSelectBtn">LEVEL SELECT</button>
             <button class="bigBtn pauseQuitBtn" id="pauseQuitBtn">QUIT &amp; CASH OUT</button>
           </div>
         </div>
@@ -2588,8 +2648,9 @@
       <div class="card">
         <h1 id="endTitle">REACTOR MELTDOWN</h1>
         <p id="endStats"></p>
-        <button class="bigBtn" id="endShopBtn">UPGRADE CONSOLE</button>
         <button class="bigBtn" id="againBtn">TRY AGAIN</button>
+        <button class="bigBtn" id="endShopBtn">UPGRADE CONSOLE</button>
+        <button class="bigBtn hidden" id="levelSelectEndBtn">LEVEL SELECT</button>
       </div>
     </div>
   </main>
@@ -2658,9 +2719,15 @@
   const pauseRestartBtn = document.getElementById('pauseRestartBtn');
   const pauseSettingsBtn = document.getElementById('pauseSettingsBtn');
   const pauseDemoBtn = document.getElementById('pauseDemoBtn');
+  const pauseLevelSelectBtn = document.getElementById('pauseLevelSelectBtn');
   const pauseQuitBtn = document.getElementById('pauseQuitBtn');
   const resumeCountdownOverlay = document.getElementById('resumeCountdownOverlay');
   const countdownNumber = document.getElementById('countdownNumber');
+  const endlessBtn = document.getElementById('endlessBtn');
+  const levelOverlay = document.getElementById('levelOverlay');
+  const levelGrid = document.getElementById('levelGrid');
+  const levelBackBtn = document.getElementById('levelBackBtn');
+  const levelSelectEndBtn = document.getElementById('levelSelectEndBtn');
 
   const colors = ['green','red','blue','yellow','purple','orange','black'];
   const colorCN = {
@@ -2709,6 +2776,13 @@
     lowStabilityAssistThreshold:25,
     lowStabilityTimeMultiplier:1.1
   };
+  const LEVELS = [
+    {id:1, name:'BOOT SEQUENCE', difficulty:'EASY', startRound:1, endRound:10, reward:20, summary:'Color commands and flashing controls.'},
+    {id:2, name:'ALARM SURGE', difficulty:'NORMAL', startRound:11, endRound:20, reward:30, summary:'Text traps, size checks, and moving targets.'},
+    {id:3, name:'REACTOR PRESSURE', difficulty:'HARD', startRound:21, endRound:30, reward:40, summary:'Mixed rules under rising pressure.'},
+    {id:4, name:'SYSTEM CHAOS', difficulty:'EXPERT', startRound:31, endRound:40, reward:55, summary:'Faster combinations and deceptive signals.'},
+    {id:5, name:'OVERDRIVE CORE', difficulty:'EXTREME', startRound:41, endRound:50, reward:75, summary:'The full high-pressure control test.'}
+  ];
   const UPGRADES = {
     capacitor:{
       name:'Stability Capacitor',
@@ -2808,7 +2882,8 @@
     highContrast:false,
     demoSeen:false,
     dailyLastClaimed:'',
-    progress:{dailyDate:'', dailyGames:0, dailyCorrect:0, dailyBestCombo:0, dailyFrenzy:0, dailyClaimed:{}, achievements:{}, totalGames:0, totalCorrect:0, totalFrenzy:0}
+    campaign:{unlockedLevel:1, completed:{}, bestLocalRound:{}, checkpoints:{}, endlessUnlocked:true},
+    progress:{dailyDate:'', dailyGames:0, dailyCorrect:0, dailyBestCombo:0, dailyFrenzy:0, dailyClaimed:{}, achievements:{}, totalGames:0, totalCorrect:0, totalFrenzy:0, bestRoundAllModes:0, bestComboAllModes:0}
   };
   const saveData = loadSave();
   let audioCtx = null;
@@ -2864,7 +2939,13 @@
     taskRewardLinesThisRun:[],
     correctPressesThisRun:0,
     roundInputLockedUntil:0,
-    lastFailureReason:'System stability hit zero'
+    lastFailureReason:'System stability hit zero',
+    mode:'campaign',
+    selectedLevel:1,
+    levelStartRound:1,
+    levelEndRound:10,
+    checkpointRound:1,
+    levelCompleted:false
   };
 
   function rand(min,max){return Math.random()*(max-min)+min}
@@ -2872,6 +2953,153 @@
   function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
   function shuffle(arr){return arr.sort(()=>Math.random()-.5)}
   function clamp(n,min,max){return Math.max(min, Math.min(max, n))}
+
+
+  function getLevelConfig(levelId=state.selectedLevel){
+    return LEVELS.find(level => level.id === Number(levelId)) || LEVELS[0];
+  }
+
+  function isCampaignMode(){
+    return state.mode === 'campaign';
+  }
+
+  function getLocalRound(globalRound=state.round){
+    if(!isCampaignMode()) return globalRound;
+    return clamp(globalRound - state.levelStartRound + 1, 0, 10);
+  }
+
+  function getCompletedRunRounds(){
+    if(!isCampaignMode()) return Math.max(0, state.round);
+    if(state.levelCompleted) return 10;
+    return clamp(getLocalRound() - 1, 0, 10);
+  }
+
+  function hasMeaningfulRunProgress(){
+    if(state.lastFailureReason === 'Operator ended the run' && state.correctPressesThisRun <= 0 && state.score <= 0) return false;
+    return getCompletedRunRounds() > 0 || state.correctPressesThisRun > 0 || state.score > 0 || state.frenzyCountThisRun > 0;
+  }
+
+  function getCampaignBestGlobalRound(){
+    const campaign = saveData.campaign || defaultSave.campaign;
+    return LEVELS.reduce((best, level) => {
+      const key = String(level.id);
+      const localBest = campaign.completed?.[key] === true
+        ? 10
+        : clamp(Number(campaign.bestLocalRound?.[key]) || 0, 0, 9);
+      if(localBest <= 0) return best;
+      return Math.max(best, level.startRound + localBest - 1);
+    }, 0);
+  }
+
+  function getSavedCheckpointLocal(levelId){
+    const key = String(levelId);
+    if(saveData.campaign?.completed?.[key] === true) return 1;
+    return Number(saveData.campaign?.checkpoints?.[key]) >= 6 ? 6 : 1;
+  }
+
+  function updateCampaignButtons(){
+    if(endlessBtn){
+      endlessBtn.disabled = false;
+      endlessBtn.textContent = 'ENDLESS MODE';
+      endlessBtn.title = 'Start the original endless run';
+    }
+  }
+
+  function renderLevelSelect(){
+    if(!levelGrid) return;
+    levelGrid.innerHTML = '';
+    const campaign = saveData.campaign || defaultSave.campaign;
+    LEVELS.forEach(level => {
+      const unlocked = level.id <= campaign.unlockedLevel;
+      const completed = campaign.completed[String(level.id)] === true;
+      const key = String(level.id);
+      const best = clamp(Number(campaign.bestLocalRound[key]) || 0, 0, 10);
+      const checkpointLocal = completed ? 1 : (Number(campaign.checkpoints?.[key]) >= 6 ? 6 : 1);
+      const card = document.createElement('div');
+      card.className = `levelCard${completed ? ' completed' : ''}${unlocked ? '' : ' locked'}`;
+      card.innerHTML = `
+        ${completed ? '<span class="levelCompleteMark">CLEARED</span>' : ''}
+        <div class="levelNumber">LEVEL ${level.id}</div>
+        <div class="levelName">${level.name}</div>
+        <div class="levelMeta">${level.difficulty} · ${level.summary}</div>
+        <div class="levelStatus"><span>Best ${best}/10</span><span>First clear +${level.reward}</span></div>
+      `;
+      const button = document.createElement('button');
+      button.className = 'levelPlayBtn';
+      button.type = 'button';
+      button.disabled = !unlocked;
+      button.textContent = unlocked
+        ? (completed ? 'PLAY AGAIN' : checkpointLocal === 6 ? 'CONTINUE ROUND 6' : 'START LEVEL')
+        : 'LOCKED';
+      button.addEventListener('click', () => startCampaignLevel(level.id));
+      card.appendChild(button);
+      levelGrid.appendChild(card);
+    });
+
+    const endlessCard = document.createElement('div');
+    endlessCard.className = 'levelCard endlessCard';
+    endlessCard.innerHTML = `
+      <div class="levelNumber">ORIGINAL MODE</div>
+      <div class="levelName">ENDLESS MELTDOWN</div>
+      <div class="levelMeta">Always available. Survive as long as possible and chase records.</div>
+      <div class="levelStatus"><span>Best round ${saveData.bestRound}</span><span>UNLOCKED</span></div>
+    `;
+    const endlessPlay = document.createElement('button');
+    endlessPlay.className = 'levelPlayBtn';
+    endlessPlay.type = 'button';
+    endlessPlay.disabled = false;
+    endlessPlay.textContent = 'PLAY ENDLESS';
+    endlessPlay.addEventListener('click', startEndlessMode);
+    endlessCard.appendChild(endlessPlay);
+    levelGrid.appendChild(endlessCard);
+  }
+
+  let levelOverlayReturnToEnd = false;
+
+  function openLevelSelect(returnToEnd=false){
+    levelOverlayReturnToEnd = !!returnToEnd;
+    renderLevelSelect();
+    startOverlay.classList.add('hidden');
+    endOverlay.classList.add('hidden');
+    levelOverlay.classList.remove('hidden');
+  }
+
+  function closeLevelSelect(){
+    levelOverlay.classList.add('hidden');
+    if(levelOverlayReturnToEnd){
+      endOverlay.classList.remove('hidden');
+    }else{
+      startOverlay.classList.remove('hidden');
+    }
+    levelOverlayReturnToEnd = false;
+  }
+
+  function startCampaignLevel(levelId){
+    const level = getLevelConfig(levelId);
+    if(level.id > (saveData.campaign?.unlockedLevel || 1)) return;
+    state.mode = 'campaign';
+    state.selectedLevel = level.id;
+    state.levelStartRound = level.startRound;
+    state.levelEndRound = level.endRound;
+    const checkpointLocal = getSavedCheckpointLocal(level.id);
+    state.checkpointRound = level.startRound + checkpointLocal - 1;
+    levelOverlay.classList.add('hidden');
+    resetState({mode:'campaign', levelId:level.id, startRound:state.checkpointRound});
+  }
+
+  function startEndlessMode(){
+    state.mode = 'endless';
+    levelOverlay.classList.add('hidden');
+    resetState({mode:'endless', startRound:1, fresh:true});
+  }
+
+  function restartCurrentRun(){
+    if(isCampaignMode()){
+      resetState({mode:'campaign', levelId:state.selectedLevel, startRound:state.checkpointRound || state.levelStartRound});
+    }else{
+      resetState({mode:'endless', startRound:1});
+    }
+  }
 
   function callCrazyGameplayStop(){
     try{
@@ -2917,6 +3145,21 @@
         dailyClaimed:{...defaultSave.progress.dailyClaimed, ...((parsed.progress || {}).dailyClaimed || {})},
         achievements:{...defaultSave.progress.achievements, ...((parsed.progress || {}).achievements || {})}
       };
+      const parsedCampaign = parsed.campaign || {};
+      const campaign = {
+        ...defaultSave.campaign,
+        ...parsedCampaign,
+        unlockedLevel:clamp(Number(parsedCampaign.unlockedLevel) || 1, 1, LEVELS.length),
+        completed:{...defaultSave.campaign.completed, ...(parsedCampaign.completed || {})},
+        bestLocalRound:{...defaultSave.campaign.bestLocalRound, ...(parsedCampaign.bestLocalRound || {})},
+        checkpoints:{...defaultSave.campaign.checkpoints, ...(parsedCampaign.checkpoints || {})}
+      };
+      LEVELS.forEach(level => {
+        const key = String(level.id);
+        const stored = Number(campaign.checkpoints[key]) || 1;
+        campaign.checkpoints[key] = stored >= 6 ? 6 : 1;
+      });
+      campaign.endlessUnlocked = true;
       return {
         ...defaultSave,
         ...parsed,
@@ -2927,6 +3170,7 @@
         upgrades,
         items,
         cosmetics:{...defaultSave.cosmetics, ...(parsed.cosmetics || {})},
+        campaign,
         progress,
         soundOn:parsed.soundOn !== false,
         vibrationOn:parsed.vibrationOn !== false,
@@ -3101,6 +3345,7 @@
     if(!itemDock) return;
     const keys = getQuickItemKeys();
     const visible = state.running && keys.length > 0;
+    phone.classList.toggle('hasItemDock', visible);
     const signature = JSON.stringify({
       visible,
       paused:state.paused,
@@ -3278,11 +3523,13 @@
 
   function getAchievements(){
     const p = saveData.progress || createDefaultSave().progress;
+    const lifetimeRound = Math.max(saveData.bestRound || 0, p.bestRoundAllModes || 0, getCampaignBestGlobalRound());
+    const lifetimeCombo = Math.max(saveData.bestCombo || 0, p.bestComboAllModes || 0);
     return [
-      {key:'round50', name:'Reach round 50', value:saveData.bestRound, goal:50, reward:30},
-      {key:'round100', name:'Reach round 100', value:saveData.bestRound, goal:100, reward:80},
+      {key:'round50', name:'Reach round 50', value:lifetimeRound, goal:50, reward:30},
+      {key:'round100', name:'Reach round 100', value:lifetimeRound, goal:100, reward:80},
       {key:'coins1000', name:'Hold 1,000 coins', value:saveData.coins, goal:1000, reward:60},
-      {key:'combo30', name:'Reach a 30 combo', value:saveData.bestCombo, goal:30, reward:40},
+      {key:'combo30', name:'Reach a 30 combo', value:lifetimeCombo, goal:30, reward:40},
       {key:'correct500', name:'Hit 500 correct buttons', value:p.totalCorrect || 0, goal:500, reward:80}
     ];
   }
@@ -3329,6 +3576,9 @@
   function processTasksAndAchievements(){
     ensureProgressToday();
     const p = saveData.progress;
+    const meaningfulRun = hasMeaningfulRunProgress();
+    if(!meaningfulRun) return {coins:0, lines:[]};
+
     p.dailyGames += 1;
     p.dailyCorrect += state.correctPressesThisRun;
     p.dailyBestCombo = Math.max(p.dailyBestCombo || 0, state.maxCombo);
@@ -3336,6 +3586,12 @@
     p.totalGames = (p.totalGames || 0) + 1;
     p.totalCorrect = (p.totalCorrect || 0) + state.correctPressesThisRun;
     p.totalFrenzy = (p.totalFrenzy || 0) + state.frenzyCountThisRun;
+    p.bestComboAllModes = Math.max(p.bestComboAllModes || 0, state.maxCombo);
+    const completedRounds = getCompletedRunRounds();
+    const completedGlobalRound = isCampaignMode()
+      ? (completedRounds > 0 ? state.levelStartRound + completedRounds - 1 : 0)
+      : Math.max(0, state.round);
+    p.bestRoundAllModes = Math.max(p.bestRoundAllModes || 0, completedGlobalRound);
 
     let coins = 0;
     const lines = [];
@@ -3436,7 +3692,6 @@
       if(b.isForbidden) markButtonGlow(b.el, 'danger', BALANCE.answerRevealMs);
       else if(b.isTarget && b.el && !b.el.classList.contains('pressed')) markButtonGlow(b.el, 'correct', BALANCE.answerRevealMs);
     });
-    showMechanicToast(getCorrectAnswerText());
   }
 
   function describeWrongPress(btn){
@@ -3581,10 +3836,11 @@
 
 
   function estimateRunCoins(){
-    let coins = Math.floor(state.score / 500) + Math.floor(state.round / 5) + state.frenzyCountThisRun * 2;
+    const progressRounds = getCompletedRunRounds();
+    let coins = Math.floor(state.score / 500) + Math.floor(progressRounds / 5) + state.frenzyCountThisRun * 2;
     coins = Math.ceil(coins * (1 + getUpgradeLevel('magnet') * .1));
-    if(state.round <= 5) coins = Math.max(coins, BALANCE.earlyMinCoins);
-    else if(state.round <= 15) coins = Math.max(coins, BALANCE.midMinCoins);
+    if(progressRounds <= 5) coins = Math.max(coins, BALANCE.earlyMinCoins);
+    else if(progressRounds <= 15) coins = Math.max(coins, BALANCE.midMinCoins);
     if(saveData.dailyLastClaimed !== getTodayKey()) coins += BALANCE.dailyBonusCoins;
     return Math.max(0, Math.min(BALANCE.coinCap, coins));
   }
@@ -3601,7 +3857,7 @@
   function updatePauseStats(){
     if(!pauseStats) return;
     pauseStats.innerHTML = `
-      <div class="pauseStat"><b>${state.round}</b><span>ROUND</span></div>
+      <div class="pauseStat"><b>${isCampaignMode() ? `${getLocalRound()}/10` : state.round}</b><span>${isCampaignMode() ? `LEVEL ${state.selectedLevel}` : 'ROUND'}</span></div>
       <div class="pauseStat"><b>${state.score}</b><span>SCORE</span></div>
       <div class="pauseStat"><b>${state.combo}</b><span>COMBO</span></div>
       <div class="pauseStat"><b>${Math.round(state.stability)}%</b><span>STABILITY</span></div>
@@ -3690,7 +3946,25 @@
     hidePauseOverlay();
     resumeCountdownOverlay.classList.add('hidden');
     clearInterval(resumeCountdownTimer);
-    resetState();
+    restartCurrentRun();
+  }
+
+  function abandonToLevelSelect(){
+    hidePauseOverlay();
+    resumeCountdownOverlay.classList.add('hidden');
+    clearInterval(resumeCountdownTimer);
+    state.paused = false;
+    state.running = false;
+    state.resolving = false;
+    pauseBtn.textContent = 'PAUSE';
+    callCrazyGameplayStop();
+    cancelAnimationFrame(state.raf);
+    clearZone();
+    phone.classList.remove('frenzy','lowStability','shock','dangerFlash','shortCircuit','slowMotion','timerFrozen','itemShielded');
+    if(isCampaignMode()) updateCampaignProgress(false);
+    reviveOverlay.classList.add('hidden');
+    endOverlay.classList.add('hidden');
+    openLevelSelect(false);
   }
 
   function quitAndCashOut(){
@@ -3703,8 +3977,26 @@
     endGame();
   }
 
-  function resetState(){
+  function resetState(options={}){
     cancelAutoDemo();
+    const requestedMode = options.mode || state.mode || 'campaign';
+    state.mode = requestedMode;
+    if(requestedMode === 'campaign'){
+      const level = getLevelConfig(options.levelId || state.selectedLevel || 1);
+      state.selectedLevel = level.id;
+      state.levelStartRound = level.startRound;
+      state.levelEndRound = level.endRound;
+      if(options.fresh) state.checkpointRound = level.startRound;
+      const requestedStart = clamp(Number(options.startRound) || state.checkpointRound || level.startRound, level.startRound, level.endRound);
+      state.round = requestedStart - 1;
+    }else{
+      state.selectedLevel = 0;
+      state.levelStartRound = 1;
+      state.levelEndRound = Infinity;
+      state.checkpointRound = 1;
+      state.round = Math.max(0, (Number(options.startRound) || 1) - 1);
+    }
+    state.levelCompleted=false;
     state.running=true;
     state.paused=false;
     state.resolving=false;
@@ -3714,7 +4006,6 @@
     state.maxCombo=0;
     state.maxStability=100 + getUpgradeLevel('capacitor') * 5;
     state.stability=state.maxStability;
-    state.round=0;
     state.timeLimit=3600;
     state.targets.clear();
     state.buttons=[];
@@ -3747,6 +4038,7 @@
     updateHud();
     endOverlay.classList.add('hidden');
     startOverlay.classList.add('hidden');
+    levelOverlay.classList.add('hidden');
     shopOverlay.classList.add('hidden');
     demoOverlay.classList.add('hidden');
     settingsOverlay.classList.add('hidden');
@@ -3770,7 +4062,7 @@
   function updateHud(){
     scoreEl.textContent=state.score;
     comboEl.textContent=state.combo;
-    roundEl.textContent=state.round;
+    roundEl.textContent=isCampaignMode() ? `${getLocalRound()}/10` : state.round;
     frenzyEnergyEl.textContent = state.frenzy ? 'FEVER' : `${state.frenzyEnergy} / 8`;
     stabilityText.textContent=`${Math.round(state.stability)}%`;
     stabilityFill.style.transform=`scaleX(${clamp(state.stability / state.maxStability, 0, 1)})`;
@@ -3864,7 +4156,6 @@
       state.itemShieldActive = false;
       phone.classList.remove('itemShielded');
       showFeedback('Shield blocked the hit', 'warn');
-      showMechanicToast('Shield consumed: no stability lost');
     }else if(!isTimeout && getUpgradeLevel('fuse') > 0 && !state.fuseUsedThisRun){
       actualDamage = BALANCE.fuseWrongDamage;
       state.fuseUsedThisRun = true;
@@ -4378,7 +4669,11 @@
       state.score += timeBonus;
       updateHud();
       updatePowerButtons();
-      setTimeout(nextRound, state.frenzy ? 230 : 330);
+      if(isCampaignMode() && state.round >= state.levelEndRound){
+        setTimeout(completeLevel, state.frenzy ? 260 : 380);
+      }else{
+        setTimeout(nextRound, state.frenzy ? 230 : 330);
+      }
     }
   }
 
@@ -4449,6 +4744,17 @@
     state.resolving=false;
     clearZone();
     state.round++;
+    if(isCampaignMode() && state.round > state.levelEndRound){
+      completeLevel();
+      return;
+    }
+    if(isCampaignMode() && getLocalRound() === 6 && state.checkpointRound < state.round){
+      state.checkpointRound = state.round;
+      const key = String(state.selectedLevel);
+      saveData.campaign.checkpoints[key] = 6;
+      saveGame();
+      showMechanicToast('CHECKPOINT ACTIVE: retry starts at Round 6');
+    }
 
     const config = getRoundConfig();
     state.timeLimit = config.time;
@@ -4458,7 +4764,9 @@
     state.rule = rule;
 
     instructionEl.textContent = getThemedRuleText(rule);
-    subTipEl.textContent = `Round ${state.round}  | ${getRank(state.round)} | ${getStageSubTip(state.round, rule.sub)}`;
+    subTipEl.textContent = isCampaignMode()
+      ? `Level ${state.selectedLevel} | Round ${getLocalRound()}/10 | ${getLevelConfig().name} | ${getStageSubTip(state.round, rule.sub)}`
+      : `Round ${state.round} | ${getRank(state.round)} | ${getStageSubTip(state.round, rule.sub)}`;
     renderButtons(btns, rule);
     updateHud();
     showMechanicToast(getMechanicIntro(state.round));
@@ -4513,10 +4821,12 @@
   }
 
   function calculateCoins(recordFlags={}){
-    let coins = Math.floor(state.score / 500) + Math.floor(state.round / 5) + state.frenzyCountThisRun * 2;
+    const progressRounds = getCompletedRunRounds();
+    if(!hasMeaningfulRunProgress()) return 0;
+    let coins = Math.floor(state.score / 500) + Math.floor(progressRounds / 5) + state.frenzyCountThisRun * 2;
     coins = Math.ceil(coins * (1 + getUpgradeLevel('magnet') * .1));
-    if(state.round <= 5) coins = Math.max(coins, BALANCE.earlyMinCoins);
-    else if(state.round <= 15) coins = Math.max(coins, BALANCE.midMinCoins);
+    if(progressRounds > 0 && progressRounds <= 5) coins = Math.max(coins, BALANCE.earlyMinCoins);
+    else if(progressRounds > 5 && progressRounds <= 15) coins = Math.max(coins, BALANCE.midMinCoins);
     if(recordFlags.newScore || recordFlags.newRound || recordFlags.newCombo) coins += BALANCE.recordBonusCoins;
     coins += Math.max(0, Math.floor(state.paceBonusCoins) || 0);
     const today = getTodayKey();
@@ -4535,6 +4845,9 @@
       round:saveData.bestRound,
       combo:saveData.bestCombo
     };
+    if(isCampaignMode()){
+      return {prev, newScore:false, newRound:false, newCombo:false};
+    }
     const newScore = state.score > saveData.bestScore;
     const newRound = state.round > saveData.bestRound;
     const newCombo = state.maxCombo > saveData.bestCombo;
@@ -4552,7 +4865,8 @@
   }
 
   function tryRevive(){
-    if(state.round < BALANCE.reviveRound || state.revivedThisRun || saveData.coins < BALANCE.reviveCost) return false;
+    const reviveProgressRound = isCampaignMode() ? getLocalRound() : state.round;
+    if(reviveProgressRound < BALANCE.reviveRound || state.revivedThisRun || saveData.coins < BALANCE.reviveCost) return false;
     state.running=false;
     state.resolving=true;
     cancelAnimationFrame(state.raf);
@@ -4565,7 +4879,7 @@
     if(!spendCoins(BALANCE.reviveCost)) return;
     state.revivedThisRun=true;
     state.running=true;
-    state.resolving=false;
+    state.resolving=true;
     state.stability=BALANCE.reviveStability;
     state.combo=0;
     state.streak=0;
@@ -4575,6 +4889,7 @@
     reviveOverlay.classList.add('hidden');
     showFeedback('Emergency reboot', 'warn');
     updateHud();
+    if(isCampaignMode()) state.round = Math.max(state.levelStartRound - 1, state.round - 1);
     setTimeout(nextRound, 300);
   }
 
@@ -4620,9 +4935,30 @@
     return `<div class="endAdvice">${recordLine}${dailyLine}${paceLine}${dropLine}${taskLine}${upgradeLine}</div>${buildNextGoal()}`;
   }
 
-  function endGame(){
+  function updateCampaignProgress(levelComplete){
+    if(!isCampaignMode()) return {firstClearBonus:0, firstClear:false};
+    const level = getLevelConfig();
+    const key = String(level.id);
+    const completedRounds = levelComplete ? 10 : clamp(getLocalRound() - 1, 0, 9);
+    saveData.campaign.bestLocalRound[key] = Math.max(Number(saveData.campaign.bestLocalRound[key]) || 0, completedRounds);
+    let firstClear = false;
+    let firstClearBonus = 0;
+    if(levelComplete){
+      firstClear = saveData.campaign.completed[key] !== true;
+      saveData.campaign.completed[key] = true;
+      saveData.campaign.checkpoints[key] = 1;
+      saveData.campaign.unlockedLevel = Math.max(saveData.campaign.unlockedLevel || 1, Math.min(LEVELS.length, level.id + 1));
+      if(firstClear) firstClearBonus = level.reward;
+    }
+    saveGame();
+    updateCampaignButtons();
+    return {firstClearBonus, firstClear};
+  }
+
+  function finishRun(levelComplete=false){
     state.running=false;
     state.resolving=false;
+    state.levelCompleted=!!levelComplete;
     callCrazyGameplayStop();
     cancelAnimationFrame(state.raf);
     clearZone();
@@ -4633,25 +4969,80 @@
     exitFrenzy();
     phone.classList.remove('slowMotion','timerFrozen','itemShielded');
     updateHud();
+
+    const campaignResult = updateCampaignProgress(levelComplete);
     const recordFlags = updateRecords();
-    state.coinsEarnedThisRun = calculateCoins(recordFlags);
+    const baseRunCoins = calculateCoins(recordFlags);
     const rewardResult = processTasksAndAchievements();
     state.taskRewardCoinsThisRun = rewardResult.coins;
     state.taskRewardLinesThisRun = rewardResult.lines;
-    state.coinsEarnedThisRun += state.taskRewardCoinsThisRun;
+    state.coinsEarnedThisRun = baseRunCoins + campaignResult.firstClearBonus + state.taskRewardCoinsThisRun;
     addCoins(state.coinsEarnedThisRun);
     saveGame();
+
     const {prev, newScore, newRound, newCombo} = recordFlags;
     const recordText = (newScore || newRound || newCombo) ? '<div class="recordNote">New record!</div>' : '';
-    endTitle.textContent = getGameOverTitle(state.round);
-    endStats.innerHTML = `Reactor status: <b class="redText">${state.lastFailureReason}</b><br>
-      Coins earned: <b class="greenText">${state.coinsEarnedThisRun}</b> | Total coins: <b>${saveData.coins}</b><br>
-      Score: <b class="greenText">${state.score}</b> | Best score: <b>${saveData.bestScore}</b>${newScore ? ` <span class="greenText">+${state.score - prev.score}</span>` : ''}<br>
-      Rank: <b>${getRank(state.round)}</b><br>
-      Reached round <b>${state.round}</b>  | Best round: <b>${saveData.bestRound}</b>${newRound ? ` <span class="greenText">+${state.round - prev.round}</span>` : ''}<br>
-      Best combo this run: <b>${state.maxCombo}</b> | Best combo: <b>${saveData.bestCombo}</b>${newCombo ? ` <span class="greenText">+${state.maxCombo - prev.combo}</span>` : ''}<br>
-      System stability: <b class="redText">${Math.round(state.stability)}%</b>${recordText}${buildEndAdvice(recordFlags)}`;
+    levelSelectEndBtn.classList.remove('hidden');
+
+    if(isCampaignMode()){
+      const level = getLevelConfig();
+      const localRound = getLocalRound();
+      if(levelComplete){
+        endTitle.textContent = `LEVEL ${level.id} COMPLETE`;
+        const unlockText = level.id < LEVELS.length
+          ? `Level ${level.id + 1} unlocked.`
+          : 'All five campaign levels cleared.';
+        const firstClearText = campaignResult.firstClear
+          ? `First-clear bonus: <b class="greenText">+${campaignResult.firstClearBonus}</b>`
+          : 'First-clear bonus: <b>already claimed</b>';
+        const taskRewardText = state.taskRewardCoinsThisRun > 0
+          ? `<br>Task and achievement rewards: <b class="greenText">+${state.taskRewardCoinsThisRun}</b>`
+          : '';
+        endStats.innerHTML = `<b class="greenText">${level.name}</b> stabilized.<br>
+          Score: <b>${state.score}</b> | Best combo: <b>${state.maxCombo}</b><br>
+          Base run coins: <b>${baseRunCoins}</b><br>
+          ${firstClearText}${taskRewardText}<br>
+          Total earned: <b class="greenText">${state.coinsEarnedThisRun} Coins</b><br>
+          <div class="campaignResult"><b>${unlockText}</b><br>Checkpoint cleared: 10/10 rounds.</div>${recordText}`;
+        if(level.id < LEVELS.length){
+          againBtn.textContent = `NEXT: LEVEL ${level.id + 1}`;
+        }else{
+          againBtn.textContent = 'PLAY ENDLESS';
+        }
+      }else{
+        endTitle.textContent = 'LEVEL FAILED';
+        const retryLocal = state.checkpointRound > state.levelStartRound ? 6 : 1;
+        endStats.innerHTML = `Level: <b>${level.id} - ${level.name}</b><br>
+          Reached: <b class="greenText">${Math.max(1,localRound)}/10</b> | Checkpoint: <b>Round ${retryLocal}</b><br>
+          Reactor status: <b class="redText">${state.lastFailureReason}</b><br>
+          Coins earned: <b class="greenText">${state.coinsEarnedThisRun}</b> | Total coins: <b>${saveData.coins}</b><br>
+          Score: <b>${state.score}</b> | Best combo: <b>${state.maxCombo}</b>
+          <div class="campaignResult">Retry begins at Round ${retryLocal}. Level progress and upgrades are saved.</div>${recordText}`;
+        againBtn.textContent = retryLocal === 6 ? 'RETRY FROM ROUND 6' : 'RETRY LEVEL';
+      }
+    }else{
+      endTitle.textContent = getGameOverTitle(state.round);
+      endStats.innerHTML = `Reactor status: <b class="redText">${state.lastFailureReason}</b><br>
+        Coins earned: <b class="greenText">${state.coinsEarnedThisRun}</b> | Total coins: <b>${saveData.coins}</b><br>
+        Score: <b class="greenText">${state.score}</b> | Best score: <b>${saveData.bestScore}</b>${newScore ? ` <span class="greenText">+${state.score - prev.score}</span>` : ''}<br>
+        Rank: <b>${getRank(state.round)}</b><br>
+        Reached round <b>${state.round}</b> | Best round: <b>${saveData.bestRound}</b>${newRound ? ` <span class="greenText">+${state.round - prev.round}</span>` : ''}<br>
+        Best combo this run: <b>${state.maxCombo}</b> | Best combo: <b>${saveData.bestCombo}</b>${newCombo ? ` <span class="greenText">+${state.maxCombo - prev.combo}</span>` : ''}<br>
+        System stability: <b class="redText">${Math.round(state.stability)}%</b>${recordText}${buildEndAdvice(recordFlags)}`;
+      againBtn.textContent = 'TRY AGAIN';
+    }
     endOverlay.classList.remove('hidden');
+    renderLevelSelect();
+  }
+
+  function completeLevel(){
+    if(!isCampaignMode() || state.levelCompleted) return;
+    state.lastFailureReason = 'Level complete';
+    finishRun(true);
+  }
+
+  function endGame(){
+    finishRun(false);
   }
 
   function togglePause(){
@@ -4660,14 +5051,25 @@
     else pauseGame(true);
   }
 
-  startBtn.addEventListener('click', resetState);
-  againBtn.addEventListener('click', resetState);
-  restartBtn.addEventListener('click', resetState);
+  startBtn.addEventListener('click', () => openLevelSelect(false));
+  endlessBtn.addEventListener('click', startEndlessMode);
+  levelBackBtn.addEventListener('click', closeLevelSelect);
+  levelSelectEndBtn.addEventListener('click', () => openLevelSelect(true));
+  againBtn.addEventListener('click', () => {
+    if(isCampaignMode() && state.levelCompleted){
+      if(state.selectedLevel < LEVELS.length) startCampaignLevel(state.selectedLevel + 1);
+      else startEndlessMode();
+      return;
+    }
+    restartCurrentRun();
+  });
+  restartBtn.addEventListener('click', restartCurrentRun);
   pauseBtn.addEventListener('click', togglePause);
   pauseResumeBtn.addEventListener('click', startResumeCountdown);
   pauseRestartBtn.addEventListener('click', restartFromPause);
   pauseSettingsBtn.addEventListener('click', openPauseSettings);
   pauseDemoBtn.addEventListener('click', openPauseDemo);
+  pauseLevelSelectBtn.addEventListener('click', abandonToLevelSelect);
   pauseQuitBtn.addEventListener('click', quitAndCashOut);
   shopBtn.addEventListener('click', () => openShop(false));
   endShopBtn.addEventListener('click', () => openShop(true));
@@ -4680,7 +5082,7 @@
       return;
     }
     closeDemo(true);
-    resetState();
+    openLevelSelect(false);
   });
   settingsBtn.addEventListener('click', openSettings);
   settingsBackBtn.addEventListener('click', closeSettings);
@@ -4744,6 +5146,8 @@
   renderItemShop();
   updateItemDock();
   updateUpgradeStatus();
+  updateCampaignButtons();
+  renderLevelSelect();
   // Do not auto-open the demo in publisher iframes: it can interrupt fast starters.
   // The HOW TO PLAY demo remains available from the start and pause menus.
   cancelAutoDemo();
