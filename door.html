@@ -3,14 +3,27 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Button Panic: Meltdown Panel</title>
+<meta name="description" content="Reactor Panic: a fast vertical meltdown-control arcade game about reading commands, hitting the right controls, and keeping the reactor alive." />
+<meta name="theme-color" content="#0a0b10" />
+<title>Reactor Panic: Meltdown Control</title>
 <script>
 (() => {
   const root = document.documentElement;
   const setAppViewport = () => {
     const vv = window.visualViewport;
     const height = Math.max(480, Math.floor(vv?.height || window.innerHeight || document.documentElement.clientHeight));
+    const width = Math.max(320, Math.floor(vv?.width || window.innerWidth || document.documentElement.clientWidth));
+
+    // Desktop / CrazyGames iframe stage: close to the screenshot size, about 13.5:16.
+    // This keeps the game tall, but not too narrow, with side margins inside the 16:9 frame.
+    const stageRatioW = 13.5;
+    const stageRatioH = 16;
+    const desktopStageHeight = Math.max(480, Math.min(height, 900, Math.floor(width * 0.96 * stageRatioH / stageRatioW)));
+    const desktopStageWidth = Math.floor(desktopStageHeight * stageRatioW / stageRatioH);
+
     root.style.setProperty('--app-height', `${height}px`);
+    root.style.setProperty('--stage-width', `${desktopStageWidth}px`);
+    root.style.setProperty('--stage-height', `${desktopStageHeight}px`);
     root.style.setProperty('--safe-bottom', 'env(safe-area-inset-bottom, 0px)');
     root.style.setProperty('--safe-top', 'env(safe-area-inset-top, 0px)');
   };
@@ -24,6 +37,8 @@
 <style>
   :root{
     --app-height:100dvh;
+    --stage-width:760px;
+    --stage-height:900px;
     --safe-bottom:env(safe-area-inset-bottom, 0px);
     --safe-top:env(safe-area-inset-top, 0px);
     --bg:#0a0b10;
@@ -51,13 +66,16 @@
     background:#06070b;
     font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
     color:var(--text);
+    overscroll-behavior:none;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:geometricPrecision;
   }
   body{
     display:flex;
     justify-content:center;
     align-items:center;
   }
-  button{font:inherit}
+  button{font:inherit;touch-action:manipulation}
   .phone{
     position:relative;
     width:min(100vw,430px);
@@ -728,6 +746,7 @@
     padding:22px;
     background:rgba(5,6,10,.70);
     backdrop-filter:blur(10px);
+    overscroll-behavior:contain;
   }
   .card{
     width:100%;
@@ -921,15 +940,7 @@
   #pauseOverlay .pauseCard{
     overscroll-behavior:contain;
   }
-  #shopOverlay .shopList{max-height:min(31vh,260px)}
-  #shopOverlay .itemShopList{
-    max-height:min(27vh,230px);
-    overflow:auto;
-    padding-right:2px;
-  }
   @media (max-height:760px){
-    #shopOverlay .shopList{max-height:27vh}
-    #shopOverlay .itemShopList{max-height:24vh}
     .pauseStats{grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
     .pauseStat{min-height:46px;padding:7px 6px}
     .pauseStat b{font-size:15px}
@@ -1139,6 +1150,236 @@
     border-color:rgba(255,212,71,.42);
     box-shadow:0 0 22px rgba(255,212,71,.12), inset 0 1px 0 rgba(255,255,255,.12);
   }
+
+  /* Shop overlay polish */
+  #shopOverlay{
+    padding:12px;
+  }
+  .shopCard{
+    position:relative;
+    width:min(94vw,440px);
+    max-width:440px;
+    height:min(84vh,760px);
+    max-height:calc(var(--app-height, 100dvh) - 24px);
+    min-height:min(560px, calc(var(--app-height, 100dvh) - 24px));
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden!important;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(120,105,255,.18), transparent 34%),
+      radial-gradient(circle at 50% 100%, rgba(255,49,89,.10), transparent 38%),
+      linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.035)),
+      #121827;
+    border:1px solid rgba(146,162,255,.24);
+    box-shadow:0 30px 70px rgba(0,0,0,.58),0 0 34px rgba(73,167,255,.08),inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  .shopCard::before{
+    content:"";
+    position:absolute;
+    inset:10px;
+    border-radius:20px;
+    border:1px solid rgba(126,152,255,.10);
+    pointer-events:none;
+    z-index:0;
+  }
+  .shopScroll{
+    position:relative;
+    z-index:1;
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+    padding:20px 18px 16px;
+    scrollbar-gutter:stable;
+  }
+  .shopFooter{
+    position:relative;
+    z-index:2;
+    flex:0 0 auto;
+    padding:10px 18px 16px;
+    background:linear-gradient(180deg,rgba(18,24,39,0),rgba(18,24,39,.92) 24%,#121827 58%);
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  #shopOverlay .card h1{
+    font-size:27px;
+    letter-spacing:1px;
+    text-shadow:0 4px 18px rgba(122,134,255,.22);
+    margin:0 0 8px;
+  }
+  #shopCoins{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    margin:0 auto 12px;
+    padding:8px 15px;
+    border-radius:999px;
+    background:rgba(15,20,36,.75);
+    border:1px solid rgba(255,255,255,.12);
+    color:#fff4bc;
+    font-size:14px;
+    font-weight:1000;
+    box-shadow:0 10px 22px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  #shopCoins::before{
+    content:"🪙";
+    font-size:16px;
+    line-height:1;
+  }
+  #shopOverlay .shopSectionTitle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:15px 0 6px;
+    color:#ffd8ff;
+    font-size:13px;
+    letter-spacing:1.25px;
+    text-transform:uppercase;
+  }
+  #shopOverlay .shopSectionTitle::before{
+    content:"";
+    width:10px;
+    height:10px;
+    border-radius:3px;
+    background:linear-gradient(135deg,#6fafff,#c06bff 60%,#ff5f92);
+    box-shadow:0 0 16px rgba(166,107,255,.55);
+  }
+  #shopOverlay .shopSectionTitle::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:linear-gradient(90deg,rgba(194,117,255,.45),rgba(255,255,255,0));
+  }
+  #shopOverlay .shopSectionNote{
+    margin:0 0 8px;
+    font-size:11px;
+    line-height:1.4;
+    color:#b8c1d8;
+  }
+  #shopOverlay .shopSectionNote b{color:#fff;}
+  #shopOverlay .shopList,
+  #shopOverlay .itemShopList{
+    display:grid;
+    gap:10px;
+    margin:8px 0 14px;
+    max-height:none;
+    overflow:visible;
+    padding-right:0;
+  }
+  #shopOverlay .upgradeItem{
+    position:relative;
+    overflow:hidden;
+    border-radius:18px;
+    padding:12px 13px 13px;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03)),
+      linear-gradient(135deg,rgba(59,76,122,.36),rgba(84,32,78,.22));
+    border:1px solid rgba(162,177,255,.18);
+    box-shadow:0 14px 26px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  #shopOverlay .upgradeItem::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.05),transparent);
+    transform:translateX(-100%);
+    pointer-events:none;
+  }
+  #shopOverlay .upgradeItem:hover::before{
+    transform:translateX(100%);
+    transition:transform .8s ease;
+  }
+  #shopOverlay .upgradeTop{
+    align-items:flex-start;
+    margin-bottom:7px;
+    font-size:14px;
+    color:#fff;
+  }
+  #shopOverlay .upgradeTop > span:first-child{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+    text-shadow:0 2px 12px rgba(73,167,255,.16);
+  }
+  #shopOverlay .upgradeTop > span:last-child{
+    color:#f6f7ff;
+    white-space:nowrap;
+  }
+  #shopOverlay .upgradeItem p{
+    margin:0 0 10px;
+    font-size:12px;
+    line-height:1.45;
+    color:#c5cde0;
+  }
+  #shopOverlay .shopTag{
+    padding:3px 8px;
+    border-radius:999px;
+    font-size:9.5px;
+    background:rgba(255,212,71,.10);
+    border:1px solid rgba(255,212,71,.28);
+    color:#fff0a8;
+  }
+  #shopOverlay .upgradeBuy{
+    width:100%;
+    min-height:44px;
+    border-radius:13px;
+    border:1px solid rgba(255,255,255,.20);
+    color:#fff;
+    font-size:14px;
+    font-weight:1000;
+    background:linear-gradient(90deg,#2d6bff 0%,#7b5dff 42%,#ff2f72 100%);
+    box-shadow:0 10px 20px rgba(255,49,89,.16),inset 0 1px 0 rgba(255,255,255,.22);
+  }
+  #shopOverlay .upgradeBuy:disabled{
+    background:linear-gradient(90deg,rgba(56,72,110,.82),rgba(120,64,108,.76));
+    color:rgba(255,255,255,.72);
+    opacity:.95;
+    filter:none;
+    box-shadow:none;
+  }
+  #shopOverlay .upgradeItem.recommended{
+    border-color:rgba(255,212,71,.46);
+    box-shadow:0 0 28px rgba(255,212,71,.10),0 14px 26px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  #shopOverlay #shopBackBtn{
+    position:static;
+    width:100%;
+    margin:0;
+    min-height:50px;
+    border-radius:15px;
+    box-shadow:0 12px 24px rgba(255,49,89,.18),inset 0 1px 0 rgba(255,255,255,.24);
+  }
+  .shopScroll::-webkit-scrollbar{width:8px;}
+  .shopScroll::-webkit-scrollbar-track{background:rgba(255,255,255,.04);border-radius:999px;}
+  .shopScroll::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#7765ff,#ff4c88);border-radius:999px;border:2px solid rgba(16,20,32,.9);}
+  @media (max-width:430px){
+    #shopOverlay{padding:8px;}
+    .shopCard{
+      width:calc(100vw - 16px);
+      height:min(86vh,720px);
+      max-height:calc(var(--app-height,100dvh) - 16px);
+      min-height:min(520px,calc(var(--app-height,100dvh) - 16px));
+      border-radius:24px;
+    }
+    .shopScroll{padding:17px 14px 14px;}
+    .shopFooter{padding:9px 14px 13px;}
+    #shopOverlay .card h1{font-size:23px;}
+    #shopOverlay .upgradeItem{padding:11px 11px 12px;}
+    #shopOverlay .upgradeTop{font-size:13.5px;}
+    #shopOverlay .upgradeBuy{min-height:43px;font-size:13.5px;}
+  }
+  @media (max-height:650px){
+    .shopCard{
+      height:calc(var(--app-height,100dvh) - 12px);
+      max-height:calc(var(--app-height,100dvh) - 12px);
+      min-height:0;
+    }
+    .shopScroll{padding-top:14px;}
+    .shopFooter{padding-bottom:10px;}
+  }
   .demoPanel{
     position:relative;
     margin:15px auto 4px;
@@ -1329,8 +1570,11 @@
   }
   @media (min-width:700px){
     .phone{
-      width:min(92vw,760px);
-      height:min(var(--app-height, 100dvh),900px);
+      width:var(--stage-width);
+      height:var(--stage-height);
+      max-width:96vw;
+      max-height:var(--app-height, 100dvh);
+      aspect-ratio:13.5 / 16;
       border-radius:28px;
     }
     .machine{left:18px;right:18px}
@@ -1399,15 +1643,520 @@
   @media (prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   }
+
+  /* CrazyGames review packaging: keeps the original vertical game intact, but gives desktop iframes a finished reactor-control presentation. */
+  .phone{z-index:1}
+  .brand .cn{color:#fff6bf;text-shadow:0 0 18px rgba(255,212,71,.26)}
+  .startCard h1,
+  #endOverlay h1{
+    text-shadow:0 5px 0 rgba(0,0,0,.28),0 0 26px rgba(255,70,88,.34),0 0 18px rgba(73,167,255,.18);
+  }
+  .startCard::after{
+    content:"REACTOR CORE ONLINE";
+    display:inline-flex;
+    margin-top:10px;
+    padding:5px 10px;
+    border-radius:999px;
+    color:#6cf0a4;
+    background:rgba(108,240,164,.09);
+    border:1px solid rgba(108,240,164,.22);
+    font-size:10px;
+    font-weight:1000;
+    letter-spacing:1.2px;
+  }
+  @media (min-width:900px){
+    .phone{
+      box-shadow:0 30px 80px rgba(0,0,0,.58),0 0 0 1px rgba(255,255,255,.08),0 0 50px rgba(255,70,88,.14);
+    }
+  }
+  @media (max-width:420px){
+    .instruction{font-size:clamp(16px,5.1vw,21px)}
+  }
+
+  /* Publisher-ready visual pass: clearer arcade hierarchy, stronger desktop framing, and unified controls. */
+  :root{
+    --stage-edge:#30384b;
+    --stage-glow:rgba(67,162,255,.20);
+    --surface-1:rgba(17,22,34,.88);
+    --surface-2:rgba(28,35,52,.82);
+    --surface-3:rgba(7,10,17,.72);
+    --line-soft:rgba(190,213,255,.18);
+    --line-hot:rgba(255,212,71,.42);
+    --accent-cyan:#76d8ff;
+    --accent-gold:#ffe074;
+    --accent-red:#ff4963;
+    --accent-green:#65ee9e;
+    --radius-panel:18px;
+    --radius-card:16px;
+    --shadow-panel:0 22px 44px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  body{
+    background:
+      linear-gradient(90deg, rgba(255,212,71,.06) 0 1px, transparent 1px 10%),
+      linear-gradient(180deg,#080b12 0%,#101827 46%,#070910 100%);
+  }
+  body::before,
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+  }
+  body::before{
+    background:
+      linear-gradient(90deg, transparent 0 calc(50% - 340px), rgba(118,216,255,.10) calc(50% - 340px), transparent calc(50% - 338px), transparent calc(50% + 338px), rgba(255,212,71,.10) calc(50% + 338px), transparent calc(50% + 340px)),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 18px);
+    opacity:.78;
+  }
+  body::after{
+    background:linear-gradient(180deg, rgba(118,216,255,.08), transparent 22%, transparent 76%, rgba(255,73,99,.12));
+    mix-blend-mode:screen;
+  }
+  .phone{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.045), transparent 18%),
+      radial-gradient(ellipse at 50% -12%, rgba(255,212,71,.24), transparent 38%),
+      radial-gradient(ellipse at 8% 84%, rgba(118,216,255,.16), transparent 34%),
+      linear-gradient(180deg,#182030 0%,#0d111b 58%,#070a11 100%);
+    border:1px solid var(--stage-edge);
+    box-shadow:0 30px 76px rgba(0,0,0,.58), 0 0 0 1px rgba(255,255,255,.07), 0 0 54px var(--stage-glow);
+  }
+  .phone::before{
+    background:
+      linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:28px 28px;
+    opacity:.84;
+  }
+  .top{
+    padding:14px 14px 9px;
+    background:linear-gradient(180deg, rgba(10,14,24,.72), rgba(10,14,24,.18) 92%, transparent);
+  }
+  .titleRow{
+    align-items:center;
+  }
+  .brand{
+    min-width:132px;
+    padding:7px 10px 8px;
+    border-radius:var(--radius-card);
+    background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.035)),rgba(8,11,18,.58);
+    border:1px solid var(--line-soft);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  .brand .cn{
+    font-size:19px;
+    letter-spacing:.8px;
+  }
+  .brand .en{
+    color:#b8c6df;
+    letter-spacing:1.6px;
+  }
+  .hud{
+    gap:7px;
+    width:min(68vw,404px);
+  }
+  .pill{
+    min-height:46px;
+    padding:7px 7px 6px;
+    border-radius:14px;
+    background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.045)), var(--surface-3);
+    border:1px solid var(--line-soft);
+    box-shadow:0 12px 22px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  .pill b{
+    color:#fff;
+    font-size:15px;
+    text-shadow:0 0 14px rgba(118,216,255,.18);
+  }
+  .pill span{
+    color:#aeb9cf;
+    font-size:9px;
+    font-weight:950;
+    letter-spacing:.7px;
+    text-transform:uppercase;
+  }
+  .energyPill b{color:var(--accent-gold)}
+  .coinPill b{color:#fff1a4}
+  .stabilityPanel,
+  .instructionBox,
+  .machine,
+  .bottom,
+  .card,
+  .upgradeItem,
+  .settingItem,
+  .pauseStat,
+  .pauseItems,
+  .upgradeStatus,
+  .taskStatus,
+  .endAdvice,
+  .nextGoal{
+    border-color:var(--line-soft);
+  }
+  .stabilityPanel{
+    margin-top:9px;
+    border-radius:var(--radius-panel);
+    background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.025)), var(--surface-3);
+    box-shadow:var(--shadow-panel);
+  }
+  .stabilityLabel{
+    color:#d9e5fb;
+    letter-spacing:.7px;
+  }
+  .stabilityTrack,
+  .timerShell{
+    background:rgba(2,4,9,.58);
+    border-color:rgba(255,255,255,.14);
+  }
+  .instructionBox{
+    border-radius:var(--radius-panel);
+    background:
+      linear-gradient(90deg, rgba(118,216,255,.10), transparent 24%, transparent 76%, rgba(255,73,99,.10)),
+      linear-gradient(180deg, rgba(255,255,255,.105), rgba(255,255,255,.035)),
+      var(--surface-1);
+    box-shadow:var(--shadow-panel), 0 0 30px rgba(118,216,255,.08);
+  }
+  .instructionBox::after{
+    content:"COMMAND";
+    position:absolute;
+    left:12px;
+    top:9px;
+    padding:2px 7px;
+    border-radius:999px;
+    color:#09111d;
+    background:linear-gradient(90deg,var(--accent-cyan),#b7f2ff);
+    font-size:9px;
+    font-weight:1000;
+    letter-spacing:1px;
+    box-shadow:0 0 18px rgba(118,216,255,.30);
+  }
+  .instruction{
+    min-height:76px;
+    padding-top:21px;
+    font-size:24px;
+    letter-spacing:.2px;
+  }
+  .subTip{
+    color:#c9d3e8;
+    font-weight:760;
+  }
+  .machine{
+    border-radius:24px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.09), transparent 20%),
+      linear-gradient(180deg,#343d52 0%,#1d2536 48%,#111722 100%);
+    border-color:rgba(190,213,255,.24);
+    box-shadow:0 28px 58px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.18), inset 0 -30px 46px rgba(0,0,0,.28);
+  }
+  .machine::after{
+    inset:12px;
+    border-radius:17px;
+    border-style:solid;
+    border-color:rgba(190,213,255,.12);
+  }
+  .buttonZone{
+    top:56px;
+    bottom:22px;
+  }
+  .gameBtn{
+    border:1px solid rgba(255,255,255,.22);
+    letter-spacing:.2px;
+    box-shadow:
+      0 11px 0 rgba(0,0,0,.42),
+      0 18px 28px rgba(0,0,0,.32),
+      0 0 0 7px rgba(5,8,14,.34),
+      inset 0 5px 5px rgba(255,255,255,.30),
+      inset 0 -12px 12px rgba(0,0,0,.26);
+  }
+  .gameBtn::after{
+    inset:10%;
+    border-color:rgba(255,255,255,.24);
+  }
+  .gameBtn:hover{
+    filter:brightness(1.12) saturate(1.08);
+  }
+  .bottom{
+    height:50px;
+    padding:4px;
+    border-radius:18px;
+    background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.035)),rgba(6,9,15,.66);
+    border:1px solid var(--line-soft);
+    box-shadow:0 16px 32px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.12);
+    backdrop-filter:blur(10px);
+  }
+  .ctrl,
+  .bigBtn,
+  .upgradeBuy,
+  .settingToggle,
+  .itemBtn{
+    transition:transform .16s ease, filter .16s ease, border-color .16s ease, box-shadow .16s ease;
+  }
+  .ctrl{
+    border-radius:14px;
+    background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.035)),#1c2434;
+    border:1px solid var(--line-soft);
+    box-shadow:0 8px 18px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.14);
+    letter-spacing:.5px;
+  }
+  .ctrl:hover,
+  .bigBtn:hover,
+  .upgradeBuy:hover:not(:disabled),
+  .settingToggle:hover,
+  .itemBtn:hover:not(:disabled){
+    filter:brightness(1.08);
+    transform:translateY(-1px);
+  }
+  .ctrl:active,
+  .bigBtn:active,
+  .upgradeBuy:active:not(:disabled),
+  .settingToggle:active,
+  .itemBtn:active:not(:disabled){
+    transform:translateY(1px);
+  }
+  .ctrl.primary{
+    background:linear-gradient(135deg,#4c8dff 0%,#786dff 48%,#ff4d75 100%);
+  }
+  .powerBtn{
+    background:linear-gradient(135deg,#fff189 0%,#ffb143 100%);
+    border-color:rgba(255,224,116,.46);
+  }
+  .overlay{
+    background:rgba(3,5,10,.74);
+    backdrop-filter:blur(12px) saturate(1.08);
+  }
+  .card{
+    border-radius:var(--radius-card);
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.045)),
+      linear-gradient(135deg,rgba(118,216,255,.08),rgba(255,73,99,.08)),
+      #131a28;
+    border:1px solid rgba(190,213,255,.22);
+    box-shadow:0 30px 70px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.12);
+  }
+  .card h1{
+    color:#fff7c2;
+    letter-spacing:.7px;
+  }
+  .rules,
+  .upgradeItem,
+  .settingItem,
+  .pauseStat,
+  .pauseItems,
+  .upgradeStatus,
+  .taskStatus,
+  .endAdvice,
+  .nextGoal{
+    background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025)),rgba(7,11,19,.48);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .bigBtn{
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:14px;
+    background:linear-gradient(90deg,#357fff 0%,#786dff 44%,#ff3f73 100%);
+    box-shadow:0 14px 26px rgba(255,63,115,.20), inset 0 1px 0 rgba(255,255,255,.24);
+    letter-spacing:.35px;
+  }
+  .startQuickActions .quickBtn,
+  .pauseActionsGrid .bigBtn{
+    background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04)),#1b2435;
+  }
+  .shopCard{
+    border-radius:var(--radius-card);
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.035)),
+      linear-gradient(135deg,rgba(118,216,255,.10),rgba(255,73,99,.08)),
+      #121827;
+  }
+  #shopCoins::before{
+    content:"COINS";
+    font-size:10px;
+    letter-spacing:1px;
+    color:#ffefa3;
+  }
+  .shopTag,
+  .rankBadge,
+  .itemCount{
+    border-color:var(--line-hot);
+  }
+  .itemBtn{
+    font-size:12px;
+    letter-spacing:.3px;
+  }
+  .feedback,
+  .comboBurst{
+    text-wrap:balance;
+  }
+  @media (min-width:700px){
+    .phone{
+      border-radius:24px;
+    }
+    .top{
+      padding:16px 18px 10px;
+    }
+    .machine{
+      left:20px;
+      right:20px;
+      top:262px;
+    }
+    .bottom{
+      left:20px;
+      right:20px;
+    }
+  }
+  @media (min-width:900px){
+    .phone{
+      box-shadow:0 34px 86px rgba(0,0,0,.64), 0 0 0 1px rgba(255,255,255,.08), 0 0 70px rgba(67,162,255,.18);
+    }
+    .phone::after{
+      opacity:.18;
+    }
+  }
+  @media (max-width:699px){
+    body::before,
+    body::after{
+      opacity:.35;
+    }
+    .brand{
+      min-width:112px;
+      padding:6px 8px;
+    }
+    .brand .cn{
+      font-size:17px;
+    }
+    .hud{
+      gap:5px;
+    }
+    .pill{
+      min-height:42px;
+      border-radius:12px;
+    }
+    .bottom{
+      border-radius:999px;
+    }
+    .bottom .ctrl{
+      border-radius:50%;
+      font-size:12px;
+      font-weight:1000;
+    }
+    .bottom .powerBtn{
+      border-radius:18px;
+      font-size:10px;
+    }
+    .machine{
+      bottom:calc(12px + var(--safe-bottom));
+    }
+  }
+  @media (max-width:430px) and (max-height:680px){
+    .instructionBox::after{
+      top:7px;
+      left:10px;
+      font-size:8px;
+    }
+    .instruction{
+      padding-top:18px;
+    }
+    .buttonZone{
+      top:50px;
+      bottom:18px;
+    }
+  }
+  @media (max-width:699px){
+    .itemDock{
+      bottom:calc(64px + var(--safe-bottom));
+    }
+    .bottom{
+      max-width:calc(100vw - 16px);
+      justify-content:flex-end;
+      gap:5px;
+    }
+    .bottom .ctrl{
+      flex:0 0 auto;
+      width:auto;
+      min-width:46px;
+      min-height:38px;
+      padding:0 9px;
+      border-radius:999px;
+      font-size:10px;
+      line-height:1;
+    }
+    .bottom .primary{
+      min-width:64px;
+    }
+    .bottom .powerBtn{
+      min-width:52px;
+      width:auto;
+      padding:0 9px;
+      border-radius:999px;
+      font-size:9px;
+    }
+    .soundToggle{
+      min-width:43px;
+      width:auto;
+    }
+  }
+  @media (max-width:360px){
+    .bottom{
+      gap:4px;
+      padding:4px;
+    }
+    .bottom .ctrl{
+      min-width:42px;
+      padding:0 7px;
+      font-size:9px;
+    }
+    .bottom .primary{
+      min-width:58px;
+    }
+    .bottom .powerBtn{
+      min-width:48px;
+      padding:0 7px;
+      font-size:8px;
+    }
+  }
+
+
+  /* Targeted bug fixes: short CrazyGames frames and overlay accessibility. */
+  .coinBadge{display:none;}
+  #settingsOverlay .card,
+  #demoOverlay .card,
+  #endOverlay .card,
+  #reviveOverlay .card{
+    max-height:calc(var(--app-height, 100dvh) - 44px);
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior:contain;
+  }
+  @media (min-width:700px) and (max-height:600px){
+    .top{padding:8px 14px 5px;}
+    .brand{min-width:112px;padding:5px 8px 6px;}
+    .brand .cn{font-size:16px;}
+    .brand .en{font-size:8px;margin-top:3px;}
+    .hud{gap:5px;}
+    .pill{min-height:36px;padding:4px 5px;border-radius:11px;}
+    .pill b{font-size:12px;}
+    .pill span{font-size:8px;margin-top:2px;}
+    .stabilityPanel{margin-top:6px;padding:5px 8px 7px;}
+    .stabilityLabel{margin-bottom:5px;font-size:10px;}
+    .stabilityLabel b{font-size:12px;}
+    .stabilityTrack{height:11px;}
+    .instructionBox{margin-top:6px;border-radius:15px;}
+    .instructionBox::after{top:6px;font-size:8px;}
+    .instruction{min-height:54px;padding:17px 12px 7px;font-size:19px;}
+    .subTip{padding:0 10px 7px;font-size:10px;line-height:1.25;}
+    .timerShell{margin-top:5px;height:9px;}
+    .machine{top:205px;bottom:62px;}
+    .buttonZone{top:44px;bottom:14px;}
+    .feverBanner{top:169px;height:28px;font-size:11px;}
+    .bottom{bottom:7px;height:45px;}
+  }
 </style>
 </head>
 <body>
-  <main class="phone" id="phone">
-    <section class="top">
+  <main class="phone" id="phone" aria-label="Reactor Panic game">
+    <section class="top" aria-label="Status and command panel">
       <div class="titleRow">
         <div class="brand">
-          <div class="cn">BUTTON PANIC</div>
-          <div class="en">MELTDOWN PANEL</div>
+          <div class="cn">REACTOR PANIC</div>
+          <div class="en">MELTDOWN CONTROL</div>
         </div>
         <div class="hud">
           <div class="pill"><b id="score">0</b><span>SCORE</span></div>
@@ -1429,7 +2178,7 @@
       </div>
 
       <div class="instructionBox">
-        <div class="instruction" id="instruction">MELTDOWN PANEL ARMED</div>
+        <div class="instruction" id="instruction">PANEL ARMED</div>
         <div class="subTip" id="subTip">Read the command. The buttons lie.</div>
       </div>
 
@@ -1438,10 +2187,10 @@
       </div>
     </section>
 
-    <div class="feverBanner" id="feverBanner">FEVER REPAIR</div>
+    <div class="feverBanner" id="feverBanner">FEVER MODE</div>
     <div class="coinBadge" id="coinBadge">Coins 0</div>
 
-    <section class="machine" id="machine">
+    <section class="machine" id="machine" aria-label="Reactor controls">
       <div class="consoleDecor">
         <span class="screw s1"></span><span class="screw s2"></span><span class="screw s3"></span><span class="screw s4"></span>
         <span class="gauge left"></span><span class="gauge right"></span>
@@ -1459,59 +2208,63 @@
     <div class="mechanicToast hidden" id="mechanicToast"></div>
     <div class="itemDock hidden" id="itemDock" aria-label="Run items"></div>
 
-    <section class="bottom">
-      <button class="ctrl powerBtn hidden" id="scanBtn">SCAN</button>
-      <button class="ctrl powerBtn hidden" id="slowBtn">SLOW-MO</button>
-      <button class="ctrl" id="pauseBtn" title="Pause / Resume">⏸</button>
-      <button class="ctrl primary" id="restartBtn" title="Restart">↻</button>
-      <button class="ctrl soundToggle" id="soundBtn" title="SOUND">🔊</button>
+      <section class="bottom" aria-label="Run controls">
+        <button class="ctrl powerBtn hidden" id="scanBtn">SCAN</button>
+        <button class="ctrl powerBtn hidden" id="slowBtn">SLOW-MO</button>
+        <button class="ctrl" id="pauseBtn" title="Pause / Resume" aria-label="Pause or resume">PAUSE</button>
+        <button class="ctrl primary" id="restartBtn" title="Restart" aria-label="Restart run">RESTART</button>
+        <button class="ctrl soundToggle" id="soundBtn" title="SOUND" aria-label="Toggle sound">SND</button>
     </section>
 
     <div class="overlay" id="startOverlay">
       <div class="card startCard">
-        <h1>BUTTON PANIC</h1>
-        <p>Read the command, hit the right buttons, keep the console alive.</p>
+        <h1>REACTOR PANIC</h1>
+        <p>Keep the reactor alive. Read the command. Hit the right controls.</p>
         <div class="rules compactRules">
-          The first 20 rounds teach the rules. Round 21 starts endless meltdown mode.<br>
-          Every 5th round gives breathing room. Every 10th round is a Supply Round.
+          Survive the meltdown, earn coins, upgrade the console.<br>
+          Every 5th round gives breathing room. Every 10th round drops supplies.
         </div>
         <div class="walletLine" id="startCoins">Coins: 0</div>
         <div class="upgradeStatus" id="upgradeStatus"></div>
         <div class="taskStatus" id="taskStatus"></div>
-        <button class="bigBtn" id="startBtn">Start the Meltdown</button>
+        <button class="bigBtn" id="startBtn">PLAY</button>
         <div class="startQuickActions">
-          <button class="bigBtn quickBtn" id="shopBtn">SHOP</button>
-          <button class="bigBtn quickBtn" id="demoBtn">DEMO</button>
+          <button class="bigBtn quickBtn" id="shopBtn">UPGRADES</button>
+          <button class="bigBtn quickBtn" id="demoBtn">HOW TO PLAY</button>
           <button class="bigBtn quickBtn" id="settingsBtn">SETTINGS</button>
         </div>
-        <div class="smallText">Built for vertical mobile play. Mouse clicks work on desktop too.</div>
+        <div class="smallText">Survive the meltdown. Upgrade the console. Push deeper into overdrive.</div>
       </div>
     </div>
 
     <div class="overlay hidden" id="shopOverlay">
-      <div class="card">
-        <h1>UPGRADES & ITEMS</h1>
-        <p id="shopCoins">Coins: 0</p>
-        <div class="shopSectionTitle">PERMANENT UPGRADES</div>
-        <div class="shopSectionNote"><b>Buy once, keep forever.</b> These improve every future run.</div>
-        <div class="shopList" id="shopList"></div>
-        <div class="shopSectionTitle">CONSUMABLE ITEMS</div>
-        <div class="shopSectionNote"><b>Stock up, then spend during a run.</b> These are emergency tools with per-run use limits.</div>
-        <div class="itemShopList" id="itemShopList"></div>
-        <button class="bigBtn" id="shopBackBtn">BACK</button>
+      <div class="card shopCard">
+        <div class="shopScroll">
+          <h1>CONSOLE UPGRADES</h1>
+          <p id="shopCoins">Coins: 0</p>
+          <div class="shopSectionTitle">PERMANENT UPGRADES</div>
+          <div class="shopSectionNote"><b>Buy once, keep forever.</b> These improve every future run.</div>
+          <div class="shopList" id="shopList"></div>
+          <div class="shopSectionTitle">CONSUMABLE ITEMS</div>
+          <div class="shopSectionNote"><b>Stock up, then spend during a run.</b> These are emergency tools with per-run use limits.</div>
+          <div class="itemShopList" id="itemShopList"></div>
+        </div>
+        <div class="shopFooter">
+          <button class="bigBtn" id="shopBackBtn">BACK</button>
+        </div>
       </div>
     </div>
 
     <div class="overlay hidden" id="demoOverlay">
       <div class="card">
         <h1>HOW TO PLAY</h1>
-        <p>Read the command at the top, then press the matching button. Correct hits score points; coins buy console upgrades.</p>
+        <p>Read the command at the top, then press the matching control. Correct hits stabilize the reactor and earn points; coins buy console upgrades.</p>
         <div class="demoPanel">
-          <div class="demoTip">Tip: Press GREEN</div>
+          <div class="demoTip">COOLANT VALVE: Press GREEN</div>
           <div class="demoButton">GREEN</div>
           <div class="demoScore">+100</div>
         </div>
-        <button class="bigBtn" id="demoStartBtn">Got it — Start</button>
+        <button class="bigBtn" id="demoStartBtn">Got it - Play</button>
         <button class="bigBtn" id="demoCloseBtn">BACK</button>
       </div>
     </div>
@@ -1535,7 +2288,7 @@
     <div class="overlay hidden" id="pauseOverlay">
       <div class="card pauseCard">
         <h1 class="pauseTitle">PAUSED</h1>
-        <p class="pauseSub">System frozen. Take a breath.</p>
+        <p class="pauseSub">System paused. Catch your breath.</p>
         <div class="pauseStats" id="pauseStats"></div>
         <div class="pauseItems" id="pauseItems"></div>
         <div class="pauseActions">
@@ -1559,10 +2312,10 @@
 
     <div class="overlay hidden" id="reviveOverlay">
       <div class="card">
-        <h1>Emergency Reboot?</h1>
+        <h1>Emergency Reactor Reboot?</h1>
         <p>Spend 30 coins to restore 35% stability. Once per run.</p>
         <div class="reviveActions">
-          <button class="bigBtn" id="reviveBtn">Spend 30 Coins to Reboot</button>
+          <button class="bigBtn" id="reviveBtn">Spend 30 Coins to Reboot Reactor</button>
           <button class="ctrl" id="giveUpBtn">Give Up and Cash Out</button>
         </div>
       </div>
@@ -1570,10 +2323,10 @@
 
     <div class="overlay hidden" id="endOverlay">
       <div class="card">
-        <h1 id="endTitle">PANEL EXPLODED</h1>
+        <h1 id="endTitle">REACTOR MELTDOWN</h1>
         <p id="endStats"></p>
-        <button class="bigBtn" id="endShopBtn">Upgrade & Stock Items</button>
-        <button class="bigBtn" id="againBtn">Run It Back</button>
+        <button class="bigBtn" id="endShopBtn">UPGRADE CONSOLE</button>
+        <button class="bigBtn" id="againBtn">TRY AGAIN</button>
       </div>
     </div>
   </main>
@@ -1751,15 +2504,15 @@
   };
 
   const ITEMS = {
-    shield:{name:'Shield', icon:'🛡', price:18, carryMax:2, describe:'Consumable. Manually arm it to block the next wrong press completely. Safety Fuse is separate: it auto-triggers and only reduces damage.'},
-    freeze:{name:'Freeze Timer', icon:'❄', price:18, carryMax:2, describe:'Consumable. Fully freezes the current round timer for 2 seconds. Stronger than Slow-Mo, but it spends stock.'},
-    scan:{name:'Emergency Scan', icon:'🔎', price:20, carryMax:2, describe:'Consumable. Adds an extra scanner use from stock and flashes one still-valid correct button for 0.5 seconds.'},
-    patch:{name:'Stability Patch', icon:'✚', price:24, carryMax:1, describe:'Consumable. Instantly restores 20% system stability, capped by your permanent max stability.'},
-    charge:{name:'Fever Charge', icon:'⚡', price:22, carryMax:1, describe:'Consumable. Adds 3 Fever energy, but it cannot directly trigger Fever by itself.'}
+    shield:{name:'Shield', icon:'SH', price:18, carryMax:2, describe:'Consumable. Manually arm it to block the next wrong press completely. Safety Fuse is separate: it auto-triggers and only reduces damage.'},
+    freeze:{name:'Freeze Timer', icon:'FR', price:18, carryMax:2, describe:'Consumable. Fully freezes the current round timer for 2 seconds. Stronger than Slow-Mo, but it spends stock.'},
+    scan:{name:'Emergency Scan', icon:'SC', price:20, carryMax:2, describe:'Consumable. Adds an extra scanner use from stock and flashes one still-valid correct button for 0.5 seconds.'},
+    patch:{name:'Stability Patch', icon:'PT', price:24, carryMax:1, describe:'Consumable. Instantly restores 20% system stability, capped by your permanent max stability.'},
+    charge:{name:'Fever Charge', icon:'CH', price:22, carryMax:1, describe:'Consumable. Adds 3 Fever energy, but it cannot directly trigger Fever by itself.'}
   };
   const ITEM_ORDER = ['shield','freeze','scan','patch','charge'];
   const labelsEarly = ['PRESS','NOPE','SAFE','DANGER','YES','NO','OK','RUN','STOP','HOLD'];
-  const labelsLate = ['WONT BLOW','LOOK AWAY','RIGHT ONE','TOP ONE','FAKE','NOT ME','PRESS FAST','WAIT','INVERTED','SAFE?'];
+  const labelsLate = ["WON'T BLOW",'LOOK AWAY','RIGHT ONE','TOP ONE','FAKE','NOT ME','PRESS FAST','WAIT','INVERTED','SAFE?'];
   const ruleText = {
     pressColor:'Shut down every RED alarm',
     avoidColor:'Avoid the overheated RED button. Press anything else.',
@@ -1797,6 +2550,7 @@
   const saveData = loadSave();
   let audioCtx = null;
   let shopReturnToEnd = false;
+  let autoDemoTimer = 0;
   let clearSaveArmed = false;
   let clearSaveTimer = 0;
   let pauseRestartArmed = false;
@@ -1932,7 +2686,7 @@
   }
 
   function updateSoundButton(){
-    soundBtn.textContent = saveData.soundOn ? '🔊' : '🔇';
+    soundBtn.textContent = saveData.soundOn ? 'SND' : 'OFF';
     soundBtn.setAttribute('aria-pressed', String(saveData.soundOn));
     updateSettingsUI();
   }
@@ -1988,6 +2742,7 @@
   }
 
   function openDemo(auto=false){
+    if(auto && (state.running || startOverlay.classList.contains('hidden'))) return;
     demoOverlay.classList.remove('hidden');
     if(auto) showMechanicToast('Watch the 5-second demo, then start.');
   }
@@ -2000,10 +2755,15 @@
     }
     if(pauseMenuReturnFromDemo && state.running && state.paused){
       pauseMenuReturnFromDemo = false;
-      demoStartBtn.textContent = 'Got it — Start';
+      demoStartBtn.textContent = 'Got it - Play';
       demoCloseBtn.textContent = 'BACK';
       showPauseOverlay();
     }
+  }
+
+  function cancelAutoDemo(){
+    clearTimeout(autoDemoTimer);
+    autoDemoTimer = 0;
   }
 
   function addCoins(amount){
@@ -2126,7 +2886,7 @@
       const btn = document.createElement('button');
       btn.className = 'upgradeBuy';
       btn.type = 'button';
-      btn.textContent = affordable ? `Stock +1 for ${item.price} Coins` : `Need ${item.price - saveData.coins} Coins`;
+      btn.textContent = affordable ? `Buy 1 for ${item.price} Coins` : `Need ${item.price - saveData.coins} Coins`;
       btn.disabled = !affordable;
       btn.addEventListener('click', () => buyItem(key));
       row.appendChild(btn);
@@ -2181,8 +2941,8 @@
       if(state.stability >= state.maxStability) return false;
       if(!consumeItem(key)) return false;
       addStability(BALANCE.patchStability);
-      showMechanicToast('Stability patched +20%');
-      showFeedback('Stability patched', 'good');
+      showMechanicToast('Patch Applied +20%');
+      showFeedback('Patch Applied', 'good');
       vibrate([10,16,10]);
     }
     if(key === 'charge'){
@@ -2190,7 +2950,7 @@
       if(!consumeItem(key)) return false;
       state.frenzyEnergy = Math.min(BALANCE.frenzyNeed - 1, state.frenzyEnergy + BALANCE.feverChargeAmount);
       showMechanicToast('+3 Fever energy');
-      showFeedback('Fever charged', 'warn');
+      showFeedback('Fever Charge +3', 'warn');
       vibrate(12);
     }
     updateHud();
@@ -2413,7 +3173,6 @@
       if(b.isForbidden) markButtonGlow(b.el, 'danger', BALANCE.answerRevealMs);
       else if(b.isTarget && b.el && !b.el.classList.contains('pressed')) markButtonGlow(b.el, 'correct', BALANCE.answerRevealMs);
     });
-    showMechanicToast(getCorrectAnswerText());
   }
 
   function describeWrongPress(btn){
@@ -2604,7 +3363,7 @@
   function pauseGame(showMenu=true){
     if(!state.running || state.resolving || state.paused) return;
     state.paused = true;
-    pauseBtn.textContent = '▶';
+    pauseBtn.textContent = 'RESUME';
     state.frenzyRemaining = state.frenzy ? Math.max(0, state.frenzyUntil - performance.now()) : 0;
     callCrazyGameplayStop();
     updatePowerButtons();
@@ -2616,7 +3375,7 @@
     resumeCountdownOverlay.classList.add('hidden');
     if(!state.running || !state.paused) return;
     state.paused = false;
-    pauseBtn.textContent = '⏸';
+    pauseBtn.textContent = 'PAUSE';
     state.roundStart = performance.now() - (state.timeLimit - state.remain);
     state.lastLoopAt = performance.now();
     if(state.frenzy) state.frenzyUntil = performance.now() + state.frenzyRemaining;
@@ -2675,12 +3434,13 @@
     resumeCountdownOverlay.classList.add('hidden');
     clearInterval(resumeCountdownTimer);
     state.paused = false;
-    pauseBtn.textContent = '⏸';
+    pauseBtn.textContent = 'PAUSE';
     state.lastFailureReason = 'Operator ended the run';
     endGame();
   }
 
   function resetState(){
+    cancelAutoDemo();
     state.running=true;
     state.paused=false;
     state.resolving=false;
@@ -2719,7 +3479,7 @@
     state.roundInputLockedUntil=0;
     state.lastFailureReason='System stability hit zero';
     shopReturnToEnd=false;
-    phone.classList.remove('frenzy','lowStability','shock','dangerFlash','shortCircuit','slowMotion','timerFrozen','itemShielded','reliefRound','supplyRound');
+    phone.classList.remove('frenzy','lowStability','shock','dangerFlash','shortCircuit','slowMotion','timerFrozen','itemShielded');
     updateHud();
     endOverlay.classList.add('hidden');
     startOverlay.classList.add('hidden');
@@ -2735,9 +3495,9 @@
     resetPauseRestartButton();
     pauseMenuReturnFromSettings = false;
     pauseMenuReturnFromDemo = false;
-    demoStartBtn.textContent = 'Got it — Start';
+    demoStartBtn.textContent = 'Got it - Play';
     demoCloseBtn.textContent = 'BACK';
-    pauseBtn.textContent='⏸';
+    pauseBtn.textContent='PAUSE';
     callCrazyGameplayStart();
     updatePowerButtons();
     nextRound();
@@ -2840,7 +3600,6 @@
       state.itemShieldActive = false;
       phone.classList.remove('itemShielded');
       showFeedback('Shield blocked the hit', 'warn');
-      showMechanicToast('Shield consumed: no stability lost');
     }else if(!isTimeout && getUpgradeLevel('fuse') > 0 && !state.fuseUsedThisRun){
       actualDamage = BALANCE.fuseWrongDamage;
       state.fuseUsedThisRun = true;
@@ -2892,7 +3651,7 @@
       showMechanicToast('Fever Mode: score doubled');
     }
     phone.classList.add('frenzy');
-    showFeedback('FEVER REPAIR', 'warn');
+    showFeedback('FEVER MODE', 'warn');
     playSound('frenzy');
     updateHud();
     vibrate([10,20,10]);
@@ -3088,13 +3847,13 @@
       state.paceBonusCoins += BALANCE.supplyCoinBonus;
       const dropLine = grantSupplyDrop();
       const healed = Math.round(state.stability - before);
-      const parts = [`Supply round: +${BALANCE.supplyCoinBonus} coins banked`];
+      const parts = [`Supply drop: +${BALANCE.supplyCoinBonus} coins banked`];
       if(healed > 0) parts.push(`+${healed}% stability`);
       if(dropLine) parts.push(dropLine);
       showMechanicToast(parts.join(' | '));
     }else if(config.pace?.relief){
       state.paceBonusCoins += BALANCE.reliefCoinBonus;
-      showMechanicToast(`Relief round: longer timer, fewer buttons, +${BALANCE.reliefCoinBonus} coin banked`);
+      showMechanicToast(`Cooling window: longer timer, fewer buttons, +${BALANCE.reliefCoinBonus} coin banked`);
     }
   }
 
@@ -3346,7 +4105,7 @@
     setTimeout(()=>btn.el.classList.remove('pop'),120);
     state.pressedTargets++;
     const result = scorePoint(el,100);
-    if(!result.recovered && state.combo % 5 !== 0) showFeedback(state.frenzy ? 'Overdrive hit' : 'Correct', 'good');
+    if(!result.recovered && state.combo % 5 !== 0) showFeedback(getThemedSuccessText(), 'good');
 
     if(state.pressedTargets >= state.neededTargets){
       state.resolving=true;
@@ -3379,13 +4138,45 @@
 
   function getStageSubTip(round, ruleSub){
     const prefix = [];
-    if(isSupplyRound(round)) prefix.push('SUPPLY ROUND: safer rule, longer timer, repair bonus.');
-    else if(isReliefRound(round)) prefix.push('RELIEF ROUND: longer timer and fewer buttons.');
+    if(isSupplyRound(round)) prefix.push('SUPPLY DROP: safer rule, longer timer, repair bonus.');
+    else if(isReliefRound(round)) prefix.push('COOLING WINDOW: longer timer and fewer buttons.');
     if(state.stability > 0 && state.stability < BALANCE.lowStabilityAssistThreshold) prefix.push('Emergency assist: timer +10%.');
     if(round >= 71) prefix.push('Reaction window is tiny.');
     else if(round >= 41) prefix.push('The buttons lie harder now.');
     prefix.push(ruleSub);
     return prefix.join(' ');
+  }
+
+
+
+  function getThemedRuleText(rule){
+    const base = rule?.text || ruleText[rule?.type] || 'Meltdown control';
+    const themedBase = base.replace('flashing buttons', 'flashing switches').replace('Moving', 'Loose');
+    if(rule?.type === 'pressColor') return `COOLANT VALVE: ${themedBase}`;
+    if(rule?.type === 'avoidColor' || rule?.type === 'reverseColor') return `OVERHEAT WARNING: ${themedBase}`;
+    if(rule?.type === 'pressFlash') return `POWER SURGE: ${themedBase}`;
+    if(rule?.type === 'pressBiggest') return `PRESSURE VALVE: ${themedBase}`;
+    if(rule?.type === 'pressSmallest') return `BACKUP SWITCH: ${themedBase}`;
+    if(rule?.type === 'pressLabel') return `ACCESS CODE: ${themedBase}`;
+    if(rule?.type === 'dontPressText') return `TEXT TRAP: ${themedBase}`;
+    if(rule?.type === 'fakeFlash') return `FAKE SIGNAL: ${themedBase}`;
+    if(rule?.type === 'movingTarget') return `LOOSE POWER CELL: ${themedBase}`;
+    return `MELTDOWN CONTROL: ${themedBase}`;
+  }
+
+  function getThemedSuccessText(){
+    if(state.frenzy) return 'Overdrive control locked';
+    const type = state.rule?.type;
+    if(type === 'pressColor') return 'Coolant restored';
+    if(type === 'avoidColor' || type === 'reverseColor') return 'Overheat avoided';
+    if(type === 'pressFlash') return 'Power surge contained';
+    if(type === 'pressBiggest') return 'Pressure valve sealed';
+    if(type === 'pressSmallest') return 'Backup switch armed';
+    if(type === 'pressLabel') return 'Access code accepted';
+    if(type === 'dontPressText') return 'Trap bypassed';
+    if(type === 'fakeFlash') return 'Fake signal ignored';
+    if(type === 'movingTarget') return 'Power cell locked';
+    return 'System stabilized';
   }
 
   function nextRound(){
@@ -3401,7 +4192,7 @@
     const rule = chooseRule(btns);
     state.rule = rule;
 
-    instructionEl.textContent = rule.text || ruleText[rule.type];
+    instructionEl.textContent = getThemedRuleText(rule);
     subTipEl.textContent = `Round ${state.round}  | ${getRank(state.round)} | ${getStageSubTip(state.round, rule.sub)}`;
     renderButtons(btns, rule);
     updateHud();
@@ -3489,10 +4280,10 @@
   }
 
   function getGameOverTitle(round){
-    if(round <= 10) return 'PANEL EXPLODED';
-    if(round <= 30) return 'Repair Failed';
-    if(round <= 60) return 'Pressure Collapse';
-    return 'Overdrive Failed';
+    if(round <= 10) return 'REACTOR MELTDOWN';
+    if(round <= 30) return 'REPAIR FAILED';
+    if(round <= 60) return 'CRITICAL REACTOR FAILURE';
+    return 'OVERDRIVE FAILED';
   }
 
   function tryRevive(){
@@ -3573,9 +4364,9 @@
     hidePauseOverlay();
     resumeCountdownOverlay.classList.add('hidden');
     clearInterval(resumeCountdownTimer);
-    pauseBtn.textContent = '⏸';
+    pauseBtn.textContent = 'PAUSE';
     exitFrenzy();
-    phone.classList.remove('slowMotion','timerFrozen','itemShielded','reliefRound','supplyRound');
+    phone.classList.remove('slowMotion','timerFrozen','itemShielded');
     updateHud();
     const recordFlags = updateRecords();
     state.coinsEarnedThisRun = calculateCoins(recordFlags);
@@ -3588,7 +4379,7 @@
     const {prev, newScore, newRound, newCombo} = recordFlags;
     const recordText = (newScore || newRound || newCombo) ? '<div class="recordNote">New record!</div>' : '';
     endTitle.textContent = getGameOverTitle(state.round);
-    endStats.innerHTML = `Failure: <b class="redText">${state.lastFailureReason}</b><br>
+    endStats.innerHTML = `Reactor status: <b class="redText">${state.lastFailureReason}</b><br>
       Coins earned: <b class="greenText">${state.coinsEarnedThisRun}</b> | Total coins: <b>${saveData.coins}</b><br>
       Score: <b class="greenText">${state.score}</b> | Best score: <b>${saveData.bestScore}</b>${newScore ? ` <span class="greenText">+${state.score - prev.score}</span>` : ''}<br>
       Rank: <b>${getRank(state.round)}</b><br>
@@ -3673,6 +4464,8 @@
     if(saveData.soundOn) playSound('correct');
   });
 
+  document.addEventListener('dragstart', (event) => event.preventDefault());
+
   document.addEventListener('visibilitychange', () => {
     if(document.hidden && state.running && !state.paused) pauseGame(true);
   });
@@ -3686,9 +4479,9 @@
   renderItemShop();
   updateItemDock();
   updateUpgradeStatus();
-  if(!saveData.demoSeen){
-    setTimeout(() => openDemo(true), 420);
-  }
+  // Do not auto-open the demo in publisher iframes: it can interrupt fast starters.
+  // The HOW TO PLAY demo remains available from the start and pause menus.
+  cancelAutoDemo();
 })();
 </script>
 </body>
